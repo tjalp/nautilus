@@ -1,18 +1,20 @@
 package net.tjalp.aquarium.listener
 
+import io.papermc.paper.event.player.AsyncChatDecorateEvent
 import me.neznamy.tab.api.event.Subscribe
 import me.neznamy.tab.api.event.player.PlayerLoadEvent
 import net.kyori.adventure.text.Component
+import net.kyori.adventure.text.TextComponent
 import net.kyori.adventure.text.minimessage.MiniMessage
 import net.luckperms.api.event.user.UserDataRecalculateEvent
 import net.tjalp.aquarium.Aquarium
+import net.tjalp.aquarium.registry.DECORATED_CHAT
 import net.tjalp.aquarium.util.getPrefix
 import net.tjalp.aquarium.util.getSuffix
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.player.PlayerJoinEvent
-import org.bukkit.event.player.PlayerQuitEvent
 
 @Suppress("UNUSED")
 class PlayerListener(
@@ -47,6 +49,15 @@ class PlayerListener(
 
         player.displayName(display)
         player.playerListName(display)
+    }
+
+    @EventHandler
+    fun onAsyncChatDecorate(event: AsyncChatDecorateEvent) {
+        val player = event.player() ?: return
+
+        if (!player.hasPermission(DECORATED_CHAT)) return
+
+        event.result(MiniMessage.miniMessage().deserialize((event.result() as TextComponent).content()))
     }
 
     private fun onUserDataRecalculate(event: UserDataRecalculateEvent) {

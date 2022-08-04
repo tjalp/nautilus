@@ -21,7 +21,6 @@ class NametagManager(
      * Update a player's name tag
      *
      * @param player The player to update the name tag of
-     * @param tag The value to update the tag to
      */
     fun update(player: Player) {
         val teamManager = tabApi.teamManager

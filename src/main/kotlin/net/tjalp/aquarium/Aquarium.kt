@@ -32,7 +32,6 @@ class Aquarium : JavaPlugin() {
         this.luckperms = lpProvider?.provider ?: return
 
         registerListeners()
-        //server.pluginManager.registerEvents(TeamListener(), this)
     }
 
     private fun registerListeners() {
