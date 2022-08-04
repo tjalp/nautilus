@@ -27,3 +27,6 @@ bin/
 # macos
 
 *.DS_Store
+
+# paper
+run/
