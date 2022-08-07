@@ -58,7 +58,7 @@ object Aquarium {
     }
 
     private fun registerCommands() {
-        commands.command(commands.commandBuilder("yeet"))
+
     }
 
     private fun registerListeners() {
