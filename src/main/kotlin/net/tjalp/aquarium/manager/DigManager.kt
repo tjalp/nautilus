@@ -40,7 +40,7 @@ class DigManager {
 
         player.asNms().networkManager.send(ClientboundBlockDestructionPacket(player.entityId, block.location.asNms(), 10))
 
-        val task = Aquarium.instance.server.scheduler.runTaskTimer(Aquarium.instance, Runnable {
+        val task = Aquarium.loader.server.scheduler.runTaskTimer(Aquarium.loader, Runnable {
             val stageTime = 2L
             val ticks = (System.currentTimeMillis() - miningStartTime[player]!!) / 200 / stageTime
 

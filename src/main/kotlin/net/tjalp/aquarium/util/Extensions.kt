@@ -23,18 +23,18 @@ fun org.bukkit.entity.Player.sendPacket(packet: Packet<*>) {
 }
 
 fun Listener.register() {
-    Aquarium.instance.server.pluginManager.registerEvents(this, Aquarium.instance)
+    Aquarium.loader.server.pluginManager.registerEvents(this, Aquarium.loader)
 }
 
 fun org.bukkit.entity.Player.getPrefix(): String? {
-    val lp = Aquarium.instance.luckperms
+    val lp = Aquarium.luckperms
     val user = if (isOnline) lp.getPlayerAdapter(org.bukkit.entity.Player::class.java).getUser(this) else lp.userManager.loadUser(uniqueId).join()
 
     return user.cachedData.metaData.prefix
 }
 
 fun org.bukkit.entity.Player.getSuffix(): String? {
-    val lp = Aquarium.instance.luckperms
+    val lp = Aquarium.luckperms
     val user = if (isOnline) lp.getPlayerAdapter(org.bukkit.entity.Player::class.java).getUser(this) else lp.userManager.loadUser(uniqueId).join()
 
     return user.cachedData.metaData.suffix

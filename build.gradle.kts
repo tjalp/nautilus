@@ -27,6 +27,7 @@ repositories {
 dependencies {
     implementation(kotlin("stdlib"))
     paperDevBundle("1.19.1-R0.1-SNAPSHOT")
+    implementation("cloud.commandframework:cloud-paper:1.7.0")
     compileOnly("net.luckperms:api:5.4")
     compileOnly("me.neznamy:tab-api:3.1.2")
 }
@@ -65,13 +66,18 @@ tasks {
     runServer {
         minecraftVersion("1.19.1")
     }
+
+    shadowJar {
+        relocate("cloud.commandframework", "net.tjalp.aquarium.lib.cloud")
+        relocate("kotlin", "net.tjalp.aquarium.lib.kotlin")
+    }
 }
 
 bukkit {
     load = BukkitPluginDescription.PluginLoadOrder.POSTWORLD
     authors = listOf("tjalp")
     apiVersion = "1.19"
-    main = "net.tjalp.aquarium.Aquarium"
+    main = "net.tjalp.aquarium.AquariumLoader"
     version = project.version.toString()
     name = "Aquarium"
     depend = listOf("LuckPerms", "TAB")

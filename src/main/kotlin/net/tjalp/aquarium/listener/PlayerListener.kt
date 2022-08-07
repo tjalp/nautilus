@@ -11,24 +11,24 @@ import net.tjalp.aquarium.Aquarium
 import net.tjalp.aquarium.registry.DECORATED_CHAT
 import net.tjalp.aquarium.util.getPrefix
 import net.tjalp.aquarium.util.getSuffix
+import org.bukkit.GameMode
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.player.PlayerJoinEvent
+import org.bukkit.event.player.PlayerRespawnEvent
 
 @Suppress("UNUSED")
-class PlayerListener(
-    private val aquarium: Aquarium
-) : Listener {
+class PlayerListener : Listener {
 
-    private val tags = aquarium.nametagManager
-    private val lp = aquarium.luckperms
+    private val tags = Aquarium.nametagManager
+    private val lp = Aquarium.luckperms
 
     init {
         val lpBus = lp.eventBus
 
         tags.tabApi.eventBus.register(this)
-        lpBus.subscribe(aquarium, UserDataRecalculateEvent::class.java, this::onUserDataRecalculate)
+        lpBus.subscribe(Aquarium.loader, UserDataRecalculateEvent::class.java, this::onUserDataRecalculate)
     }
 
     @Subscribe
@@ -62,7 +62,7 @@ class PlayerListener(
 
     private fun onUserDataRecalculate(event: UserDataRecalculateEvent) {
         val user = event.user
-        val player = aquarium.server.getPlayer(user.uniqueId) ?: return
+        val player = Aquarium.loader.server.getPlayer(user.uniqueId) ?: return
         val mini = MiniMessage.miniMessage()
         val prefix = mini.deserialize(user.cachedData.metaData.prefix ?: "")
         val suffix = mini.deserialize(user.cachedData.metaData.suffix ?: "")
@@ -71,6 +71,11 @@ class PlayerListener(
         tags.update(player)
         player.displayName(display)
         player.playerListName(display)
+    }
+
+    @EventHandler
+    private fun onPlayerPostRespawn(event: PlayerRespawnEvent) {
+        event.player.gameMode = GameMode.ADVENTURE
     }
 
 //    @EventHandler
