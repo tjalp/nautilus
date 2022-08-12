@@ -3,15 +3,14 @@ package net.tjalp.aquarium.listener
 import io.papermc.paper.event.player.AsyncChatDecorateEvent
 import me.neznamy.tab.api.event.Subscribe
 import me.neznamy.tab.api.event.player.PlayerLoadEvent
-import net.kyori.adventure.text.Component.*
+import net.kyori.adventure.text.Component.text
+import net.kyori.adventure.text.Component.translatable
 import net.kyori.adventure.text.TextComponent
 import net.kyori.adventure.text.format.NamedTextColor
 import net.kyori.adventure.text.minimessage.MiniMessage.miniMessage
 import net.luckperms.api.event.user.UserDataRecalculateEvent
 import net.tjalp.aquarium.Aquarium
 import net.tjalp.aquarium.registry.DECORATED_CHAT
-import net.tjalp.aquarium.registry.PLAYER_CHUNKS
-import net.tjalp.aquarium.registry.pdc.ChunkArrayDataType
 import net.tjalp.aquarium.util.getPrefix
 import net.tjalp.aquarium.util.getSuffix
 import org.bukkit.entity.Player
@@ -19,8 +18,6 @@ import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.event.player.PlayerQuitEvent
-import org.bukkit.event.player.PlayerSwapHandItemsEvent
-import org.bukkit.event.player.PlayerToggleSneakEvent
 
 @Suppress("UNUSED")
 class PlayerListener : Listener {
@@ -33,31 +30,6 @@ class PlayerListener : Listener {
 
         tags.tabApi.eventBus.register(this)
         lpBus.subscribe(Aquarium.loader, UserDataRecalculateEvent::class.java, this::onUserDataRecalculate)
-    }
-
-    @EventHandler
-    fun onPlayerSwitch(event: PlayerSwapHandItemsEvent) {
-        val player = event.player
-
-        Aquarium.chunkManager.setMaster(player)
-
-        val chunks = player.persistentDataContainer.getOrDefault(PLAYER_CHUNKS, ChunkArrayDataType, arrayOf())
-
-        player.sendMessage(text("You now own this chunk. ").color(NamedTextColor.GREEN).append(
-            text("You also own ${chunks.size - 1} other chunks!").color(NamedTextColor.YELLOW)
-        ))
-    }
-
-    @EventHandler
-    fun onSneak(event: PlayerToggleSneakEvent) {
-        if (!event.isSneaking) return
-
-        val msg = if (Aquarium.chunkManager.hasMaster(event.player.chunk))
-                text("This chunk is owned by ${Aquarium.chunkManager.getMaster(event.player.chunk)}").color(NamedTextColor.GREEN)
-            else text("This is an unowned chunk. Claim by pressing ").color(NamedTextColor.RED).append(
-                keybind("key.swapOffhand").color(NamedTextColor.YELLOW)
-            ).append(text("!"))
-        event.player.sendMessage(msg)
     }
 
     @Subscribe

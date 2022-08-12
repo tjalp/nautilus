@@ -1,9 +1,13 @@
 package net.tjalp.aquarium
 
+import cloud.commandframework.annotations.AnnotationParser
+import cloud.commandframework.arguments.parser.ParserParameters
+import cloud.commandframework.arguments.parser.StandardParameters
 import cloud.commandframework.bukkit.BukkitCommandManager
-import cloud.commandframework.bukkit.CloudBukkitCapabilities
-import cloud.commandframework.execution.CommandExecutionCoordinator
+import cloud.commandframework.bukkit.CloudBukkitCapabilities.ASYNCHRONOUS_COMPLETION
+import cloud.commandframework.bukkit.CloudBukkitCapabilities.BRIGADIER
 import cloud.commandframework.execution.CommandExecutionCoordinator.simpleCoordinator
+import cloud.commandframework.meta.CommandMeta
 import cloud.commandframework.paper.PaperCommandManager
 import me.neznamy.tab.api.TabAPI
 import net.luckperms.api.LuckPerms
@@ -13,9 +17,7 @@ import net.tjalp.aquarium.manager.DigManager
 import net.tjalp.aquarium.manager.NametagManager
 import net.tjalp.aquarium.util.register
 import org.bukkit.Bukkit
-import org.bukkit.command.Command
 import org.bukkit.command.CommandSender
-import org.bukkit.craftbukkit.v1_19_R1.CraftServer
 import org.bukkit.plugin.java.JavaPlugin
 import java.util.function.Function
 
@@ -50,21 +52,39 @@ object Aquarium {
         val lpProvider = Bukkit.getServicesManager().getRegistration(LuckPerms::class.java)
         this.luckperms = lpProvider?.provider ?: return
 
+        registerCommands()
+        registerListeners()
+    }
+
+    private fun registerCommands() {
+        // Register the command manager
         this.commands = PaperCommandManager(
             this.loader,
             simpleCoordinator(),
             Function.identity(),
             Function.identity()
         ).apply {
-            if (hasCapability(CloudBukkitCapabilities.BRIGADIER)) registerBrigadier()
+            if (hasCapability(BRIGADIER)) registerBrigadier()
+            if (hasCapability(ASYNCHRONOUS_COMPLETION)) registerAsynchronousCompletions()
         }
 
-        registerCommands()
-        registerListeners()
-    }
+        // Register annotations
+        val commandMetaFunction =
+            Function<ParserParameters, CommandMeta> { p: ParserParameters ->
+                CommandMeta.simple()
+                    .with(
+                        CommandMeta.DESCRIPTION,
+                        p.get(StandardParameters.DESCRIPTION, "No description")
+                    )
+                    .build()
+            }
+        val annotationParser = AnnotationParser(
+            this.commands, /* Manager */
+            CommandSender::class.java, /* Command sender type */
+            commandMetaFunction /* Mapper for command meta instances */
+        )
 
-    private fun registerCommands() {
-
+        annotationParser.parseContainers()
     }
 
     private fun registerListeners() {

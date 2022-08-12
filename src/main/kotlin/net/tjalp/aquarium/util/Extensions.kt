@@ -6,6 +6,7 @@ import org.bukkit.Chunk
 import org.bukkit.craftbukkit.v1_19_R1.entity.CraftPlayer
 import org.bukkit.entity.Player
 import org.bukkit.event.Listener
+import java.util.UUID
 
 fun Player.sendPacket(packet: Packet<*>) = (this as CraftPlayer).handle.networkManager.send(packet)
 fun Listener.register() = Aquarium.loader.server.pluginManager.registerEvents(this, Aquarium.loader)
@@ -29,4 +30,25 @@ fun Player.getSuffix(): String? {
  */
 fun Player.getMasteredChunks(): Set<Chunk> {
     return Aquarium.chunkManager.getMasteredChunks(this)
+}
+
+/**
+ * See [net.tjalp.aquarium.manager.ChunkManager.hasMaster]
+ */
+fun Chunk.hasMaster(): Boolean {
+    return Aquarium.chunkManager.hasMaster(this)
+}
+
+/**
+ * See [net.tjalp.aquarium.manager.ChunkManager.setMaster]
+ */
+fun Chunk.setMaster(player: Player) {
+    Aquarium.chunkManager.setMaster(player, this)
+}
+
+/**
+ * See [net.tjalp.aquarium.manager.ChunkManager.getMaster]
+ */
+fun Chunk.getMaster(): UUID? {
+    return Aquarium.chunkManager.getMaster(this)
 }

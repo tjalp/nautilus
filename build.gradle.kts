@@ -4,6 +4,7 @@ plugins {
     `java-library`
     val kotlinVersion: String by System.getProperties()
     kotlin("jvm") version kotlinVersion
+    kotlin("kapt") version kotlinVersion
     id("io.papermc.paperweight.userdev") version "1.3.7"
     id("net.minecrell.plugin-yml.bukkit") version "0.5.2"
     id("xyz.jpenilla.run-paper") version "1.0.6"
@@ -27,9 +28,12 @@ repositories {
 dependencies {
     implementation(kotlin("stdlib"))
     paperDevBundle("1.19.2-R0.1-SNAPSHOT")
+    implementation("cloud.commandframework:cloud-annotations:1.7.0")
     implementation("cloud.commandframework:cloud-paper:1.7.0")
     compileOnly("net.luckperms:api:5.4")
     compileOnly("me.neznamy:tab-api:3.1.2")
+
+    kapt("cloud.commandframework:cloud-annotations:1.7.0")
 }
 
 tasks {
