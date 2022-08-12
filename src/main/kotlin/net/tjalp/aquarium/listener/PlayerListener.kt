@@ -3,20 +3,24 @@ package net.tjalp.aquarium.listener
 import io.papermc.paper.event.player.AsyncChatDecorateEvent
 import me.neznamy.tab.api.event.Subscribe
 import me.neznamy.tab.api.event.player.PlayerLoadEvent
-import net.kyori.adventure.text.Component
+import net.kyori.adventure.text.Component.*
 import net.kyori.adventure.text.TextComponent
-import net.kyori.adventure.text.minimessage.MiniMessage
+import net.kyori.adventure.text.format.NamedTextColor
+import net.kyori.adventure.text.minimessage.MiniMessage.miniMessage
 import net.luckperms.api.event.user.UserDataRecalculateEvent
 import net.tjalp.aquarium.Aquarium
 import net.tjalp.aquarium.registry.DECORATED_CHAT
+import net.tjalp.aquarium.registry.PLAYER_CHUNKS
+import net.tjalp.aquarium.registry.pdc.ChunkArrayDataType
 import net.tjalp.aquarium.util.getPrefix
 import net.tjalp.aquarium.util.getSuffix
-import org.bukkit.GameMode
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.player.PlayerJoinEvent
-import org.bukkit.event.player.PlayerRespawnEvent
+import org.bukkit.event.player.PlayerQuitEvent
+import org.bukkit.event.player.PlayerSwapHandItemsEvent
+import org.bukkit.event.player.PlayerToggleSneakEvent
 
 @Suppress("UNUSED")
 class PlayerListener : Listener {
@@ -31,6 +35,31 @@ class PlayerListener : Listener {
         lpBus.subscribe(Aquarium.loader, UserDataRecalculateEvent::class.java, this::onUserDataRecalculate)
     }
 
+    @EventHandler
+    fun onPlayerSwitch(event: PlayerSwapHandItemsEvent) {
+        val player = event.player
+
+        Aquarium.chunkManager.setMaster(player)
+
+        val chunks = player.persistentDataContainer.getOrDefault(PLAYER_CHUNKS, ChunkArrayDataType, arrayOf())
+
+        player.sendMessage(text("You now own this chunk. ").color(NamedTextColor.GREEN).append(
+            text("You also own ${chunks.size - 1} other chunks!").color(NamedTextColor.YELLOW)
+        ))
+    }
+
+    @EventHandler
+    fun onSneak(event: PlayerToggleSneakEvent) {
+        if (!event.isSneaking) return
+
+        val msg = if (Aquarium.chunkManager.hasMaster(event.player.chunk))
+                text("This chunk is owned by ${Aquarium.chunkManager.getMaster(event.player.chunk)}").color(NamedTextColor.GREEN)
+            else text("This is an unowned chunk. Claim by pressing ").color(NamedTextColor.RED).append(
+                keybind("key.swapOffhand").color(NamedTextColor.YELLOW)
+            ).append(text("!"))
+        event.player.sendMessage(msg)
+    }
+
     @Subscribe
     fun onPlayerLoad(event: PlayerLoadEvent) {
         val player = event.player
@@ -42,13 +71,21 @@ class PlayerListener : Listener {
     @EventHandler
     fun onPlayerJoin(event: PlayerJoinEvent) {
         val player = event.player
-        val mini = MiniMessage.miniMessage()
+        val mini = miniMessage()
         val prefix = mini.deserialize(player.getPrefix() ?: "")
         val suffix = mini.deserialize(player.getSuffix() ?: "")
-        val display = Component.text().append(prefix).append(player.name()).append(suffix).build()
+        val display = text().append(prefix).append(mini.deserialize("<rainbow>${player.name}</rainbow>")).append(suffix).build()
 
         player.displayName(display)
         player.playerListName(display)
+        event.joinMessage(translatable("multiplayer.player.joined", display).color(NamedTextColor.GOLD))
+    }
+
+    @EventHandler
+    fun onPlayerQuit(event: PlayerQuitEvent) {
+        val player = event.player
+
+        event.quitMessage(translatable("multiplayer.player.left", player.displayName()))
     }
 
     @EventHandler
@@ -57,25 +94,20 @@ class PlayerListener : Listener {
 
         if (!player.hasPermission(DECORATED_CHAT)) return
 
-        event.result(MiniMessage.miniMessage().deserialize((event.result() as TextComponent).content()))
+        event.result(miniMessage().deserialize((event.result() as TextComponent).content()))
     }
 
     private fun onUserDataRecalculate(event: UserDataRecalculateEvent) {
         val user = event.user
         val player = Aquarium.loader.server.getPlayer(user.uniqueId) ?: return
-        val mini = MiniMessage.miniMessage()
+        val mini = miniMessage()
         val prefix = mini.deserialize(user.cachedData.metaData.prefix ?: "")
         val suffix = mini.deserialize(user.cachedData.metaData.suffix ?: "")
-        val display = Component.text().append(prefix).append(player.name()).append(suffix).build()
+        val display = text().append(prefix).append(player.name()).append(suffix).build()
 
         tags.update(player)
         player.displayName(display)
         player.playerListName(display)
-    }
-
-    @EventHandler
-    private fun onPlayerPostRespawn(event: PlayerRespawnEvent) {
-        event.player.gameMode = GameMode.ADVENTURE
     }
 
 //    @EventHandler
@@ -138,9 +170,14 @@ class PlayerListener : Listener {
 //        }
 //
 //        override fun write(ctx: ChannelHandlerContext?, msg: Any?, promise: ChannelPromise?) {
-//            if (msg !is ClientboundBlockDestructionPacket) {
-//                super.write(ctx, msg, promise)
-//                return
+//            if (msg is ClientboundSetEntityDataPacket) {
+//                msg.unpackedData?.forEach {
+//                    val value = it.value
+//                    if (value is Pose && value == Pose.FALL_FLYING) {
+//                        it.value = Pose.SPIN_ATTACK
+//                    }
+//                }
+//                msg.unpackedData?.set(18, SynchedEntityData.DataItem(EntityDataSerializers.POSE.createAccessor(msg.id), net.minecraft.world.entity.Pose.SPIN_ATTACK))
 //            }
 //
 //            super.write(ctx, msg, promise)

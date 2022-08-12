@@ -3,10 +3,12 @@ package net.tjalp.aquarium
 import cloud.commandframework.bukkit.BukkitCommandManager
 import cloud.commandframework.bukkit.CloudBukkitCapabilities
 import cloud.commandframework.execution.CommandExecutionCoordinator
+import cloud.commandframework.execution.CommandExecutionCoordinator.simpleCoordinator
 import cloud.commandframework.paper.PaperCommandManager
 import me.neznamy.tab.api.TabAPI
 import net.luckperms.api.LuckPerms
 import net.tjalp.aquarium.listener.PlayerListener
+import net.tjalp.aquarium.manager.ChunkManager
 import net.tjalp.aquarium.manager.DigManager
 import net.tjalp.aquarium.manager.NametagManager
 import net.tjalp.aquarium.util.register
@@ -24,6 +26,9 @@ object Aquarium {
     /** The plugin loader (and [JavaPlugin] instance) */
     lateinit var loader: AquariumLoader; private set
 
+    /** The chunk manager */
+    lateinit var chunkManager: ChunkManager; private set
+
     /** The dig manager */
     lateinit var digManager: DigManager; private set
 
@@ -38,6 +43,7 @@ object Aquarium {
 
     fun enable(loader: AquariumLoader) {
         this.loader = loader
+        this.chunkManager = ChunkManager()
         this.digManager = DigManager()
         this.nametagManager = NametagManager(this, TabAPI.getInstance())
 
@@ -46,7 +52,7 @@ object Aquarium {
 
         this.commands = PaperCommandManager(
             this.loader,
-            CommandExecutionCoordinator.simpleCoordinator(),
+            simpleCoordinator(),
             Function.identity(),
             Function.identity()
         ).apply {

@@ -26,7 +26,7 @@ repositories {
 
 dependencies {
     implementation(kotlin("stdlib"))
-    paperDevBundle("1.19.1-R0.1-SNAPSHOT")
+    paperDevBundle("1.19.2-R0.1-SNAPSHOT")
     implementation("cloud.commandframework:cloud-paper:1.7.0")
     compileOnly("net.luckperms:api:5.4")
     compileOnly("me.neznamy:tab-api:3.1.2")
@@ -64,12 +64,12 @@ tasks {
     }
 
     runServer {
-        minecraftVersion("1.19.1")
+        minecraftVersion("1.19.2")
     }
 
     shadowJar {
         relocate("cloud.commandframework", "net.tjalp.aquarium.lib.cloud")
-        relocate("kotlin", "net.tjalp.aquarium.lib.kotlin")
+        //relocate("kotlin", "net.tjalp.aquarium.lib.kotlin")
     }
 }
 
