@@ -6,16 +6,18 @@ import me.neznamy.tab.api.event.player.PlayerLoadEvent
 import net.kyori.adventure.text.Component.text
 import net.kyori.adventure.text.Component.translatable
 import net.kyori.adventure.text.TextComponent
-import net.kyori.adventure.text.format.NamedTextColor
 import net.kyori.adventure.text.minimessage.MiniMessage.miniMessage
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer
 import net.luckperms.api.event.user.UserDataRecalculateEvent
 import net.tjalp.aquarium.Aquarium
 import net.tjalp.aquarium.registry.DECORATED_CHAT
-import net.tjalp.aquarium.util.getPrefix
-import net.tjalp.aquarium.util.getSuffix
+import net.tjalp.aquarium.util.getChatColor
+import net.tjalp.aquarium.util.getFormattedName
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
+import org.bukkit.event.player.AsyncPlayerChatEvent
+import org.bukkit.event.player.AsyncPlayerChatPreviewEvent
 import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.event.player.PlayerQuitEvent
 
@@ -43,14 +45,11 @@ class PlayerListener : Listener {
     @EventHandler
     fun onPlayerJoin(event: PlayerJoinEvent) {
         val player = event.player
-        val mini = miniMessage()
-        val prefix = mini.deserialize(player.getPrefix() ?: "")
-        val suffix = mini.deserialize(player.getSuffix() ?: "")
-        val display = text().append(prefix).append(mini.deserialize("<rainbow>${player.name}</rainbow>")).append(suffix).build()
+        val display = player.getFormattedName()
 
         player.displayName(display)
         player.playerListName(display)
-        event.joinMessage(translatable("multiplayer.player.joined", display).color(NamedTextColor.GOLD))
+        event.joinMessage(translatable("multiplayer.player.joined", display))
     }
 
     @EventHandler
@@ -63,19 +62,40 @@ class PlayerListener : Listener {
     @EventHandler
     fun onAsyncChatDecorate(event: AsyncChatDecorateEvent) {
         val player = event.player() ?: return
+        val mini = miniMessage()
+        val chatColor = player.getChatColor()
+        val text = event.result() as TextComponent
 
-        if (!player.hasPermission(DECORATED_CHAT)) return
+        if (!player.hasPermission(DECORATED_CHAT)) {
+            event.result(text().append(mini.deserialize(chatColor + mini.escapeTags(text.content()))).build())
+            return
+        }
 
-        event.result(miniMessage().deserialize((event.result() as TextComponent).content()))
+        event.result(mini.deserialize(chatColor + text.content()))
+    }
+
+    @EventHandler
+    fun onAsyncPlayerChatPreview(event: AsyncPlayerChatPreviewEvent) {
+        val legacy = LegacyComponentSerializer.legacySection()
+        val mini = miniMessage()
+        val fullName = event.player.getFormattedName(useSuffix = false)
+
+        event.format = legacy.serialize(fullName.append(mini.deserialize(" <#82826f>→ <reset>%2\$s")))
+    }
+
+    @EventHandler
+    fun onAsyncPlayerChat(event: AsyncPlayerChatEvent) {
+        val legacy = LegacyComponentSerializer.legacySection()
+        val mini = miniMessage()
+        val fullName = event.player.getFormattedName(useSuffix = false)
+
+        event.format = legacy.serialize(fullName.append(mini.deserialize(" <#82826f>→ <reset>%2\$s")))
     }
 
     private fun onUserDataRecalculate(event: UserDataRecalculateEvent) {
         val user = event.user
         val player = Aquarium.loader.server.getPlayer(user.uniqueId) ?: return
-        val mini = miniMessage()
-        val prefix = mini.deserialize(user.cachedData.metaData.prefix ?: "")
-        val suffix = mini.deserialize(user.cachedData.metaData.suffix ?: "")
-        val display = text().append(prefix).append(player.name()).append(suffix).build()
+        val display = player.getFormattedName()
 
         tags.update(player)
         player.displayName(display)

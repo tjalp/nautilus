@@ -5,6 +5,7 @@ import me.neznamy.tab.api.team.UnlimitedNametagManager
 import net.kyori.adventure.text.minimessage.MiniMessage
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer
 import net.tjalp.aquarium.Aquarium
+import net.tjalp.aquarium.util.getNameColor
 import net.tjalp.aquarium.util.getPrefix
 import net.tjalp.aquarium.util.getSuffix
 import org.bukkit.entity.Player
@@ -32,14 +33,11 @@ class NametagManager(
         val mini = MiniMessage.miniMessage()
         val prefix = serializer.serialize(mini.deserialize(player.getPrefix() ?: ""))
         val suffix = serializer.serialize(mini.deserialize(player.getSuffix() ?: ""))
+        val username = serializer.serialize(mini.deserialize((player.getNameColor() ?: "") + player.name))
 
         teamManager.setPrefix(tabPlayer, prefix)
         teamManager.setSuffix(tabPlayer, suffix)
 
-        if (teamManager is UnlimitedNametagManager) {
-            teamManager.setName(tabPlayer, serializer.serialize(
-                MiniMessage.miniMessage().deserialize("<rainbow>${player.name}</rainbow>")
-            ))
-        }
+        if (teamManager is UnlimitedNametagManager) teamManager.setName(tabPlayer, username)
     }
 }
