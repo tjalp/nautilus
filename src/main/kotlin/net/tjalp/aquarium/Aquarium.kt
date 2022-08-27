@@ -15,6 +15,8 @@ import net.tjalp.aquarium.listener.PlayerListener
 import net.tjalp.aquarium.manager.ChunkManager
 import net.tjalp.aquarium.manager.DigManager
 import net.tjalp.aquarium.manager.NametagManager
+import net.tjalp.aquarium.registry.ItemRegistry
+import net.tjalp.aquarium.registry.registerItems
 import net.tjalp.aquarium.util.register
 import org.bukkit.Bukkit
 import org.bukkit.command.CommandSender
@@ -37,21 +39,29 @@ object Aquarium {
     /** The nametag manager */
     lateinit var nametagManager: NametagManager; private set
 
+    /** The item registry */
+    lateinit var itemRegistry: ItemRegistry; private set
+
     /** The LuckPerms API */
     lateinit var luckperms: LuckPerms; private set
 
     /** The command manager */
     lateinit var commands: BukkitCommandManager<CommandSender>; private set
 
+//    /** Twitch management */
+//    lateinit var twitch: TwitchClient; private set
+
     fun enable(loader: AquariumLoader) {
         this.loader = loader
         this.chunkManager = ChunkManager()
         this.digManager = DigManager()
         this.nametagManager = NametagManager(this, TabAPI.getInstance())
+        this.itemRegistry = ItemRegistry()
 
         val lpProvider = Bukkit.getServicesManager().getRegistration(LuckPerms::class.java)
         this.luckperms = lpProvider?.provider ?: return
 
+        registerItems(this.itemRegistry)
         registerCommands()
         registerListeners()
     }

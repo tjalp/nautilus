@@ -1,17 +1,18 @@
 package net.tjalp.aquarium.manager
 
-import net.tjalp.aquarium.registry.CHUNK_MASTER
-import net.tjalp.aquarium.registry.PLAYER_CHUNKS
-import net.tjalp.aquarium.registry.pdc.ChunkArrayDataType
-import net.tjalp.aquarium.registry.pdc.UuidDataType
+import net.tjalp.aquarium.Aquarium
+import net.tjalp.aquarium.registry.*
 import org.bukkit.Chunk
 import org.bukkit.entity.Player
+import org.bukkit.persistence.PersistentDataType.*
 import java.util.*
 
 /**
  * Manages the [Chunk] ownership, members, permissions, etc.
  */
 class ChunkManager {
+
+    private val loader = Aquarium.loader
 
     /**
      * Set the master of a chunk
@@ -22,12 +23,18 @@ class ChunkManager {
     fun setMaster(player: Player, chunk: Chunk = player.chunk) {
         val chunkPdc = chunk.persistentDataContainer
         val playerPdc = player.persistentDataContainer
-        val chunks = getMasteredChunks(player).toMutableSet()
+        val context = playerPdc.adapterContext
+        val container = context.newPersistentDataContainer()
+        val chunkDataContainer = playerPdc.get(PLAYER_CHUNKS, TAG_CONTAINER_ARRAY)?.toMutableSet() ?: mutableSetOf()
 
-        chunks.add(chunk)
+        container.set(X_COORDINATE, INTEGER, chunk.x)
+        container.set(Z_COORDINATE, INTEGER, chunk.z)
+        container.set(WORLD, STRING, chunk.world.uid.toString())
+        chunkDataContainer.add(container)
 
-        chunkPdc.set(CHUNK_MASTER, UuidDataType, player.uniqueId)
-        playerPdc.set(PLAYER_CHUNKS, ChunkArrayDataType, chunks.toTypedArray())
+        chunkPdc.set(CHUNK_MASTER, STRING, player.uniqueId.toString())
+        //playerPdc.set(PLAYER_CHUNKS, ChunkArrayDataType, chunks.toTypedArray())
+        playerPdc.set(PLAYER_CHUNKS, TAG_CONTAINER_ARRAY, chunkDataContainer.toTypedArray())
     }
 
     /**
@@ -39,7 +46,7 @@ class ChunkManager {
     fun getMaster(chunk: Chunk): UUID? {
         val pdc = chunk.persistentDataContainer
 
-        return if (hasMaster(chunk)) pdc.get(CHUNK_MASTER, UuidDataType) else null
+        return if (hasMaster(chunk)) UUID.fromString(pdc.get(CHUNK_MASTER, STRING)) else null
     }
 
     /**
@@ -62,6 +69,20 @@ class ChunkManager {
      */
     fun getMasteredChunks(player: Player): Set<Chunk> {
         val pdc = player.persistentDataContainer
-        return pdc.getOrDefault(PLAYER_CHUNKS, ChunkArrayDataType, arrayOf()).toCollection(mutableSetOf())
+        val chunks = pdc.getOrDefault(PLAYER_CHUNKS, TAG_CONTAINER_ARRAY, arrayOf()).toSet()
+        val chunkSet = mutableSetOf<Chunk>()
+
+        for (chunk in chunks) {
+            val worldUniqueId = UUID.fromString(chunk.get(WORLD, STRING)) ?: continue
+            val world = loader.server.getWorld(worldUniqueId) ?: continue
+            val x = chunk.get(X_COORDINATE, INTEGER) ?: continue
+            val z = chunk.get(Z_COORDINATE, INTEGER) ?: continue
+
+            chunkSet.add(world.getChunkAt(x, z))
+        }
+
+        return chunkSet
+
+        //return pdc.getOrDefault(PLAYER_CHUNKS, ChunkArrayDataType, arrayOf()).toCollection(mutableSetOf())
     }
 }

@@ -30,6 +30,7 @@ dependencies {
     paperDevBundle("1.19.2-R0.1-SNAPSHOT")
     implementation("cloud.commandframework:cloud-annotations:1.7.0")
     implementation("cloud.commandframework:cloud-paper:1.7.0")
+    //implementation("com.github.twitch4j:twitch4j:1.11.0")
     compileOnly("net.luckperms:api:5.4")
     compileOnly("me.neznamy:tab-api:3.1.2")
 
@@ -73,6 +74,7 @@ tasks {
 
     shadowJar {
         relocate("cloud.commandframework", "net.tjalp.aquarium.lib.cloud")
+        relocate("com.github.twitch4j", "net.tjalp.aquarium.lib.twitch4j")
         //relocate("kotlin", "net.tjalp.aquarium.lib.kotlin")
     }
 }
