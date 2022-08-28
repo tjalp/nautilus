@@ -12,5 +12,6 @@ val Z_COORDINATE = key("z")
 val WORLD = key("world")
 
 val CUSTOM_ITEM = key("custom_item")
+val ICICLE = key("icicle")
 
 private fun key(key: String): NamespacedKey = NamespacedKey(Aquarium.loader, key)

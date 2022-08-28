@@ -20,8 +20,8 @@ object TribowItem : CustomItem() {
         val entity = event.entity
         val projectile = event.projectile as Arrow
         val projVec = projectile.velocity
-        val firstVec = projVec.clone().add(Vector(0.0, -.5, 0.0))
-        val secondVec = projVec.clone().add(Vector(0.0, .5, 0.0))
+        val firstVec = projVec.clone().add(Vector(0.0, .5, 0.0))
+        val secondVec = projVec.clone().subtract(Vector(0.0, .5, 0.0))
         
         fun copyData(from: Arrow, to: Arrow) {
             to.isCritical = from.isCritical

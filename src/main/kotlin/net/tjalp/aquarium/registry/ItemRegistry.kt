@@ -14,7 +14,7 @@ class ItemRegistry {
 
     private val registry = HashMap<String, CustomItem>()
 
-    private val items: Set<CustomItem>
+    val items: Set<CustomItem>
         get() = registry.values.toSet()
 
     init {
