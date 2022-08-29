@@ -1,9 +1,11 @@
-package net.tjalp.aquarium.item
+package net.tjalp.aquarium.item.bow
 
 import net.tjalp.aquarium.Aquarium
+import net.tjalp.aquarium.item.CustomItem
 import net.tjalp.aquarium.registry.CUSTOM_ITEM
 import net.tjalp.aquarium.registry.ICICLE
 import net.tjalp.aquarium.util.ItemBuilder
+import net.tjalp.aquarium.util.ParticleEffect
 import net.tjalp.aquarium.util.mini
 import org.bukkit.Material.BOW
 import org.bukkit.Particle.SNOWFLAKE
@@ -24,9 +26,15 @@ object IceBowItem : CustomItem() {
 
     override val identifier: String = "ice_bow"
     override val item: ItemStack
-        get() = ItemBuilder(BOW).name(mini("Ice Bow")).customModelData(2).data(CUSTOM_ITEM, this.identifier).build()
+        get() = ItemBuilder(BOW)
+            .name(mini("Ice Bow"))
+            .customModelData(2)
+            .data(CUSTOM_ITEM, identifier)
+            .build()
 
     override fun onShoot(event: EntityShootBowEvent) {
+        super.onShoot(event)
+
         val projectile = event.projectile as Arrow
 
         projectile.persistentDataContainer.set(ICICLE, INTEGER, 1) // true
@@ -37,9 +45,7 @@ object IceBowItem : CustomItem() {
                 return@Consumer
             }
 
-            val loc = projectile.location
-
-            loc.world.spawnParticle(SNOWFLAKE, loc, 1, 0.0, 0.0, 0.0, 0.0)
+            ParticleEffect(SNOWFLAKE).play(projectile.location)
         }, 0, 1)
     }
 

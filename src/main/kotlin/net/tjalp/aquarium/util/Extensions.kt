@@ -4,10 +4,14 @@ import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.minimessage.MiniMessage.miniMessage
 import net.minecraft.network.protocol.Packet
 import net.tjalp.aquarium.Aquarium
+import net.tjalp.aquarium.item.CustomItem
+import net.tjalp.aquarium.registry.CUSTOM_ITEM
 import org.bukkit.Chunk
 import org.bukkit.craftbukkit.v1_19_R1.entity.CraftPlayer
 import org.bukkit.entity.Player
 import org.bukkit.event.Listener
+import org.bukkit.inventory.ItemStack
+import org.bukkit.persistence.PersistentDataType
 import java.util.*
 
 fun Player.sendPacket(packet: Packet<*>) = (this as CraftPlayer).handle.networkManager.send(packet)
@@ -81,4 +85,18 @@ fun Chunk.setMaster(player: Player) {
  */
 fun Chunk.getMaster(): UUID? {
     return Aquarium.chunkManager.getMaster(this)
+}
+
+/**
+ * Get the custom item from a normal ItemStack
+ *
+ * @return custom item, or null if non-existent
+ */
+fun ItemStack.getCustomItem(): CustomItem? {
+    val meta = itemMeta ?: return null
+    val pdc = meta.persistentDataContainer
+
+    if (!pdc.has(CUSTOM_ITEM)) return null
+
+    return Aquarium.itemRegistry.getItem(pdc.get(CUSTOM_ITEM, PersistentDataType.STRING)!!)
 }

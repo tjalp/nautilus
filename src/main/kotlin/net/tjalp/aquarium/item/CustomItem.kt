@@ -1,6 +1,7 @@
 package net.tjalp.aquarium.item
 
 import org.bukkit.event.entity.EntityShootBowEvent
+import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.inventory.ItemStack
 
 /**
@@ -23,4 +24,9 @@ abstract class CustomItem {
      * Called when this item is shot
      */
     open fun onShoot(event: EntityShootBowEvent) {}
+
+    /**
+     * Called when this item is used (by interacting with it)
+     */
+    open fun onUse(event: PlayerInteractEvent) {}
 }

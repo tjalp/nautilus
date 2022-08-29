@@ -1,5 +1,6 @@
-package net.tjalp.aquarium.item
+package net.tjalp.aquarium.item.bow
 
+import net.tjalp.aquarium.item.CustomItem
 import net.tjalp.aquarium.util.ItemBuilder
 import net.tjalp.aquarium.util.mini
 import org.bukkit.Material.BOW

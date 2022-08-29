@@ -1,14 +1,17 @@
 package net.tjalp.aquarium.registry
 
 import net.tjalp.aquarium.Aquarium
-import net.tjalp.aquarium.item.BoomerangItem
 import net.tjalp.aquarium.item.CustomItem
-import net.tjalp.aquarium.item.IceBowItem
-import net.tjalp.aquarium.item.TribowItem
+import net.tjalp.aquarium.item.bow.BoomerangItem
+import net.tjalp.aquarium.item.bow.IceBowItem
+import net.tjalp.aquarium.item.bow.TribowItem
+import net.tjalp.aquarium.item.horn.AirHornItem
+import net.tjalp.aquarium.util.getCustomItem
+import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.entity.EntityShootBowEvent
-import org.bukkit.persistence.PersistentDataType.STRING
+import org.bukkit.event.player.PlayerInteractEvent
 
 class ItemRegistry {
 
@@ -40,17 +43,23 @@ class ItemRegistry {
     inner class ItemListener : Listener {
 
         @EventHandler
-        fun onItem(event: EntityShootBowEvent) {
-            val bow = event.bow ?: return
-            val meta = bow.itemMeta ?: return
-            val pdc = meta.persistentDataContainer
+        fun onEntityShootBow(event: EntityShootBowEvent) {
+            val item = event.bow ?: return
+            val entity = event.entity
+            val player = if (entity is Player) entity else return
 
-            if (!pdc.has(CUSTOM_ITEM)) return
+            if (player.hasCooldown(item.type)) return
 
-            val identifier = pdc.get(CUSTOM_ITEM, STRING)!!
-            val item = getItem(identifier) ?: return
+            item.getCustomItem()?.onShoot(event)
+        }
 
-            item.onShoot(event)
+        @EventHandler
+        fun onEntityInteract(event: PlayerInteractEvent) {
+            val item = event.item ?: return
+
+            if (event.player.hasCooldown(item.type)) return
+
+            item.getCustomItem()?.onUse(event)
         }
     }
 }
@@ -59,4 +68,6 @@ fun registerItems(registry: ItemRegistry) {
     registry.registerItem(BoomerangItem)
     registry.registerItem(IceBowItem)
     registry.registerItem(TribowItem)
+
+    registry.registerItem(AirHornItem)
 }

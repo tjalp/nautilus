@@ -1,5 +1,6 @@
-package net.tjalp.aquarium.item
+package net.tjalp.aquarium.item.bow
 
+import net.tjalp.aquarium.item.CustomItem
 import net.tjalp.aquarium.registry.CUSTOM_ITEM
 import net.tjalp.aquarium.util.ItemBuilder
 import net.tjalp.aquarium.util.mini
@@ -14,9 +15,15 @@ object TribowItem : CustomItem() {
 
     override val identifier: String = "tribow"
     override val item: ItemStack
-        get() = ItemBuilder(BOW).name(mini("Tribow")).customModelData(1).data(CUSTOM_ITEM, this.identifier).build()
+        get() = ItemBuilder(BOW)
+            .name(mini("Tribow"))
+            .customModelData(1)
+            .data(CUSTOM_ITEM, identifier)
+            .build()
 
     override fun onShoot(event: EntityShootBowEvent) {
+        super.onShoot(event)
+
         val entity = event.entity
         val projectile = event.projectile as Arrow
         val projVec = projectile.velocity
