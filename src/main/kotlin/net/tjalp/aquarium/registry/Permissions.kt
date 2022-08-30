@@ -1,11 +1,8 @@
 package net.tjalp.aquarium.registry
 
-import org.bukkit.permissions.Permission
-import org.bukkit.permissions.PermissionDefault
-import org.bukkit.permissions.PermissionDefault.OP
+const val COMMAND_CHUNK_INFO = "aquarium.command.chunk.info"
+const val COMMAND_CHUNK_MASTER = "aquarium.command.chunk.master"
+const val COMMAND_GIVE_ITEM = "aquarium.command.give_item"
+const val COMMAND_STREAM = "aquarium.command.stream"
 
-val DECORATED_CHAT = perm("decorated_chat", OP)
-
-private fun perm(perm: String, default: PermissionDefault? = null): Permission {
-    return Permission("aquarium.$perm", default)
-}
+const val DECORATED_CHAT = "aquarium.decorated_chat"

@@ -1,10 +1,13 @@
 package net.tjalp.aquarium.command
 
 import cloud.commandframework.annotations.CommandMethod
+import cloud.commandframework.annotations.CommandPermission
 import cloud.commandframework.annotations.processing.CommandContainer
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
 import net.tjalp.aquarium.Aquarium
+import net.tjalp.aquarium.registry.COMMAND_CHUNK_INFO
+import net.tjalp.aquarium.registry.COMMAND_CHUNK_MASTER
 import net.tjalp.aquarium.util.getMaster
 import net.tjalp.aquarium.util.getMasteredChunks
 import net.tjalp.aquarium.util.hasMaster
@@ -18,6 +21,7 @@ class ChunkCommand {
     val chunks; get() = Aquarium.chunkManager
 
     @CommandMethod("chunk info")
+    @CommandPermission(COMMAND_CHUNK_INFO)
     fun info(player: Player) {
         val chunk = player.chunk
 
@@ -41,6 +45,7 @@ class ChunkCommand {
     }
 
     @CommandMethod("chunk master")
+    @CommandPermission(COMMAND_CHUNK_MASTER)
     fun master(player: Player) {
         player.chunk.setMaster(player)
 
