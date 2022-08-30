@@ -2,6 +2,7 @@ package net.tjalp.aquarium.util
 
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.TextDecoration.ITALIC
+import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.NamespacedKey
 import org.bukkit.enchantments.Enchantment
@@ -9,6 +10,7 @@ import org.bukkit.inventory.ItemFlag
 import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.meta.Damageable
 import org.bukkit.inventory.meta.ItemMeta
+import org.bukkit.inventory.meta.SkullMeta
 import org.bukkit.persistence.PersistentDataType
 
 class ItemBuilder {
@@ -176,6 +178,21 @@ class ItemBuilder {
      */
     fun data(key: NamespacedKey, value: String): ItemBuilder {
         this.itemMeta.persistentDataContainer.set(key, PersistentDataType.STRING, value)
+        return this
+    }
+
+    /**
+     * Set the player profile of the skull
+     *
+     * @param username The username of the player to set
+     * @return self
+     */
+    fun skull(username: String): ItemBuilder {
+        val meta = this.itemMeta
+        if (meta is SkullMeta) {
+            val profile = Bukkit.getServer().createProfile(username)
+            meta.playerProfile = profile
+        }
         return this
     }
 

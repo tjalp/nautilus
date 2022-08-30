@@ -4,8 +4,10 @@ import net.tjalp.aquarium.Aquarium
 import net.tjalp.aquarium.item.CustomItem
 import net.tjalp.aquarium.item.bow.BoomerangItem
 import net.tjalp.aquarium.item.bow.IceBowItem
+import net.tjalp.aquarium.item.bow.SupersonicBow
 import net.tjalp.aquarium.item.bow.TribowItem
 import net.tjalp.aquarium.item.horn.AirHornItem
+import net.tjalp.aquarium.item.misc.TestWandItem
 import net.tjalp.aquarium.util.getCustomItem
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
@@ -67,7 +69,10 @@ class ItemRegistry {
 fun registerItems(registry: ItemRegistry) {
     registry.registerItem(BoomerangItem)
     registry.registerItem(IceBowItem)
+    registry.registerItem(SupersonicBow)
     registry.registerItem(TribowItem)
 
     registry.registerItem(AirHornItem)
+
+    registry.registerItem(TestWandItem)
 }
