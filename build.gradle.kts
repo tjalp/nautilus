@@ -21,20 +21,22 @@ val mavenGroup: String by project
 group = mavenGroup
 
 repositories {
+    mavenCentral()
     maven("https://repo.papermc.io/repository/maven-public/")
     maven("https://repo.kryptonmc.org/releases")
 }
 
 dependencies {
     implementation(kotlin("stdlib"))
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
     paperDevBundle("1.19.2-R0.1-SNAPSHOT")
-    implementation("cloud.commandframework:cloud-annotations:1.7.0")
-    implementation("cloud.commandframework:cloud-paper:1.7.0")
+    implementation("cloud.commandframework:cloud-annotations:1.7.1")
+    implementation("cloud.commandframework:cloud-paper:1.7.1")
     //implementation("com.github.twitch4j:twitch4j:1.11.0")
     compileOnly("net.luckperms:api:5.4")
     compileOnly("me.neznamy:tab-api:3.1.2")
 
-    kapt("cloud.commandframework:cloud-annotations:1.7.0")
+    kapt("cloud.commandframework:cloud-annotations:1.7.1")
 }
 
 tasks {

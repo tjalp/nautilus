@@ -18,6 +18,7 @@ import net.tjalp.aquarium.manager.NametagManager
 import net.tjalp.aquarium.registry.ItemRegistry
 import net.tjalp.aquarium.registry.registerItems
 import net.tjalp.aquarium.util.register
+import net.tjalp.aquarium.util.scheduler.AquariumScheduler
 import org.bukkit.Bukkit
 import org.bukkit.command.CommandSender
 import org.bukkit.plugin.java.JavaPlugin
@@ -47,6 +48,9 @@ object Aquarium {
 
     /** The command manager */
     lateinit var commands: BukkitCommandManager<CommandSender>; private set
+
+    /** The global scheduler */
+    val scheduler; get() = AquariumScheduler
 
 //    /** Twitch management */
 //    lateinit var twitch: TwitchClient; private set

@@ -58,7 +58,7 @@ object AirHornItem : CustomItem() {
         startPos.world.playSound(sound(key(ITEM_TRIDENT_RIPTIDE_3.key.key), Sound.Source.MASTER, 1f, 0.6f), Sound.Emitter.self())
         startPos.world.playSound(sound(key(ENTITY_ENDER_DRAGON_FLAP.key.key), Sound.Source.MASTER, 2f, 0.6f), Sound.Emitter.self())
 
-        player.velocity = player.location.direction.normalize().multiply(-0.8)
+        player.velocity = player.velocity.clone().add(player.location.direction.normalize().multiply(-0.8))
 
         val targets = startPos.world.entities.filter {
             if (it == player) return@filter false
