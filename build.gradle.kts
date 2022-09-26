@@ -34,7 +34,7 @@ dependencies {
     implementation("cloud.commandframework:cloud-paper:1.7.1")
     //implementation("com.github.twitch4j:twitch4j:1.11.0")
     compileOnly("net.luckperms:api:5.4")
-    compileOnly("me.neznamy:tab-api:3.1.2")
+    compileOnly("me.neznamy:tab-api:3.1.4")
 
     kapt("cloud.commandframework:cloud-annotations:1.7.1")
 }
