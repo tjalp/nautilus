@@ -14,4 +14,6 @@ val WORLD = key("world")
 val CUSTOM_ITEM = key("custom_item")
 val ICICLE = key("icicle")
 
+val CUSTOM_ENCHANTMENTS = key("custom_enchantments")
+
 private fun key(key: String): NamespacedKey = NamespacedKey(Aquarium.loader, key)

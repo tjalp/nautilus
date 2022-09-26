@@ -40,7 +40,7 @@ class ItemBuilder {
      * Create a new builder from an [ItemStack]
      */
     constructor(itemStack: ItemStack) {
-        this.itemStack = itemStack.clone()
+        this.itemStack = itemStack
         this.itemMeta = this.itemStack.itemMeta
     }
 
@@ -63,7 +63,7 @@ class ItemBuilder {
      * @return self
      */
     fun enchant(enchantment: Enchantment, amplifier: Int): ItemBuilder {
-        this.itemStack.addEnchantment(enchantment, amplifier)
+        this.itemStack.addUnsafeEnchantment(enchantment, amplifier)
         return this
     }
 
@@ -214,6 +214,18 @@ class ItemBuilder {
          */
         fun copy(itemStack: ItemStack): ItemBuilder {
             return ItemBuilder(itemStack.clone())
+        }
+
+        /**
+         * Create an item builder of the current item stack
+         * Note: This method does not [ItemStack.clone] the
+         * current item, so everything is applied directly
+         * to the specified item stack
+         *
+         * @param itemStack The item stack to create an item builder of
+         */
+        fun of(itemStack: ItemStack): ItemBuilder {
+            return ItemBuilder(itemStack)
         }
     }
 }

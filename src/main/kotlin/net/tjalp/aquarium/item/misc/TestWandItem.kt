@@ -56,6 +56,8 @@ object TestWandItem : CustomItem() {
                 count = 1
             ).play(loc)
         }, 0, 1)
+
+        player.setCooldown(item.type, 80)
     }
 
     private fun endLine(location: Location) {
