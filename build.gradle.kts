@@ -87,8 +87,8 @@ bukkit {
     load = BukkitPluginDescription.PluginLoadOrder.POSTWORLD
     authors = listOf("tjalp")
     apiVersion = "1.19"
-    main = "net.tjalp.aquarium.AquariumLoader"
+    main = "net.tjalp.nautilus.Nautilus"
     version = project.version.toString()
-    name = "Aquarium"
-    depend = listOf("LuckPerms", "TAB")
+    name = "Nautilus"
+    depend = listOf("LuckPerms", "TAB", "ProtocolLib")
 }
