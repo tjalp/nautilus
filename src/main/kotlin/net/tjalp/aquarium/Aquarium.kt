@@ -9,6 +9,8 @@ import cloud.commandframework.bukkit.CloudBukkitCapabilities.BRIGADIER
 import cloud.commandframework.execution.CommandExecutionCoordinator.simpleCoordinator
 import cloud.commandframework.meta.CommandMeta
 import cloud.commandframework.paper.PaperCommandManager
+import com.comphenix.protocol.ProtocolLibrary
+import com.comphenix.protocol.ProtocolManager
 import me.neznamy.tab.api.TabAPI
 import net.luckperms.api.LuckPerms
 import net.tjalp.aquarium.listener.PlayerListener
@@ -46,6 +48,9 @@ object Aquarium {
     /** The LuckPerms API */
     lateinit var luckperms: LuckPerms; private set
 
+    /** The ProtocolLib API */
+    lateinit var protocol: ProtocolManager; private set
+
     /** The command manager */
     lateinit var commands: BukkitCommandManager<CommandSender>; private set
 
@@ -61,6 +66,7 @@ object Aquarium {
         this.digManager = DigManager()
         this.nametagManager = NametagManager(this, TabAPI.getInstance())
         this.itemRegistry = ItemRegistry()
+        this.protocol = ProtocolLibrary.getProtocolManager()
 
         val lpProvider = Bukkit.getServicesManager().getRegistration(LuckPerms::class.java)
         this.luckperms = lpProvider?.provider ?: return
@@ -99,6 +105,8 @@ object Aquarium {
         )
 
         annotationParser.parseContainers()
+
+        // TestCommand()
     }
 
     private fun registerListeners() {

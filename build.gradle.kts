@@ -23,7 +23,8 @@ group = mavenGroup
 repositories {
     mavenCentral()
     maven("https://repo.papermc.io/repository/maven-public/")
-    maven("https://repo.kryptonmc.org/releases")
+    maven("https://repo.kryptonmc.org/releases/")
+    maven("https://repo.dmulloy2.net/repository/public/")
 }
 
 dependencies {
@@ -35,6 +36,7 @@ dependencies {
     //implementation("com.github.twitch4j:twitch4j:1.11.0")
     compileOnly("net.luckperms:api:5.4")
     compileOnly("me.neznamy:tab-api:3.1.4")
+    compileOnly("com.comphenix.protocol:ProtocolLib:4.8.0")
 
     kapt("cloud.commandframework:cloud-annotations:1.7.1")
 }

@@ -4,6 +4,7 @@ import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.minimessage.MiniMessage.miniMessage
 import net.minecraft.network.protocol.Packet
 import net.tjalp.aquarium.Aquarium
+import net.tjalp.aquarium.command.DisguiseCommand
 import net.tjalp.aquarium.item.CustomItem
 import net.tjalp.aquarium.registry.CUSTOM_ITEM
 import org.bukkit.Chunk
@@ -19,23 +20,44 @@ fun Listener.register() = Aquarium.loader.server.pluginManager.registerEvents(th
 
 fun Player.getPrefix(): String? {
     val lp = Aquarium.luckperms
-    val user = if (isOnline) lp.getPlayerAdapter(Player::class.java).getUser(this) else lp.userManager.loadUser(uniqueId).join()
 
-    return user.cachedData.metaData.prefix
+    val prefix: String? = if (DisguiseCommand.disguises.containsKey(this.uniqueId)) {
+        val rank = DisguiseCommand.disguises[this.uniqueId]!!
+        lp.groupManager.getGroup(rank)?.cachedData?.metaData?.prefix
+    } else {
+        val user = if (isOnline) lp.getPlayerAdapter(Player::class.java).getUser(this) else lp.userManager.loadUser(uniqueId).join()
+        user.cachedData.metaData.prefix
+    }
+
+    return prefix
 }
 
 fun Player.getSuffix(): String? {
     val lp = Aquarium.luckperms
-    val user = if (isOnline) lp.getPlayerAdapter(Player::class.java).getUser(this) else lp.userManager.loadUser(uniqueId).join()
 
-    return user.cachedData.metaData.suffix
+    val suffix: String? = if (DisguiseCommand.disguises.containsKey(this.uniqueId)) {
+        val rank = DisguiseCommand.disguises[this.uniqueId]!!
+        lp.groupManager.getGroup(rank)?.cachedData?.metaData?.suffix
+    } else {
+        val user = if (isOnline) lp.getPlayerAdapter(Player::class.java).getUser(this) else lp.userManager.loadUser(uniqueId).join()
+        user.cachedData.metaData.suffix
+    }
+
+    return suffix
 }
 
 fun Player.getNameColor(): String? {
     val lp = Aquarium.luckperms
-    val user = if (isOnline) lp.getPlayerAdapter(Player::class.java).getUser(this) else lp.userManager.loadUser(uniqueId).join()
 
-    return user.cachedData.metaData.getMetaValue("name_color")
+    val color: String? = if (DisguiseCommand.disguises.containsKey(this.uniqueId)) {
+        val rank = DisguiseCommand.disguises[this.uniqueId]!!
+        lp.groupManager.getGroup(rank)?.cachedData?.metaData?.getMetaValue("name_color")
+    } else {
+        val user = if (isOnline) lp.getPlayerAdapter(Player::class.java).getUser(this) else lp.userManager.loadUser(uniqueId).join()
+        user.cachedData.metaData.getMetaValue("name_color")
+    }
+
+    return color
 }
 
 fun Player.getFormattedName(usePrefix: Boolean = true, useNameColor: Boolean = true, useSuffix: Boolean = true): Component {
@@ -54,9 +76,16 @@ fun Player.getFormattedName(usePrefix: Boolean = true, useNameColor: Boolean = t
 
 fun Player.getChatColor(): String {
     val lp = Aquarium.luckperms
-    val user = if (isOnline) lp.getPlayerAdapter(Player::class.java).getUser(this) else lp.userManager.loadUser(uniqueId).join()
 
-    return user.cachedData.metaData.getMetaValue("chat_color") ?: "<reset>"
+    val color: String? = if (DisguiseCommand.disguises.containsKey(this.uniqueId)) {
+        val rank = DisguiseCommand.disguises[this.uniqueId]!!
+        lp.groupManager.getGroup(rank)?.cachedData?.metaData?.getMetaValue("chat_color")
+    } else {
+        val user = if (isOnline) lp.getPlayerAdapter(Player::class.java).getUser(this) else lp.userManager.loadUser(uniqueId).join()
+        user.cachedData.metaData.getMetaValue("chat_color")
+    }
+
+    return color ?: "<reset>"
 }
 
 /**
