@@ -1,5 +1,6 @@
 package net.tjalp.nautilus.player.profile
 
+import org.bson.codecs.pojo.annotations.BsonId
 import java.util.*
 
 /**
@@ -7,8 +8,7 @@ import java.util.*
  * profile of a user. This may not be accurate to
  * the current data, since it's only a snapshot.
  */
-class ProfileSnapshot(
-    val uniqueId: UUID
-) {
-
-}
+data class ProfileSnapshot(
+    @BsonId val uniqueId: UUID,
+    var data: String = ""
+)
