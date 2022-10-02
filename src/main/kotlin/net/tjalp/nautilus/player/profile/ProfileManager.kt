@@ -65,7 +65,8 @@ class ProfileManager(
                                     var profile = nautilus.profiles.profile(username)
                                     if (profile == null) profile = nautilus.profiles.createProfileIfNonexistent(nautilus.server.getPlayerUniqueId(username) ?: UUID.randomUUID())
                                     profile.data = data
-                                    nautilus.mongo.mongoDatabase.getCollectionOfName<ProfileSnapshot>("profiles").save(profile).awaitSingle()
+                                    profile.save()
+                                    //nautilus.mongo.mongoDatabase.getCollectionOfName<ProfileSnapshot>("profiles").save(profile).awaitSingle()
                                     it.source.sendSuccess(Component.literal("Set data to ${profile.data} (${System.currentTimeMillis() - startTime}ms)"), false)
                                 }
                             })
