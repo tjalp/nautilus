@@ -5,10 +5,10 @@ import com.mojang.brigadier.Command
 import com.mojang.brigadier.arguments.StringArgumentType
 import com.mojang.brigadier.builder.LiteralArgumentBuilder
 import com.mojang.brigadier.builder.RequiredArgumentBuilder.argument
+import kotlinx.coroutines.*
 import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.reactive.awaitSingle
 import kotlinx.coroutines.reactive.collect
-import kotlinx.coroutines.runBlocking
 import net.kyori.adventure.text.Component.text
 import net.kyori.adventure.text.format.NamedTextColor
 import net.kyori.adventure.text.format.TextColor
@@ -31,8 +31,10 @@ import org.bukkit.event.player.PlayerToggleSneakEvent
 import org.litote.kmongo.reactivestreams.*
 import org.litote.kmongo.setTo
 import org.litote.kmongo.setValue
+import java.lang.Runnable
 import java.time.Duration
 import java.util.*
+import kotlin.system.measureTimeMillis
 
 /**
  * The profile manager manages everything about
@@ -58,32 +60,35 @@ class ProfileManager(
                 .then(argument<CommandSourceStack?, String?>("username", StringArgumentType.string())
                     .then(argument<CommandSourceStack?, String?>("data", StringArgumentType.greedyString())
                         .executes {
-                            nautilus.server.scheduler.runTaskAsynchronously(nautilus, Runnable {
-                                runBlocking {
-                                    val startTime = System.currentTimeMillis()
-                                    val username = it.getArgument("username", String::class.java)
-                                    val data = it.getArgument("data", String::class.java)
-                                    var profile = nautilus.profiles.profile(username)
-                                    if (profile == null) profile = nautilus.profiles.createProfileIfNonexistent(nautilus.server.getPlayerUniqueId(username) ?: UUID.randomUUID())
-                                    profile.data = data
-                                    profile.save()
-                                    it.source.sendSuccess(Component.literal("Set data to ${profile.data} (${System.currentTimeMillis() - startTime}ms)"), false)
+                            this.nautilus.scheduler.launch {
+                                val username = it.getArgument("username", String::class.java)
+                                val data = it.getArgument("data", String::class.java)
+                                var profile: ProfileSnapshot?
+                                val time = measureTimeMillis {
+                                    profile = nautilus.profiles.profile(username)
+                                    if (profile == null) {
+                                        val uniqueId = withContext(Dispatchers.IO) { nautilus.server.getPlayerUniqueId(username) ?: UUID.nameUUIDFromBytes(username.toByteArray()) }
+                                        profile = nautilus.profiles.createProfileIfNonexistent(uniqueId)
+                                    }
+                                    profile!!.data = data
+                                    profile!!.save()
                                 }
-                            })
+                                it.source.sendSuccess(Component.literal("Set data to ${profile!!.data} (${time}ms)"), false)
+                            }
                             return@executes Command.SINGLE_SUCCESS
                         })
                     .executes {
-                        nautilus.server.scheduler.runTaskAsynchronously(nautilus, Runnable {
-                            runBlocking {
-                                val startTime = System.currentTimeMillis()
-                                val profile = nautilus.profiles.profile(it.getArgument("username", String::class.java))
-                                if (profile == null) {
-                                    it.source.sendSuccess(Component.literal("Profile does not exist (${System.currentTimeMillis() - startTime}ms)"), false)
-                                } else {
-                                    it.source.sendSuccess(Component.literal("Profile data = ${profile.data} (${System.currentTimeMillis() - startTime}ms)"), false)
-                                }
+                        this.nautilus.scheduler.launch {
+                            val profile: ProfileSnapshot?
+                            val time = measureTimeMillis {
+                                profile = nautilus.profiles.profile(it.getArgument("username", String::class.java))
                             }
-                        })
+                            if (profile == null) {
+                                it.source.sendSuccess(Component.literal("Profile does not exist (${time}ms)"), false)
+                            } else {
+                                it.source.sendSuccess(Component.literal("Profile data = ${profile.data} (${time}ms)"), false)
+                            }
+                        }
                         return@executes Command.SINGLE_SUCCESS
                     })
         )
@@ -134,7 +139,9 @@ class ProfileManager(
 
         if (player != null) return this.profile(player)
 
-        val uniqueId = this.nautilus.server.getPlayerUniqueId(username) ?: return null
+        val uniqueId = withContext(Dispatchers.IO) {
+            nautilus.server.getPlayerUniqueId(username)
+        } ?: return null
 
         return this.profile(uniqueId)
     }

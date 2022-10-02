@@ -21,5 +21,7 @@ data class ProfileSnapshot(
     /**
      * Save this [ProfileSnapshot] to the database
      */
-    suspend fun save() = this.profiles.save(this).awaitSingle()
+    suspend fun save() {
+        this.profiles.save(this).awaitSingle()
+    }
 }
