@@ -7,6 +7,7 @@ import net.tjalp.nautilus.chat.ChatManager
 import net.tjalp.nautilus.database.MongoManager
 import net.tjalp.nautilus.exception.UnmetDependencyException
 import net.tjalp.nautilus.player.profile.ProfileManager
+import net.tjalp.nautilus.scheduler.NautilusScheduler
 import org.bukkit.Bukkit
 import org.bukkit.plugin.java.JavaPlugin
 
@@ -32,6 +33,9 @@ class Nautilus : JavaPlugin() {
     /** The [ProtocolManager] instance */
     lateinit var protocol: ProtocolManager; private set
 
+    /** The scheduler of Nautilus */
+    lateinit var scheduler: NautilusScheduler; private set
+
     override fun onEnable() {
         instance = this
 
@@ -42,6 +46,7 @@ class Nautilus : JavaPlugin() {
         this.mongo = MongoManager()
         this.profiles = ProfileManager(this)
         this.protocol = ProtocolLibrary.getProtocolManager() ?: throw UnmetDependencyException("ProtocolLib cannot be found")
+        this.scheduler = NautilusScheduler(this)
 
         this.logger.info("Startup took ${System.currentTimeMillis() - startTime}ms!")
     }
