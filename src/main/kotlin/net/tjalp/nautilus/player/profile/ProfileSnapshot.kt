@@ -1,9 +1,8 @@
 package net.tjalp.nautilus.player.profile
 
 import kotlinx.coroutines.reactive.awaitSingle
-import net.tjalp.nautilus.Nautilus
+import net.tjalp.nautilus.database.MongoCollections
 import org.bson.codecs.pojo.annotations.BsonId
-import org.litote.kmongo.reactivestreams.getCollectionOfName
 import org.litote.kmongo.reactivestreams.save
 import java.util.*
 
@@ -17,8 +16,7 @@ data class ProfileSnapshot(
     var data: String = ""
 ) {
 
-    private val nautilus = Nautilus.get()
-    private val profiles = this.nautilus.mongo.mongoDatabase.getCollectionOfName<ProfileSnapshot>("profiles")
+    private val profiles = MongoCollections.profiles
 
     /**
      * Save this [ProfileSnapshot] to the database

@@ -17,6 +17,7 @@ import net.kyori.adventure.title.Title.Times
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.network.chat.Component
 import net.tjalp.nautilus.Nautilus
+import net.tjalp.nautilus.database.MongoCollections
 import net.tjalp.nautilus.util.profile
 import net.tjalp.nautilus.util.register
 import org.bukkit.Sound
@@ -46,7 +47,7 @@ class ProfileManager(
     private val profileCache = HashMap<UUID, ProfileSnapshot>()
 
     /** The coroutine Mongo client */
-    private val profiles = this.nautilus.mongo.mongoDatabase.getCollectionOfName<ProfileSnapshot>("profiles")
+    private val profiles = MongoCollections.profiles
 
     init {
         ProfileListener().register()
@@ -66,7 +67,6 @@ class ProfileManager(
                                     if (profile == null) profile = nautilus.profiles.createProfileIfNonexistent(nautilus.server.getPlayerUniqueId(username) ?: UUID.randomUUID())
                                     profile.data = data
                                     profile.save()
-                                    //nautilus.mongo.mongoDatabase.getCollectionOfName<ProfileSnapshot>("profiles").save(profile).awaitSingle()
                                     it.source.sendSuccess(Component.literal("Set data to ${profile.data} (${System.currentTimeMillis() - startTime}ms)"), false)
                                 }
                             })
