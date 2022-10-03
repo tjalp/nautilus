@@ -92,5 +92,5 @@ bukkit {
     main = "net.tjalp.nautilus.Nautilus"
     version = project.version.toString()
     name = "Nautilus"
-    depend = listOf("LuckPerms", "TAB", "ProtocolLib")
+    depend = listOf("TAB", "ProtocolLib")
 }

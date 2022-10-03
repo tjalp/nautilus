@@ -21,6 +21,7 @@ import net.minecraft.commands.CommandSourceStack
 import net.minecraft.network.chat.Component
 import net.tjalp.nautilus.Nautilus
 import net.tjalp.nautilus.database.MongoCollections
+import net.tjalp.nautilus.player.profile.data.PermissionInfo
 import net.tjalp.nautilus.util.GsonHelper
 import net.tjalp.nautilus.util.register
 import org.bukkit.Sound
