@@ -3,6 +3,7 @@ package net.tjalp.nautilus.player.profile
 import kotlinx.coroutines.reactive.awaitSingle
 import net.tjalp.nautilus.database.MongoCollections
 import net.tjalp.nautilus.player.profile.data.InformationObject
+import net.tjalp.nautilus.player.profile.data.PermissionInfo
 import org.bson.codecs.pojo.annotations.BsonId
 import org.litote.kmongo.reactivestreams.save
 import java.util.*
@@ -15,7 +16,7 @@ import java.util.*
 data class ProfileSnapshot(
     @BsonId val uniqueId: UUID,
     var data: String? = null,
-    val info: InformationObject = InformationObject("random", 16)
+    val permissionInfo: PermissionInfo = PermissionInfo()
 ) {
 
     private val profiles = MongoCollections.profiles

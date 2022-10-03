@@ -6,8 +6,11 @@ import net.luckperms.api.LuckPerms
 import net.tjalp.nautilus.chat.ChatManager
 import net.tjalp.nautilus.database.MongoManager
 import net.tjalp.nautilus.exception.UnmetDependencyException
+import net.tjalp.nautilus.permission.PermissionManager
 import net.tjalp.nautilus.player.profile.ProfileManager
+import net.tjalp.nautilus.registry.registerRanks
 import net.tjalp.nautilus.scheduler.NautilusScheduler
+import net.tjalp.nautilus.util.mini
 import org.bukkit.Bukkit
 import org.bukkit.plugin.java.JavaPlugin
 
@@ -27,6 +30,9 @@ class Nautilus : JavaPlugin() {
     /** The Mongo Manager */
     lateinit var mongo: MongoManager; private set
 
+    /** The [PermissionManager] */
+    lateinit var perms: PermissionManager; private set
+
     /** The [ProfileManager] */
     lateinit var profiles: ProfileManager; private set
 
@@ -42,11 +48,15 @@ class Nautilus : JavaPlugin() {
         val startTime = System.currentTimeMillis()
 
         this.chat = ChatManager(this)
-        this.luckperms = Bukkit.getServicesManager().getRegistration(LuckPerms::class.java)?.provider ?: throw UnmetDependencyException("LuckPerms cannot be found")
+        //this.luckperms = Bukkit.getServicesManager().getRegistration(LuckPerms::class.java)?.provider ?: throw UnmetDependencyException("LuckPerms cannot be found")
         this.mongo = MongoManager()
+        this.perms = PermissionManager(this)
         this.profiles = ProfileManager(this)
         this.protocol = ProtocolLibrary.getProtocolManager() ?: throw UnmetDependencyException("ProtocolLib cannot be found")
         this.scheduler = NautilusScheduler(this)
+
+        this.componentLogger.info(mini("<rainbow>Registering ranks! :)"))
+        registerRanks(this)
 
         this.logger.info("Startup took ${System.currentTimeMillis() - startTime}ms!")
     }
