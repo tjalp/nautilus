@@ -21,8 +21,8 @@ import net.minecraft.commands.CommandSourceStack
 import net.minecraft.network.chat.Component
 import net.tjalp.nautilus.Nautilus
 import net.tjalp.nautilus.database.MongoCollections
-import net.tjalp.nautilus.player.profile.data.PermissionInfo
 import net.tjalp.nautilus.util.GsonHelper
+import net.tjalp.nautilus.util.player
 import net.tjalp.nautilus.util.register
 import org.bukkit.Sound
 import org.bukkit.craftbukkit.v1_19_R1.CraftServer
@@ -34,6 +34,9 @@ import org.bukkit.event.player.PlayerSwapHandItemsEvent
 import org.litote.kmongo.json
 import org.litote.kmongo.reactivestreams.deleteOneById
 import org.litote.kmongo.reactivestreams.findOneById
+import org.litote.kmongo.reactivestreams.save
+import org.litote.kmongo.setTo
+import org.litote.kmongo.setValue
 import java.time.Duration
 import java.util.*
 import kotlin.system.measureTimeMillis
@@ -84,8 +87,11 @@ class ProfileManager(
                                         val uniqueId = withContext(Dispatchers.IO) { nautilus.server.getPlayerUniqueId(username) ?: UUID.nameUUIDFromBytes(username.toByteArray()) }
                                         profile = nautilus.profiles.createProfileIfNonexistent(uniqueId)
                                     }
-                                    profile!!.data = data
-                                    profile!!.save()
+                                    profile = profile!!.update(
+                                        setValue(ProfileSnapshot::data, data)
+                                    )
+                                    //profile!!.permissionInfo.permissions
+                                    //profile!!.save()
                                 }
                                 it.source.sendSuccess(Component.literal("Set data to ${profile!!.data} (${time}ms)"), false)
                             }
@@ -171,19 +177,32 @@ class ProfileManager(
         if (profile == null) {
             profile = ProfileSnapshot(uniqueId)
 
-            this.profiles.insertOne(profile).awaitSingle()
+            this.profiles.save(profile).awaitSingle()
         }
 
         return profile
     }
 
     /**
+     * Update a profile with a new one
+     *
+     * @param profile The new profile to update with
+     */
+    fun onProfileUpdate(profile: ProfileSnapshot) {
+        if (profile.player()?.isOnline == true) {
+            cacheProfile(profile)
+        }
+    }
+
+    /**
      * Cache a profile
      *
      * @param profile The profile to cache
+     * @return The previous profile if exists, otherwise null
      */
-    private fun cacheProfile(profile: ProfileSnapshot) {
-        this.profileCache[profile.uniqueId] = profile
+    private fun cacheProfile(profile: ProfileSnapshot): ProfileSnapshot? {
+        nautilus.logger.info("Caching the profile of ${profile.player()?.name} (${profile.uniqueId})")
+        return this.profileCache.put(profile.uniqueId, profile)
     }
 
     /**
@@ -195,13 +214,8 @@ class ProfileManager(
         @EventHandler
         fun on(event: AsyncPlayerPreLoginEvent) {
             synchronized(this) {
-                nautilus.logger.info("Caching the profile of ${event.name} (${event.uniqueId})")
-
                 runBlocking {
-                    val time = measureTimeMillis {
-                        cacheProfile(createProfileIfNonexistent(event.uniqueId))
-                    }
-                    nautilus.logger.info("Cached profile of ${event.name} (${time}ms)!")
+                    cacheProfile(createProfileIfNonexistent(event.uniqueId))
                 }
             }
         }
