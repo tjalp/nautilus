@@ -9,3 +9,8 @@ import org.bukkit.entity.Player
  * @see [ProfileManager.profile]
  */
 fun Player.profile(): ProfileSnapshot = Nautilus.get().profiles.profile(this)
+
+/**
+ * @see [ProfileSnapshot.has]
+ */
+infix fun Player.has(permission: String): Boolean = this.profile().has(permission)

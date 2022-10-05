@@ -26,6 +26,7 @@ import kotlin.reflect.KProperty
 data class ProfileSnapshot(
     @BsonId val uniqueId: UUID,
     val data: String? = null,
+    val lastKnownName: String = "unknown",
     val permissionInfo: PermissionInfo = PermissionInfo()
 ) {
 
@@ -39,29 +40,29 @@ data class ProfileSnapshot(
 //    var permissionInfo: PermissionInfo = permissionInfo
 //        set(value) { field = value; set(::permissionInfo, value) }
 
-    /**
-     * Update a value to the database
-     *
-     * @param key The key to set
-     * @param value The value to set
-     */
-    private fun <T> set(key: KProperty<T?>, value: T?) {
-        this.scheduler.launch {
-            this@ProfileSnapshot.profiles.updateOneById(this@ProfileSnapshot.uniqueId, setValue(key, value)).awaitSingle()
-        }
-    }
-
-    fun <T> update(key: KMutableProperty<T>, value: T) {
-        val callable = key.setter
-        Nautilus.get().logger.info("Parameters are ${callable.parameters}")
-        callable.callBy(mapOf(
-            callable.parameters[0] to this,
-            callable.parameters[1] to value
-        ))
-        this.scheduler.launch {
-            profiles.updateOneById(uniqueId, key setTo value).awaitSingle()
-        }
-    }
+//    /**
+//     * Update a value to the database
+//     *
+//     * @param key The key to set
+//     * @param value The value to set
+//     */
+//    private fun <T> set(key: KProperty<T?>, value: T?) {
+//        this.scheduler.launch {
+//            this@ProfileSnapshot.profiles.updateOneById(this@ProfileSnapshot.uniqueId, setValue(key, value)).awaitSingle()
+//        }
+//    }
+//
+//    fun <T> update(key: KMutableProperty<T>, value: T) {
+//        val callable = key.setter
+//        Nautilus.get().logger.info("Parameters are ${callable.parameters}")
+//        callable.callBy(mapOf(
+//            callable.parameters[0] to this,
+//            callable.parameters[1] to value
+//        ))
+//        this.scheduler.launch {
+//            profiles.updateOneById(uniqueId, key setTo value).awaitSingle()
+//        }
+//    }
 
     /**
      * Updates a profile with a bson query
@@ -79,10 +80,10 @@ data class ProfileSnapshot(
         return newProfile
     }
 
-    /**
-     * Save this [ProfileSnapshot] to the database
-     */
-    suspend fun save() {
-        this.profiles.save(this).awaitSingle()
-    }
+//    /**
+//     * Save this [ProfileSnapshot] to the database
+//     */
+//    suspend fun save() {
+//        this.profiles.save(this).awaitSingle()
+//    }
 }
