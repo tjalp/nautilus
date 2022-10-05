@@ -8,6 +8,7 @@ import net.tjalp.nautilus.database.MongoManager
 import net.tjalp.nautilus.exception.UnmetDependencyException
 import net.tjalp.nautilus.permission.PermissionManager
 import net.tjalp.nautilus.player.profile.ProfileManager
+import net.tjalp.nautilus.player.tag.NametagManager
 import net.tjalp.nautilus.registry.registerRanks
 import net.tjalp.nautilus.scheduler.NautilusScheduler
 import net.tjalp.nautilus.util.mini
@@ -42,6 +43,9 @@ class Nautilus : JavaPlugin() {
     /** The scheduler of Nautilus */
     lateinit var scheduler: NautilusScheduler; private set
 
+    /** The nametag manager */
+    lateinit var nametags: NametagManager; private set
+
     override fun onEnable() {
         instance = this
 
@@ -54,6 +58,7 @@ class Nautilus : JavaPlugin() {
         this.profiles = ProfileManager(this)
         this.protocol = ProtocolLibrary.getProtocolManager() ?: throw UnmetDependencyException("ProtocolLib cannot be found")
         this.scheduler = NautilusScheduler(this)
+        this.nametags = NametagManager(this)
 
         this.componentLogger.info(mini("<rainbow>Registering ranks! :)"))
         registerRanks(this)

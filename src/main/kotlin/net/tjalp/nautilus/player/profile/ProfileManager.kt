@@ -21,6 +21,7 @@ import net.minecraft.commands.CommandSourceStack
 import net.minecraft.network.chat.Component
 import net.tjalp.nautilus.Nautilus
 import net.tjalp.nautilus.database.MongoCollections
+import net.tjalp.nautilus.event.ProfileUpdateEvent
 import net.tjalp.nautilus.util.*
 import org.bukkit.Sound
 import org.bukkit.craftbukkit.v1_19_R1.CraftServer
@@ -189,9 +190,16 @@ class ProfileManager(
      * @param profile The new profile to update with
      */
     fun onProfileUpdate(profile: ProfileSnapshot) {
+        var previous: ProfileSnapshot? = null
+
         if (profile.player()?.isOnline == true) {
-            cacheProfile(profile)
+            previous = cacheProfile(profile)
         }
+
+        ProfileUpdateEvent(
+            profile = profile,
+            previous = previous
+        ).callEvent()
     }
 
     /**
