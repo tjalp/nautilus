@@ -21,15 +21,15 @@ import net.minecraft.commands.CommandSourceStack
 import net.minecraft.network.chat.Component
 import net.tjalp.nautilus.Nautilus
 import net.tjalp.nautilus.database.MongoCollections
-import net.tjalp.nautilus.util.GsonHelper
-import net.tjalp.nautilus.util.player
-import net.tjalp.nautilus.util.register
+import net.tjalp.nautilus.util.*
 import org.bukkit.Sound
 import org.bukkit.craftbukkit.v1_19_R1.CraftServer
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
+import org.bukkit.event.EventPriority
 import org.bukkit.event.Listener
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent
+import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.event.player.PlayerSwapHandItemsEvent
 import org.litote.kmongo.json
 import org.litote.kmongo.reactivestreams.deleteOneById
@@ -225,6 +225,20 @@ class ProfileManager(
             synchronized(this) {
                 nautilus.logger.info("Removing the cached profile of ${event.playerName} (${event.playerUniqueId})")
                 profileCache -= event.playerUniqueId
+            }
+        }
+
+        @EventHandler(priority = EventPriority.LOW)
+        fun on(event: PlayerJoinEvent) {
+            val player = event.player
+            val profile = player.profile()
+
+            player.displayName(profile.nameComponent(showSuffix = false))
+
+            nautilus.scheduler.launch {
+                profile.update(
+                    setValue(ProfileSnapshot::lastKnownName, player.name)
+                )
             }
         }
 

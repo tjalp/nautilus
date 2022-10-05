@@ -9,7 +9,6 @@ import org.bukkit.event.EventHandler
 import org.bukkit.event.EventPriority
 import org.bukkit.event.Listener
 import org.bukkit.event.player.PlayerJoinEvent
-import java.lang.IllegalArgumentException
 
 /**
  * The permission manager contains information about
@@ -71,6 +70,20 @@ class PermissionManager(val nautilus: Nautilus) {
     }
 
     /**
+     * Gets a list of ranks of a [ProfileSnapshot]
+     */
+    fun getRanks(profile: ProfileSnapshot): Set<PermissionRank> {
+        val hashSet = HashSet<PermissionRank>()
+        val profileRanks = profile.permissionInfo.ranks
+
+        for (rank in ranks) {
+            if (rank.id in profileRanks) hashSet += rank
+        }
+
+        return hashSet
+    }
+
+    /**
      * Returns whether a rank (or an inheritant) has
      * a certain permission
      *
@@ -103,11 +116,21 @@ class PermissionManager(val nautilus: Nautilus) {
 
         if (permission in permissionInfo.permissions) return true
 
-        for (rank in profile.ranks()) {
+        for (rank in getRanks(profile)) {
             if (has(rank, permission)) return true
         }
 
         return false
+    }
+
+    /**
+     * Get the primary rank of a profile
+     *
+     * @param profile The profile to use
+     * @return The primary rank of this profile
+     */
+    fun getPrimaryRank(profile: ProfileSnapshot): PermissionRank {
+        return getRanks(profile).maxByOrNull { it.weight } ?: this.defaultRank
     }
 
     /**
@@ -120,7 +143,11 @@ class PermissionManager(val nautilus: Nautilus) {
             val player = event.player
             val globalPermissions = nautilus.server.pluginManager.permissions
 
+            if (player.isOp) return
+
             for (perm in globalPermissions) player.addAttachment(nautilus, perm.name, false)
+
+            player.updateCommands()
         }
     }
 }

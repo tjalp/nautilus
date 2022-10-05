@@ -1,6 +1,8 @@
 package net.tjalp.nautilus.permission
 
 import net.kyori.adventure.text.Component
+import net.kyori.adventure.text.TextComponent
+import net.kyori.adventure.text.format.TextColor
 import net.tjalp.nautilus.Nautilus
 
 /**
@@ -9,10 +11,11 @@ import net.tjalp.nautilus.Nautilus
  */
 class PermissionRank(
     val id: String,
+    val weight: Int,
     val name: String,
-    val displayName: Component,
-    val prefix: Component = Component.empty(),
-    val suffix: Component = Component.empty(),
+    val nameColor: TextColor,
+    val prefix: TextComponent = Component.empty(),
+    val suffix: TextComponent = Component.empty(),
     val chatFormat: Component = Component.empty(),
     val permissions: Set<String> = emptySet(),
     inherits: Set<String> = emptySet()
