@@ -6,17 +6,12 @@ import com.mojang.brigadier.Command
 import com.mojang.brigadier.arguments.StringArgumentType
 import com.mojang.brigadier.builder.LiteralArgumentBuilder
 import com.mojang.brigadier.builder.RequiredArgumentBuilder.argument
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.reactive.awaitSingle
-import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withContext
 import net.kyori.adventure.text.Component.text
-import net.kyori.adventure.text.format.NamedTextColor
-import net.kyori.adventure.text.format.TextColor
-import net.kyori.adventure.title.Title
-import net.kyori.adventure.title.Title.Times
+import net.kyori.adventure.text.format.NamedTextColor.GRAY
+import net.kyori.adventure.text.format.TextColor.color
 import net.minecraft.commands.CommandSourceStack
 import net.minecraft.network.chat.Component
 import net.tjalp.nautilus.Nautilus
@@ -31,14 +26,14 @@ import org.bukkit.event.EventPriority
 import org.bukkit.event.Listener
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent
 import org.bukkit.event.player.PlayerJoinEvent
+import org.bukkit.event.player.PlayerQuitEvent
 import org.bukkit.event.player.PlayerSwapHandItemsEvent
 import org.litote.kmongo.json
 import org.litote.kmongo.reactivestreams.deleteOneById
 import org.litote.kmongo.reactivestreams.findOneById
 import org.litote.kmongo.reactivestreams.save
-import org.litote.kmongo.setTo
 import org.litote.kmongo.setValue
-import java.time.Duration
+import java.time.LocalDateTime
 import java.util.*
 import kotlin.system.measureTimeMillis
 
@@ -59,61 +54,6 @@ class ProfileManager(
 
     init {
         ProfileListener().register()
-
-        // todo remove this as it was a test
-        (nautilus.server as CraftServer).handle.server.vanillaCommandDispatcher.dispatcher.register(
-            LiteralArgumentBuilder.literal<CommandSourceStack?>("profile")
-                .then(argument<CommandSourceStack?, String?>("username", StringArgumentType.string())
-                    .then(LiteralArgumentBuilder.literal<CommandSourceStack?>("delete")
-                        .executes {
-                            this.nautilus.scheduler.launch {
-                                val username = it.getArgument("username", String::class.java)
-                                val time = measureTimeMillis {
-                                    val uniqueId = withContext(Dispatchers.IO) { nautilus.server.getPlayerUniqueId(username) ?: UUID.nameUUIDFromBytes(username.toByteArray()) }
-                                    profiles.deleteOneById(uniqueId).awaitSingle()
-                                }
-                                it.source.sendSuccess(Component.literal("Deleted $username's profile (${time}ms)"), false)
-                            }
-                            return@executes Command.SINGLE_SUCCESS
-                        })
-                    .then(argument<CommandSourceStack?, String?>("data", StringArgumentType.greedyString())
-                        .executes {
-                            this.nautilus.scheduler.launch {
-                                val username = it.getArgument("username", String::class.java)
-                                val data = it.getArgument("data", String::class.java)
-                                var profile: ProfileSnapshot?
-                                val time = measureTimeMillis {
-                                    profile = nautilus.profiles.profile(username)
-                                    if (profile == null) {
-                                        val uniqueId = withContext(Dispatchers.IO) { nautilus.server.getPlayerUniqueId(username) ?: UUID.nameUUIDFromBytes(username.toByteArray()) }
-                                        profile = nautilus.profiles.createProfileIfNonexistent(uniqueId)
-                                    }
-                                    profile = profile!!.update(
-                                        setValue(ProfileSnapshot::data, data)
-                                    )
-                                    //profile!!.permissionInfo.permissions
-                                    //profile!!.save()
-                                }
-                                it.source.sendSuccess(Component.literal("Set data to ${profile!!.data} (${time}ms)"), false)
-                            }
-                            return@executes Command.SINGLE_SUCCESS
-                        })
-                    .executes {
-                        this.nautilus.scheduler.launch {
-                            val profile: ProfileSnapshot?
-                            val time = measureTimeMillis {
-                                profile = nautilus.profiles.profile(it.getArgument("username", String::class.java))
-                            }
-                            if (profile == null) {
-                                it.source.sendSuccess(Component.literal("Profile does not exist (${time}ms)"), false)
-                            } else {
-                                val profileJson = GsonHelper.pretty().toJson(JsonParser.parseString(profile.json))
-                                it.source.sendSuccess(Component.literal("Profile = $profileJson (${time}ms)"), false)
-                            }
-                        }
-                        return@executes Command.SINGLE_SUCCESS
-                    })
-        )
     }
 
     /**
@@ -245,8 +185,19 @@ class ProfileManager(
 
             nautilus.scheduler.launch {
                 profile.update(
-                    setValue(ProfileSnapshot::lastKnownName, player.name)
+                    setValue(ProfileSnapshot::lastKnownName, player.name),
+                    setValue(ProfileSnapshot::lastOnline, LocalDateTime.now())
                 )
+            }
+        }
+
+        @EventHandler(priority = EventPriority.LOW)
+        fun on(event: PlayerQuitEvent) {
+            val player = event.player
+            val profile = player.profile()
+
+            nautilus.scheduler.launch {
+                profile.update(setValue(ProfileSnapshot::lastOnline, LocalDateTime.now()))
             }
         }
 
@@ -256,29 +207,26 @@ class ProfileManager(
             val uniqueId = UUID.randomUUID()
             val startTime = System.currentTimeMillis()
 
-            nautilus.server.scheduler.runTaskAsynchronously(nautilus, Runnable {
-                runBlocking {
-                    player.playSound(player.location, Sound.UI_BUTTON_CLICK, 10f, 1f)
-                    player.showTitle(Title
-                        .title(
-                            text("Please Wait", NamedTextColor.GRAY),
-                            text("Fetching profile of $uniqueId...", TextColor.color(255, 191, 0)),
-                            Times.times(Duration.ZERO, Duration.ofSeconds(5L), Duration.ofMillis(200L))
-                        )
-                    )
+            player.playSound(player.location, Sound.UI_BUTTON_CLICK, 10f, 1f)
+            player.sendActionBar(
+                text().append(text("Please Wait: ", GRAY))
+                    .append(text("Fetching profile of $uniqueId...", color(255, 191, 0)))
+            )
 
-                    val profile = profile(uniqueId)
+            nautilus.scheduler.launch {
+                val profile = profile(uniqueId)
 
-                    if (profile == null) {
-                        player.sendMessage(text("No profile found (took ${System.currentTimeMillis() - startTime}ms)"))
-                        player.clearTitle()
-                        return@runBlocking
-                    }
-
-                    player.sendMessage(text("Profile uniqueId = ${profile.uniqueId}"))
-                    player.clearTitle()
+                if (profile == null) {
+                    player.sendMessage(text("No profile found (took ${System.currentTimeMillis() - startTime}ms)"))
+                    delay(500)
+                    player.sendActionBar(text(""))
+                    return@launch
                 }
-            })
+
+                player.sendMessage(text("Profile uniqueId = ${profile.uniqueId}"))
+                delay(500)
+                player.sendActionBar(text(""))
+            }
         }
     }
 }

@@ -42,7 +42,7 @@ class NametagManager(
      * @param profile The profile to update from
      */
     fun update(profile: ProfileSnapshot) {
-        val tabPlayer = tabApi.getPlayer(profile.uniqueId)
+        val tabPlayer = tabApi.getPlayer(profile.uniqueId) ?: return
         val rank = profile.primaryRank()
 
         if (!tabPlayer.isLoaded) return

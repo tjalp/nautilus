@@ -2,7 +2,6 @@ package net.tjalp.nautilus.player.profile
 
 import com.mongodb.client.model.FindOneAndUpdateOptions
 import com.mongodb.client.model.ReturnDocument
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.reactive.awaitSingle
 import net.tjalp.nautilus.Nautilus
 import net.tjalp.nautilus.database.MongoCollections
@@ -10,13 +9,9 @@ import net.tjalp.nautilus.player.profile.data.PermissionInfo
 import org.bson.codecs.pojo.annotations.BsonId
 import org.bson.conversions.Bson
 import org.litote.kmongo.eq
-import org.litote.kmongo.reactivestreams.save
-import org.litote.kmongo.reactivestreams.updateOneById
-import org.litote.kmongo.setTo
-import org.litote.kmongo.setValue
+import java.time.LocalDateTime
+import java.time.ZoneOffset
 import java.util.*
-import kotlin.reflect.KMutableProperty
-import kotlin.reflect.KProperty
 
 /**
  * A profile snapshot is a snapshot of the current
@@ -27,6 +22,7 @@ data class ProfileSnapshot(
     @BsonId val uniqueId: UUID,
     val data: String? = null,
     val lastKnownName: String = "unknown",
+    val lastOnline: LocalDateTime = LocalDateTime.ofEpochSecond(0, 0, ZoneOffset.UTC),
     val permissionInfo: PermissionInfo = PermissionInfo()
 ) {
 
@@ -70,10 +66,10 @@ data class ProfileSnapshot(
      * @param bson The bson query
      * @return The updated profile
      */
-    suspend fun update(bson: Bson): ProfileSnapshot {
+    suspend fun update(vararg bson: Bson): ProfileSnapshot {
         val newProfile = this.profiles.findOneAndUpdate(
             ::uniqueId eq this.uniqueId,
-            bson,
+            bson.toList(),
             FindOneAndUpdateOptions().returnDocument(ReturnDocument.AFTER)
         ).awaitSingle()
         this.nautilus.profiles.onProfileUpdate(newProfile)

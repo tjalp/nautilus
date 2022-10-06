@@ -1,9 +1,13 @@
 package net.tjalp.nautilus
 
+import cloud.commandframework.bukkit.CloudBukkitCapabilities
+import cloud.commandframework.execution.CommandExecutionCoordinator
+import cloud.commandframework.paper.PaperCommandManager
 import com.comphenix.protocol.ProtocolLibrary
 import com.comphenix.protocol.ProtocolManager
-import net.luckperms.api.LuckPerms
 import net.tjalp.nautilus.chat.ChatManager
+import net.tjalp.nautilus.command.NautilusCommandImpl
+import net.tjalp.nautilus.command.ProfileCommand
 import net.tjalp.nautilus.database.MongoManager
 import net.tjalp.nautilus.exception.UnmetDependencyException
 import net.tjalp.nautilus.permission.PermissionManager
@@ -12,8 +16,10 @@ import net.tjalp.nautilus.player.tag.NametagManager
 import net.tjalp.nautilus.registry.registerRanks
 import net.tjalp.nautilus.scheduler.NautilusScheduler
 import net.tjalp.nautilus.util.mini
-import org.bukkit.Bukkit
+import org.bukkit.command.CommandSender
 import org.bukkit.plugin.java.JavaPlugin
+import org.ocpsoft.prettytime.PrettyTime
+import java.util.function.Function
 
 /**
  * The main class that contains all
@@ -25,8 +31,8 @@ class Nautilus : JavaPlugin() {
     /** The [ChatManager] instance */
     lateinit var chat: ChatManager; private set
 
-    /** The [LuckPerms] API instance */
-    lateinit var luckperms: LuckPerms; private set
+    /** The command manager */
+    lateinit var commands: PaperCommandManager<CommandSender>; private set
 
     /** The Mongo Manager */
     lateinit var mongo: MongoManager; private set
@@ -63,6 +69,18 @@ class Nautilus : JavaPlugin() {
         this.componentLogger.info(mini("<rainbow>Registering ranks! :)"))
         registerRanks(this)
 
+        this.commands = PaperCommandManager(
+            this,
+            CommandExecutionCoordinator.simpleCoordinator(),
+            Function.identity(),
+            Function.identity()
+        )
+        if (this.commands.hasCapability(CloudBukkitCapabilities.BRIGADIER)) this.commands.registerBrigadier()
+        if (this.commands.hasCapability(CloudBukkitCapabilities.ASYNCHRONOUS_COMPLETION)) this.commands.registerAsynchronousCompletions()
+
+        NautilusCommandImpl(this)
+        ProfileCommand(this)
+
         this.logger.info("Startup took ${System.currentTimeMillis() - startTime}ms!")
     }
 
@@ -74,6 +92,8 @@ class Nautilus : JavaPlugin() {
 
         /** The main [Nautilus] instance */
         private lateinit var instance: Nautilus
+
+        val TIME_FORMAT = PrettyTime()
 
         /**
          * Gets the main [Nautilus] instance.

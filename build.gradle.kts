@@ -35,6 +35,7 @@ dependencies {
     implementation("cloud.commandframework:cloud-paper:1.7.1")
     implementation("org.litote.kmongo:kmongo-async:4.7.1")
     implementation("org.litote.kmongo:kmongo-coroutine:4.7.1")
+    implementation("org.ocpsoft.prettytime:prettytime:5.0.2.Final")
     //implementation("com.github.twitch4j:twitch4j:1.11.0")
     compileOnly("net.luckperms:api:5.4")
     compileOnly("me.neznamy:tab-api:3.1.4")
@@ -79,8 +80,8 @@ tasks {
     }
 
     shadowJar {
-        relocate("cloud.commandframework", "net.tjalp.aquarium.lib.cloud")
-        relocate("com.github.twitch4j", "net.tjalp.aquarium.lib.twitch4j")
+        relocate("cloud.commandframework", "net.tjalp.nautilus.lib.cloud")
+        relocate("com.github.twitch4j", "net.tjalp.nautilus.lib.twitch4j")
         //relocate("kotlin", "net.tjalp.aquarium.lib.kotlin")
     }
 }
