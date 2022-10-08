@@ -10,6 +10,7 @@ import kotlinx.coroutines.withContext
 import net.kyori.adventure.text.Component.*
 import net.kyori.adventure.text.format.NamedTextColor.GRAY
 import net.kyori.adventure.text.format.NamedTextColor.WHITE
+import net.kyori.adventure.text.format.TextDecoration.BOLD
 import net.kyori.adventure.text.format.TextDecoration.UNDERLINED
 import net.tjalp.nautilus.Nautilus
 import net.tjalp.nautilus.database.MongoCollections
@@ -29,6 +30,9 @@ import kotlin.system.measureTimeMillis
 class ProfileCommand(
     override val nautilus: Nautilus
 ) : NautilusCommand() {
+
+    private val profiles = this.nautilus.profiles
+    private val scheduler = this.nautilus.scheduler
 
     init {
         val builder = builder("profile")
@@ -67,10 +71,10 @@ class ProfileCommand(
     }
 
     private fun profile(sender: CommandSender, username: String) {
-        this.nautilus.scheduler.launch {
+        this.scheduler.launch {
             val profile: ProfileSnapshot?
             val time = measureTimeMillis {
-                profile = nautilus.profiles.profile(username)
+                profile = profiles.profile(username)
             }
             if (profile == null) {
                 sender.sendMessage(mini("<red>Profile does not exist <gray>(${time}ms)"))
@@ -80,20 +84,20 @@ class ProfileCommand(
 
                 val component = text()
 
-                component.append(text("Ranks", GRAY, UNDERLINED))
+                component.append(text("ʀᴀɴᴋs", GRAY, BOLD).append(mini(" <#82826f><!b>→")))
                 for (rank in profile.ranks().sortedBy { it.weight }) component.append(newline()).append(rank.prefix)
 
                 component.append(newline()).append(
-                    text("Last Online", GRAY, UNDERLINED)
-                ).append(space()).append(text(Nautilus.TIME_FORMAT.format(profile.lastOnline), WHITE).decoration(UNDERLINED, false))
+                    text("ʟᴀsᴛ ᴏɴʟɪɴᴇ", GRAY, BOLD).append(mini(" <#82826f><!b>→"))
+                ).append(space()).append(text(Nautilus.TIME_FORMAT.format(profile.lastOnline), WHITE).decoration(BOLD, false))
 
                 component.append(newline()).append(
-                    text("Data", GRAY, UNDERLINED)
-                ).append(space()).append(text(profile.data ?: "", WHITE).decoration(UNDERLINED, false))
+                    text("ᴅᴀᴛᴀ", GRAY, BOLD).append(mini(" <#82826f><!b>→"))
+                ).append(space()).append(text(profile.data ?: "", WHITE).decoration(BOLD, false))
 
                 component.append(newline()).append(
-                    text("Last Known Name", GRAY, UNDERLINED)
-                ).append(space()).append(text(profile.lastKnownName, WHITE).decoration(UNDERLINED, false))
+                    text("ʟᴀsᴛ ᴋɴᴏᴡɴ ɴᴀᴍᴇ", GRAY, BOLD).append(mini(" <#82826f><!b>→"))
+                ).append(space()).append(text(profile.lastKnownName, WHITE).decoration(BOLD, false))
 
                 sender.sendMessage(component.build())
             }
@@ -101,21 +105,21 @@ class ProfileCommand(
     }
 
     private fun data(sender: CommandSender, username: String, data: String) {
-        this.nautilus.scheduler.launch {
+        this.scheduler.launch {
             var profile: ProfileSnapshot?
             val time = measureTimeMillis {
-                profile = nautilus.profiles.profile(username)
+                profile = profiles.profile(username)
                 if (profile == null) {
                     val uniqueId = withContext(Dispatchers.IO) {
                         nautilus.server.getPlayerUniqueId(username) ?: UUID.nameUUIDFromBytes(username.toByteArray())
                     }
-                    profile = nautilus.profiles.createProfileIfNonexistent(uniqueId)
+                    profile = profiles.createProfileIfNonexistent(uniqueId)
                 }
                 profile = profile!!.update(setValue(ProfileSnapshot::data, data))
             }
             sender.sendMessage(
                 text("Set data of ", GRAY)
-                    .append(profile!!.nameComponent(showSuffix = false))
+                    .append(profile!!.nameComponent(useMask = false, showSuffix = false))
                     .append(text("'s profile to '"))
                     .append(text(profile!!.data ?: return@launch, WHITE))
                     .append(text("'"))
@@ -125,7 +129,7 @@ class ProfileCommand(
     }
 
     private fun delete(sender: CommandSender, username: String) {
-        this.nautilus.scheduler.launch {
+        this.scheduler.launch {
             val time = measureTimeMillis {
                 val uniqueId = withContext(Dispatchers.IO) {
                     nautilus.server.getPlayerUniqueId(username) ?: UUID.nameUUIDFromBytes(username.toByteArray())
@@ -138,7 +142,7 @@ class ProfileCommand(
     }
 
     private fun update(sender: CommandSender, username: String) {
-        this.nautilus.scheduler.launch {
+        this.scheduler.launch {
             val profile: ProfileSnapshot?
             val time = measureTimeMillis {
                 val uniqueId = withContext(Dispatchers.IO) {
@@ -146,13 +150,13 @@ class ProfileCommand(
                 }
                 profile = MongoCollections.profiles.findOneById(uniqueId).awaitFirstOrNull()
 
-                if (profile != null) nautilus.profiles.onProfileUpdate(profile)
+                if (profile != null) profiles.onProfileUpdate(profile)
             }
 
             if (profile != null) {
                 sender.sendMessage(
                     text("Updated ", GRAY)
-                        .append(profile.nameComponent(showSuffix = false))
+                        .append(profile.nameComponent(useMask = false, showSuffix = false))
                         .append(text("'s profile")).append(space())
                         .append(text("(${time}ms)", WHITE))
                 )

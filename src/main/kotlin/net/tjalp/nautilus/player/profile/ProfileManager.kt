@@ -1,25 +1,20 @@
 package net.tjalp.nautilus.player.profile
 
 import com.destroystokyo.paper.event.player.PlayerConnectionCloseEvent
-import com.google.gson.JsonParser
-import com.mojang.brigadier.Command
-import com.mojang.brigadier.arguments.StringArgumentType
-import com.mojang.brigadier.builder.LiteralArgumentBuilder
-import com.mojang.brigadier.builder.RequiredArgumentBuilder.argument
 import kotlinx.coroutines.*
 import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.reactive.awaitSingle
 import net.kyori.adventure.text.Component.text
 import net.kyori.adventure.text.format.NamedTextColor.GRAY
 import net.kyori.adventure.text.format.TextColor.color
-import net.minecraft.commands.CommandSourceStack
-import net.minecraft.network.chat.Component
 import net.tjalp.nautilus.Nautilus
 import net.tjalp.nautilus.database.MongoCollections
 import net.tjalp.nautilus.event.ProfileUpdateEvent
-import net.tjalp.nautilus.util.*
+import net.tjalp.nautilus.util.nameComponent
+import net.tjalp.nautilus.util.player
+import net.tjalp.nautilus.util.profile
+import net.tjalp.nautilus.util.register
 import org.bukkit.Sound
-import org.bukkit.craftbukkit.v1_19_R1.CraftServer
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.EventPriority
@@ -28,14 +23,11 @@ import org.bukkit.event.player.AsyncPlayerPreLoginEvent
 import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.event.player.PlayerQuitEvent
 import org.bukkit.event.player.PlayerSwapHandItemsEvent
-import org.litote.kmongo.json
-import org.litote.kmongo.reactivestreams.deleteOneById
 import org.litote.kmongo.reactivestreams.findOneById
 import org.litote.kmongo.reactivestreams.save
 import org.litote.kmongo.setValue
 import java.time.LocalDateTime
 import java.util.*
-import kotlin.system.measureTimeMillis
 
 /**
  * The profile manager manages everything about
@@ -180,8 +172,6 @@ class ProfileManager(
         fun on(event: PlayerJoinEvent) {
             val player = event.player
             val profile = player.profile()
-
-            player.displayName(profile.nameComponent(showSuffix = false))
 
             nautilus.scheduler.launch {
                 profile.update(
