@@ -11,7 +11,6 @@ import net.kyori.adventure.text.Component.*
 import net.kyori.adventure.text.format.NamedTextColor.GRAY
 import net.kyori.adventure.text.format.NamedTextColor.WHITE
 import net.kyori.adventure.text.format.TextDecoration.BOLD
-import net.kyori.adventure.text.format.TextDecoration.UNDERLINED
 import net.tjalp.nautilus.Nautilus
 import net.tjalp.nautilus.database.MongoCollections
 import net.tjalp.nautilus.player.profile.ProfileSnapshot
@@ -20,6 +19,7 @@ import net.tjalp.nautilus.util.mini
 import net.tjalp.nautilus.util.nameComponent
 import net.tjalp.nautilus.util.ranks
 import org.bukkit.command.CommandSender
+import org.bukkit.entity.Player
 import org.litote.kmongo.json
 import org.litote.kmongo.reactivestreams.deleteOneById
 import org.litote.kmongo.reactivestreams.findOneById
@@ -64,7 +64,7 @@ class ProfileCommand(
         )
 
         register(
-            builder.handler {
+            builder.senderType(Player::class.java).handler {
                 profile(it.sender, it.sender.name)
             }
         )
