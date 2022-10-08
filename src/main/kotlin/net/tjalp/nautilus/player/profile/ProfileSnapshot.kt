@@ -21,8 +21,10 @@ import java.util.*
 data class ProfileSnapshot(
     @BsonId val uniqueId: UUID,
     val data: String? = null,
-    val lastKnownName: String = "unknown",
+    val lastKnownName: String = "(unknown)",
     val lastOnline: LocalDateTime = LocalDateTime.ofEpochSecond(0, 0, ZoneOffset.UTC),
+    val maskName: String? = null,
+    val maskRank: String? = null,
     val permissionInfo: PermissionInfo = PermissionInfo()
 ) {
 

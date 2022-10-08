@@ -8,8 +8,8 @@ import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer
 import net.tjalp.nautilus.Nautilus
 import net.tjalp.nautilus.event.ProfileUpdateEvent
 import net.tjalp.nautilus.player.profile.ProfileSnapshot
+import net.tjalp.nautilus.util.displayRank
 import net.tjalp.nautilus.util.nameComponent
-import net.tjalp.nautilus.util.primaryRank
 import net.tjalp.nautilus.util.profile
 import net.tjalp.nautilus.util.register
 import org.bukkit.entity.Player
@@ -43,7 +43,7 @@ class NametagManager(
      */
     fun update(profile: ProfileSnapshot) {
         val tabPlayer = tabApi.getPlayer(profile.uniqueId) ?: return
-        val rank = profile.primaryRank()
+        val rank = profile.displayRank()
 
         if (!tabPlayer.isLoaded) return
 
@@ -79,7 +79,10 @@ class NametagManager(
             val prev = event.previous
             val component = profile.nameComponent(showSuffix = false)
 
-            if (profile.permissionInfo.ranks != prev?.permissionInfo?.ranks) {
+            if (profile.permissionInfo.ranks != prev?.permissionInfo?.ranks
+                || profile.maskName != prev.maskName
+                || profile.maskRank != prev.maskRank
+            ) {
                 update(profile)
 
                 player?.displayName(component)
