@@ -35,7 +35,7 @@ dependencies {
     implementation("cloud.commandframework:cloud-paper:1.7.1")
     implementation("org.litote.kmongo:kmongo-async:4.7.1")
     implementation("org.litote.kmongo:kmongo-coroutine:4.7.1")
-    implementation("org.ocpsoft.prettytime:prettytime:5.0.2.Final")
+    implementation("org.ocpsoft.prettytime:prettytime:5.0.4.Final")
     implementation("io.ktor:ktor-client-core:2.1.2")
     implementation("io.ktor:ktor-client-okhttp:2.1.2")
     //implementation("com.github.twitch4j:twitch4j:1.11.0")
