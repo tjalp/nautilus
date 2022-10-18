@@ -23,7 +23,7 @@ class MaskCommand(
 
     init {
         val builder = builder("mask", "nick").senderType(Player::class.java)
-        val nameArg = StringArgument.of<CommandSender>("username")
+        val nameArg = StringArgument.quoted<CommandSender>("username")
         val rankArg = StringArgument.of<CommandSender>("rank")
         val skinArg = StringArgument.of<CommandSender>("skin")
 

@@ -10,10 +10,7 @@ import net.kyori.adventure.text.format.TextColor.color
 import net.tjalp.nautilus.Nautilus
 import net.tjalp.nautilus.database.MongoCollections
 import net.tjalp.nautilus.event.ProfileUpdateEvent
-import net.tjalp.nautilus.util.nameComponent
-import net.tjalp.nautilus.util.player
-import net.tjalp.nautilus.util.profile
-import net.tjalp.nautilus.util.register
+import net.tjalp.nautilus.util.*
 import org.bukkit.Sound
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
@@ -172,11 +169,15 @@ class ProfileManager(
         fun on(event: PlayerJoinEvent) {
             val player = event.player
             val profile = player.profile()
+            val playerProfile = player.playerProfile
+            val textures = playerProfile.properties.firstOrNull { it.name == "textures" }
+            val blob = if (textures == null) null else SkinBlob(textures.value, textures.signature ?: "")
 
             nautilus.scheduler.launch {
                 profile.update(
                     setValue(ProfileSnapshot::lastKnownName, player.name),
-                    setValue(ProfileSnapshot::lastOnline, LocalDateTime.now())
+                    setValue(ProfileSnapshot::lastOnline, LocalDateTime.now()),
+                    setValue(ProfileSnapshot::lastKnownSkin, blob)
                 )
             }
         }

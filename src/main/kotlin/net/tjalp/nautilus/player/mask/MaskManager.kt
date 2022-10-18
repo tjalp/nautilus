@@ -8,9 +8,7 @@ import com.comphenix.protocol.wrappers.PlayerInfoData
 import com.comphenix.protocol.wrappers.WrappedGameProfile
 import com.comphenix.protocol.wrappers.WrappedSignedProperty
 import com.destroystokyo.paper.profile.PlayerProfile
-import io.papermc.paper.adventure.PaperAdventure
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.Component.text
@@ -144,20 +142,15 @@ class MaskManager(
      * @return The new [WrappedGameProfile]
      */
     fun generateGameProfile(profile: ProfileSnapshot, identity: WrappedGameProfile? = null): WrappedGameProfile? {
-//        val username = profile.displayName()
-        val username = profile.player()?.name ?: profile.lastKnownName
+        val username = profile.displayName()
         val uniqueId = profile.uniqueId
-        val gameProfile = identity ?: WrappedGameProfile(uniqueId, username)
+        val gameProfile = identity?.withName(username)?.withId(uniqueId.toString()) ?: WrappedGameProfile(uniqueId, username)
         val skinBlob = if (profile.maskSkin != null) {
-            nautilus.logger.info("Has mask skin")
             profile.maskSkin
         } else {
-            nautilus.logger.info("Does not have maskSkin")
             if (identity == null) return null
-            nautilus.logger.info("Identity is there")
 
             val texturesProperty = identity.properties.get("textures").firstOrNull() ?: return null
-            nautilus.logger.info("textures exists")
 
             SkinBlob(
                 texturesProperty.value,
@@ -183,7 +176,7 @@ class MaskManager(
         override fun onPacketSending(event: PacketEvent) {
             when (event.packetType) {
                 CHAT -> onChat(event)
-//                PLAYER_INFO -> onPlayerInfo(event)
+                PLAYER_INFO -> onPlayerInfo(event)
             }
         }
 
@@ -201,22 +194,16 @@ class MaskManager(
         }
 
         private fun onPlayerInfo(event: PacketEvent) {
-            nautilus.logger.info("Packet event fired!")
             val packet = event.packet
             val playerInfoData = packet.playerInfoDataLists.read(0).map { info ->
                 val player = nautilus.server.getPlayer(info.profile.uuid) ?: return@map info
                 val profile = player.profile()
-                nautilus.logger.info("Player info data map")
-
-                if (event.player == player) return@map info
 
                 if (
                     profile.maskName == null
                     && profile.maskRank == null
                     && profile.maskSkin == null
                 ) return@map info
-
-                nautilus.logger.info("Has a mask")
 
                 return@map PlayerInfoData(
                     generateGameProfile(profile, info.profile),
@@ -240,17 +227,6 @@ class MaskManager(
                     )
                     .build()
             )
-
-            val textureProperty = event.player.playerProfile.properties.firstOrNull { it.name == "textures" } ?: return
-            val signature = textureProperty.signature ?: return
-
-            this@MaskManager.nautilus.scheduler.launch {
-                profile.update(
-                    setValue(ProfileSnapshot::lastKnownSkin, SkinBlob(textureProperty.value, signature))
-                )
-            }
-
-            event.player.setSkin(skin(profile))
         }
 
         @EventHandler
@@ -271,7 +247,9 @@ class MaskManager(
             val profile = event.profile
             val prev = event.previous ?: return
 
-            if (skin(profile) != skin(prev)) event.player?.setSkin(profile.maskSkin)
+            if (skin(profile) != skin(prev) || username(profile) != username(prev)) {
+                event.player?.refresh()
+            }
         }
     }
 }

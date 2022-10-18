@@ -88,7 +88,13 @@ class ChatManager(
                 val profile = player.profile()
                 val decorated = decorateChatMessage(player, event.result(), useChatColor = false)
 
-                if (event.result().compact() != decorated) event.result(decorated.color(profile.displayRank().chatColor))
+                if (event.result().compact() != decorated) {
+                    event.result(
+                        text().color(profile.displayRank().chatColor)
+                            .append(decorated)
+                            .build()
+                    )
+                }
             }
         }
     }
