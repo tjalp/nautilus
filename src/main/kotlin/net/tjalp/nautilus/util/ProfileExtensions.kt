@@ -42,9 +42,17 @@ fun ProfileSnapshot.primaryRank(): PermissionRank {
  * @return The display [PermissionRank] of the profile
  */
 fun ProfileSnapshot.displayRank(): PermissionRank {
-    if (this.maskRank.isNullOrBlank()) return this.primaryRank()
+    return Nautilus.get().masking.rank(this) ?: return primaryRank()
+}
 
-    return Nautilus.get().perms.getRank(this.maskRank)
+/**
+ * Get the display name of a [ProfileSnapshot]
+ */
+fun ProfileSnapshot.displayName(): String {
+    val player = this.player()
+    val masking = Nautilus.get().masking
+
+    return masking.username(this) ?: (player?.name ?: this.lastKnownName)
 }
 
 /**
@@ -60,7 +68,7 @@ fun ProfileSnapshot.nameComponent(
     showSuffix: Boolean = true
 ): Component {
     val player = this.player()
-    val username = if (useMask && !this.maskName.isNullOrBlank()) text(this.maskName) else (player?.name() ?: text(this.lastKnownName)) as TextComponent
+    val username = if (useMask) text(this.displayName()) else (player?.name() ?: text(this.lastKnownName)) as TextComponent
     val rank = if (useMask) this.displayRank() else this.primaryRank()
     val component = text()
 

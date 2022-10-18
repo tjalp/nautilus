@@ -4,16 +4,17 @@ import me.neznamy.tab.api.TabAPI
 import me.neznamy.tab.api.event.Subscribe
 import me.neznamy.tab.api.event.player.PlayerLoadEvent
 import me.neznamy.tab.api.team.UnlimitedNametagManager
+import net.kyori.adventure.text.Component.text
+import net.kyori.adventure.text.Component.translatable
+import net.kyori.adventure.text.format.NamedTextColor.YELLOW
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer
 import net.tjalp.nautilus.Nautilus
 import net.tjalp.nautilus.event.ProfileUpdateEvent
 import net.tjalp.nautilus.player.profile.ProfileSnapshot
-import net.tjalp.nautilus.util.displayRank
-import net.tjalp.nautilus.util.nameComponent
-import net.tjalp.nautilus.util.profile
-import net.tjalp.nautilus.util.register
+import net.tjalp.nautilus.util.*
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
+import org.bukkit.event.EventPriority
 import org.bukkit.event.Listener
 import org.bukkit.event.player.PlayerJoinEvent
 
@@ -22,12 +23,13 @@ import org.bukkit.event.player.PlayerJoinEvent
  * with player list names, name tags etc.
  */
 class NametagManager(
-    val nautilus: Nautilus
+    private val nautilus: Nautilus
 ) {
 
     private val tabApi = TabAPI.getInstance()
-    private val teamManager = tabApi.teamManager
+    private val teamManager = this.tabApi.teamManager
     private val serializer = LegacyComponentSerializer.legacyAmpersand()
+    private val masking = this.nautilus.masking
 
     init {
         val listener = NametagListener()
@@ -42,6 +44,12 @@ class NametagManager(
      * @param profile The profile to update from
      */
     fun update(profile: ProfileSnapshot) {
+        val player = profile.player()
+        val component = profile.nameComponent(showSuffix = false)
+
+        player?.displayName(component)
+        player?.playerListName(component)
+
         val tabPlayer = tabApi.getPlayer(profile.uniqueId) ?: return
         val rank = profile.displayRank()
 
@@ -72,31 +80,22 @@ class NametagManager(
             update(bukkitPlayer.profile())
         }
 
-        @EventHandler
+        @EventHandler(priority = EventPriority.LOW)
         fun on(event: ProfileUpdateEvent) {
-            val player = event.player
             val profile = event.profile
             val prev = event.previous
-            val component = profile.nameComponent(showSuffix = false)
 
             if (profile.permissionInfo.ranks != prev?.permissionInfo?.ranks
-                || profile.maskName != prev.maskName
-                || profile.maskRank != prev.maskRank
+                || masking.username(profile) != masking.username(prev)
+                || masking.rank(profile) != masking.rank(prev)
             ) {
                 update(profile)
-
-                player?.displayName(component)
-                player?.playerListName(component)
             }
         }
 
-        @EventHandler
+        @EventHandler(priority = EventPriority.LOW)
         fun on(event: PlayerJoinEvent) {
-            val player = event.player
-            val component = player.profile().nameComponent(showSuffix = false)
-
-            player.displayName(component)
-            player.playerListName(component)
+            update(event.player.profile())
         }
     }
 }
