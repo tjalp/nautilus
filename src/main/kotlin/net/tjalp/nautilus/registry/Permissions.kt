@@ -1,7 +1,7 @@
 package net.tjalp.nautilus.registry
 
-import net.kyori.adventure.text.Component.text
 import net.kyori.adventure.text.TextComponent
+import net.kyori.adventure.text.format.TextColor.color
 import net.kyori.adventure.text.format.TextColor.fromHexString
 import net.tjalp.nautilus.Nautilus
 import net.tjalp.nautilus.permission.PermissionRank
@@ -27,7 +27,7 @@ fun registerRanks(nautilus: Nautilus) {
         name = "Default",
         nameColor = fromHexString("#80ddb1")!!,
         prefix = mini("<white>ꐁ") as TextComponent,
-        chatFormat = mini("<#99dbbb>")
+        chatColor = color(153, 219, 187)
     ))
 
     perms.registerRank(PermissionRank(
@@ -36,7 +36,7 @@ fun registerRanks(nautilus: Nautilus) {
         name = "Media",
         nameColor = fromHexString("#f09990")!!,
         prefix = mini("<white>ꐂ") as TextComponent,
-        chatFormat = mini("<#efada7>"),
+        chatColor = color(239, 173, 167),
         inherits = setOf(
             DEFAULT_RANK
         ),
@@ -51,7 +51,7 @@ fun registerRanks(nautilus: Nautilus) {
         name = "Admin",
         nameColor = fromHexString("#c3b1e1")!!,
         prefix = mini("<white>ꐀ") as TextComponent,
-        chatFormat = mini("<#dac7fc>"),
+        chatColor = color(218, 199, 252),
         inherits = setOf(
             DEFAULT_RANK,
             MEDIA_RANK

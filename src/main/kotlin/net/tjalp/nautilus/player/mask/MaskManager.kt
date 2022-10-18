@@ -1,5 +1,6 @@
 package net.tjalp.nautilus.player.mask
 
+import com.comphenix.protocol.PacketType.Play.Server.CHAT
 import com.comphenix.protocol.PacketType.Play.Server.PLAYER_INFO
 import com.comphenix.protocol.events.PacketAdapter
 import com.comphenix.protocol.events.PacketEvent
@@ -7,6 +8,7 @@ import com.comphenix.protocol.wrappers.PlayerInfoData
 import com.comphenix.protocol.wrappers.WrappedGameProfile
 import com.comphenix.protocol.wrappers.WrappedSignedProperty
 import com.destroystokyo.paper.profile.PlayerProfile
+import io.papermc.paper.adventure.PaperAdventure
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -14,6 +16,7 @@ import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.Component.text
 import net.kyori.adventure.text.format.NamedTextColor.GRAY
 import net.kyori.adventure.text.format.NamedTextColor.YELLOW
+import net.minecraft.network.protocol.game.ClientboundPlayerChatPacket
 import net.tjalp.nautilus.Nautilus
 import net.tjalp.nautilus.event.ProfileUpdateEvent
 import net.tjalp.nautilus.permission.PermissionRank
@@ -40,7 +43,7 @@ class MaskManager(
     init {
         MaskListener().apply {
             register()
-//            this@MaskManager.nautilus.protocol.addPacketListener(this)
+            this@MaskManager.nautilus.protocol.addPacketListener(this)
         }
     }
 
@@ -175,12 +178,26 @@ class MaskManager(
      * The mask manager listener to do everything
      * that has to do with masking.
      */
-    private inner class MaskListener : Listener, PacketAdapter(nautilus, PLAYER_INFO) {
+    private inner class MaskListener : Listener, PacketAdapter(nautilus, PLAYER_INFO, CHAT) {
 
         override fun onPacketSending(event: PacketEvent) {
             when (event.packetType) {
-                PLAYER_INFO -> onPlayerInfo(event)
+                CHAT -> onChat(event)
+//                PLAYER_INFO -> onPlayerInfo(event)
             }
+        }
+
+        private fun onChat(event: PacketEvent) {
+            val packet = event.packet
+            val player = event.player
+            val handle = packet.handle as ClientboundPlayerChatPacket
+            val message = handle.message
+            val uniqueId = message.signedHeader.sender
+            val sender = nautilus.server.getPlayer(uniqueId)!!
+            val chat = text(message.signedContent().plain)
+
+            event.isCancelled = true
+            player.sendMessage(nautilus.chat.formatChatMessage(sender, nautilus.chat.decorateChatMessage(sender, chat)))
         }
 
         private fun onPlayerInfo(event: PacketEvent) {

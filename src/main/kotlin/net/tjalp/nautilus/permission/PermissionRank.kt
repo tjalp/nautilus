@@ -16,7 +16,7 @@ class PermissionRank(
     val nameColor: TextColor,
     val prefix: TextComponent = Component.empty(),
     val suffix: TextComponent = Component.empty(),
-    val chatFormat: Component = Component.empty(),
+    val chatColor: TextColor? = null,
     val permissions: Set<String> = emptySet(),
     inherits: Set<String> = emptySet()
 ) {

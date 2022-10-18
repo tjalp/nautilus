@@ -3,13 +3,12 @@ package net.tjalp.nautilus.chat
 import io.papermc.paper.event.player.AsyncChatDecorateEvent
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.Component.text
-import net.kyori.adventure.text.TextComponent
+import net.kyori.adventure.text.format.TextColor.color
 import net.kyori.adventure.text.minimessage.MiniMessage.miniMessage
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer.plainText
 import net.tjalp.nautilus.Nautilus
 import net.tjalp.nautilus.registry.DECORATED_CHAT
-import net.tjalp.nautilus.util.has
-import net.tjalp.nautilus.util.profile
-import net.tjalp.nautilus.util.register
+import net.tjalp.nautilus.util.*
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
@@ -34,29 +33,44 @@ class ChatManager(
      * @param message The message to decorate
      * @return The decorated message in [Component]
      */
-    fun decorateChatMessage(player: Player?, message: TextComponent): Component {
+    fun decorateChatMessage(player: Player?, message: Component, useChatColor: Boolean = true): Component {
         val component = text()
         val mini = miniMessage()
 
         if (player != null) {
             val profile = player.profile()
+            val decoratedContent = mini.deserialize(plainText().serialize(message))
+            if (useChatColor) component.color(profile.displayRank().chatColor)
 
-            if (profile has DECORATED_CHAT) {
-                component.append(
-                    mini.deserialize(
-                        message.content()
-                    )
-                )
-            }
+            if (profile has DECORATED_CHAT) component.append(decoratedContent)
+            else component.append(message)
         } else {
             component.append(
                 mini.deserialize(
-                    message.content()
+                    plainText().serialize(message)
                 )
             )
         }
 
         return component.build().compact()
+    }
+
+    /**
+     * Format a chat message
+     *
+     * @param player The player that should be used for formatting
+     * @param message The message to add
+     * @return A formatted [Component]
+     */
+    fun formatChatMessage(player: Player, message: Component): Component {
+        val profile = player.profile()
+        val name = profile.nameComponent(showSuffix = false)
+
+        return text()
+            .append(name)
+            .append(text(" → ").color(color(130, 130, 111)))
+            .append(message)
+            .build()
     }
 
     /**
@@ -71,9 +85,10 @@ class ChatManager(
             val player = event.player()
 
             if (player != null && nautilus.perms.has(player.profile(), DECORATED_CHAT)) {
-                val decorated = decorateChatMessage(player, event.result() as TextComponent)
+                val profile = player.profile()
+                val decorated = decorateChatMessage(player, event.result(), useChatColor = false)
 
-                if (event.result().compact() != decorated) event.result(decorated)
+                if (event.result().compact() != decorated) event.result(decorated.color(profile.displayRank().chatColor))
             }
         }
     }
