@@ -7,6 +7,6 @@ import net.tjalp.nautilus.Nautilus
  * about a profile.
  */
 class PermissionInfo(
-    var ranks: Set<String> = setOf(Nautilus.get().perms.defaultRank.id),
-    var permissions: Set<String> = emptySet()
+    val ranks: Set<String> = setOf(Nautilus.get().perms.defaultRank.id),
+    val permissions: Set<String> = emptySet()
 )

@@ -13,6 +13,7 @@ const val MEDIA_RANK = "media"
 const val ADMIN_RANK = "admin"
 
 // Permissions
+const val OPERATOR = "*"
 const val DECORATED_CHAT = "nautilus.decorated_chat"
 
 /**
@@ -55,6 +56,9 @@ fun registerRanks(nautilus: Nautilus) {
         inherits = setOf(
             DEFAULT_RANK,
             MEDIA_RANK
+        ),
+        permissions = setOf(
+            OPERATOR
         )
     ))
 }

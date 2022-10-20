@@ -3,7 +3,6 @@ package net.tjalp.nautilus.permission
 import net.tjalp.nautilus.Nautilus
 import net.tjalp.nautilus.player.profile.ProfileSnapshot
 import net.tjalp.nautilus.util.player
-import net.tjalp.nautilus.util.ranks
 import net.tjalp.nautilus.util.register
 import org.bukkit.event.EventHandler
 import org.bukkit.event.EventPriority

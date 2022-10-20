@@ -31,7 +31,8 @@ class MongoManager {
 
     init {
         // Disable Mongo logging
-        Logger.getLogger("org.mongodb.driver").level = Level.WARNING
+        val mongoLogger = Logger.getLogger("org.mongodb.driver")
+        mongoLogger.level = Level.WARNING
 
         System.setProperty("org.litote.mongo.mapping.service", "org.litote.kmongo.jackson.JacksonClassMappingTypeService")
         KMongoJacksonFeature.setUUIDRepresentation(UuidRepresentation.STANDARD)

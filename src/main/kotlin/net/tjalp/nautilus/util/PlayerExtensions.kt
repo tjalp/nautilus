@@ -13,7 +13,7 @@ fun Player.profile(): ProfileSnapshot = Nautilus.get().profiles.profile(this)
 /**
  * @see [ProfileSnapshot.has]
  */
-infix fun Player.has(permission: String): Boolean = this.profile().has(permission)
+infix fun Player.has(permission: String): Boolean = this.hasPermission(permission) || this.profile().has(permission)
 
 /**
  * Refresh a player's skin by resending their data.

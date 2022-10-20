@@ -28,6 +28,22 @@ fun ProfileSnapshot.ranks(): Set<PermissionRank> {
 }
 
 /**
+ * Get a set of all permissions this [ProfileSnapshot] has.
+ * This includes all permissions of all ranks too.
+ *
+ * @return A set of permissions
+ */
+fun ProfileSnapshot.permissions(): Set<String> {
+    var permissions = this.permissionInfo.permissions
+
+    for (rank in this.ranks()) {
+        permissions = permissions + rank.permissions
+    }
+
+    return permissions
+}
+
+/**
  * Get the primary rank of a [ProfileSnapshot]
  *
  * @return The primary [PermissionRank] of the profile

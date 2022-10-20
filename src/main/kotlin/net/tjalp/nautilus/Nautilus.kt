@@ -77,7 +77,6 @@ class Nautilus : JavaPlugin() {
         this.masking = MaskManager(this)
         this.nametags = NametagManager(this)
 
-        this.componentLogger.info(mini("<rainbow>Registering ranks! :)"))
         registerRanks(this)
 
         this.commands = PaperCommandManager(
