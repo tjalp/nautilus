@@ -7,19 +7,22 @@ import com.comphenix.protocol.ProtocolLibrary
 import com.comphenix.protocol.ProtocolManager
 import io.ktor.client.*
 import io.ktor.client.engine.okhttp.*
+import net.kyori.adventure.text.Component.text
 import net.tjalp.nautilus.chat.ChatManager
+import net.tjalp.nautilus.command.DisguiseCommand
 import net.tjalp.nautilus.command.MaskCommand
 import net.tjalp.nautilus.command.NautilusCommandImpl
 import net.tjalp.nautilus.command.ProfileCommand
 import net.tjalp.nautilus.database.MongoManager
 import net.tjalp.nautilus.exception.UnmetDependencyException
 import net.tjalp.nautilus.permission.PermissionManager
+import net.tjalp.nautilus.player.disguise.DisguiseManager
 import net.tjalp.nautilus.player.mask.MaskManager
 import net.tjalp.nautilus.player.profile.ProfileManager
 import net.tjalp.nautilus.player.tag.NametagManager
 import net.tjalp.nautilus.registry.registerRanks
 import net.tjalp.nautilus.scheduler.NautilusScheduler
-import net.tjalp.nautilus.util.mini
+import net.tjalp.nautilus.util.profile
 import org.bukkit.command.CommandSender
 import org.bukkit.plugin.java.JavaPlugin
 import org.ocpsoft.prettytime.PrettyTime
@@ -37,6 +40,9 @@ class Nautilus : JavaPlugin() {
 
     /** The command manager */
     lateinit var commands: PaperCommandManager<CommandSender>; private set
+
+    /** The Disguise Manager */
+    lateinit var disguises: DisguiseManager; private set
 
     /** The HTTP client */
     val http = HttpClient(OkHttp)
@@ -67,8 +73,12 @@ class Nautilus : JavaPlugin() {
 
         val startTime = System.currentTimeMillis()
 
+        if (!server.pluginManager.isPluginEnabled("LibsDisguises")) {
+            throw UnmetDependencyException("LibsDisguises cannot be found")
+        }
+
         this.chat = ChatManager(this)
-        //this.luckperms = Bukkit.getServicesManager().getRegistration(LuckPerms::class.java)?.provider ?: throw UnmetDependencyException("LuckPerms cannot be found")
+        this.disguises = DisguiseManager(this)
         this.mongo = MongoManager()
         this.perms = PermissionManager(this)
         this.profiles = ProfileManager(this)
@@ -88,9 +98,26 @@ class Nautilus : JavaPlugin() {
         if (this.commands.hasCapability(CloudBukkitCapabilities.BRIGADIER)) this.commands.registerBrigadier()
         if (this.commands.hasCapability(CloudBukkitCapabilities.ASYNCHRONOUS_COMPLETION)) this.commands.registerAsynchronousCompletions()
 
+        DisguiseCommand(this)
         MaskCommand(this)
         NautilusCommandImpl(this)
         ProfileCommand(this)
+
+        this.server.scheduler.scheduleSyncRepeatingTask(this, {
+            this.server.onlinePlayers.forEach {
+                val profile = it.profile()
+                var visibility = ""
+
+                if (this.masking.username(profile) != null) visibility += "Username "
+                if (this.masking.rank(profile) != null) visibility += "Rank "
+                if (this.masking.skin(profile) != null) visibility += "Skin "
+                if (this.disguises.disguise(profile) != null) visibility += "Disguise "
+
+                if (visibility.isNotBlank()) {
+                    it.sendActionBar(text(visibility))
+                }
+            }
+        }, 0, 20)
 
         this.logger.info("Startup took ${System.currentTimeMillis() - startTime}ms!")
     }

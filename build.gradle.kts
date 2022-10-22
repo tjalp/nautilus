@@ -25,6 +25,7 @@ repositories {
     maven("https://repo.papermc.io/repository/maven-public/")
     maven("https://repo.kryptonmc.org/releases/")
     maven("https://repo.dmulloy2.net/repository/public/")
+    maven("https://repo.md-5.net/content/groups/public/")
 }
 
 dependencies {
@@ -42,6 +43,7 @@ dependencies {
     compileOnly("net.luckperms:api:5.4")
     compileOnly("me.neznamy:tab-api:3.1.5")
     compileOnly("com.comphenix.protocol:ProtocolLib:4.8.0")
+    compileOnly("LibsDisguises:LibsDisguises:10.0.31")
 
     kapt("cloud.commandframework:cloud-annotations:1.7.1")
 }
@@ -95,5 +97,5 @@ bukkit {
     main = "net.tjalp.nautilus.Nautilus"
     version = project.version.toString()
     name = "Nautilus"
-    depend = listOf("TAB", "ProtocolLib")
+    softDepend = listOf("LibsDisguises", "TAB", "ProtocolLib")
 }

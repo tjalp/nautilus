@@ -10,7 +10,10 @@ import net.kyori.adventure.text.format.TextColor.color
 import net.tjalp.nautilus.Nautilus
 import net.tjalp.nautilus.database.MongoCollections
 import net.tjalp.nautilus.event.ProfileUpdateEvent
-import net.tjalp.nautilus.util.*
+import net.tjalp.nautilus.util.SkinBlob
+import net.tjalp.nautilus.util.player
+import net.tjalp.nautilus.util.profile
+import net.tjalp.nautilus.util.register
 import org.bukkit.Sound
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler

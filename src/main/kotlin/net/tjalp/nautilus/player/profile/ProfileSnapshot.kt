@@ -28,6 +28,7 @@ data class ProfileSnapshot(
     val maskName: String? = null,
     val maskRank: String? = null,
     val maskSkin: SkinBlob? = null,
+    val disguise: String? = null,
     val permissionInfo: PermissionInfo = PermissionInfo()
 ) {
 

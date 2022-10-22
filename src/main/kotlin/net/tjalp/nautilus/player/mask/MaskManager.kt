@@ -147,9 +147,9 @@ class MaskManager(
         val gameProfile = identity?.withName(username)?.withId(uniqueId.toString()) ?: WrappedGameProfile(uniqueId, username)
         val skinBlob = if (profile.maskSkin != null) {
             profile.maskSkin
+        } else if (identity == null) {
+            profile.lastKnownSkin
         } else {
-            if (identity == null) return null
-
             val texturesProperty = identity.properties.get("textures").firstOrNull() ?: return null
 
             SkinBlob(
