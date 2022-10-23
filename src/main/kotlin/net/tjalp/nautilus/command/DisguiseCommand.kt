@@ -24,9 +24,19 @@ class DisguiseCommand(
                 this.disguise(it.sender as Player, it.get(entityTypeArg))
             }
         )
+
+        register(
+            builder.literal("none", "reset", "clear").handler {
+                this.undisguise(it.sender as Player)
+            }
+        )
     }
 
     private fun disguise(sender: Player, entityType: EntityType) {
         this.scheduler.launch { disguises.disguise(sender.profile(), entityType) }
+    }
+
+    private fun undisguise(sender: Player) {
+        this.scheduler.launch { disguises.disguise(sender.profile(), null) }
     }
 }

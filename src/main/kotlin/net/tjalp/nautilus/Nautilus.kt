@@ -8,6 +8,8 @@ import com.comphenix.protocol.ProtocolManager
 import io.ktor.client.*
 import io.ktor.client.engine.okhttp.*
 import net.kyori.adventure.text.Component.text
+import net.kyori.adventure.text.format.NamedTextColor.GOLD
+import net.kyori.adventure.text.format.NamedTextColor.GRAY
 import net.tjalp.nautilus.chat.ChatManager
 import net.tjalp.nautilus.command.DisguiseCommand
 import net.tjalp.nautilus.command.MaskCommand
@@ -22,6 +24,7 @@ import net.tjalp.nautilus.player.profile.ProfileManager
 import net.tjalp.nautilus.player.tag.NametagManager
 import net.tjalp.nautilus.registry.registerRanks
 import net.tjalp.nautilus.scheduler.NautilusScheduler
+import net.tjalp.nautilus.util.ListJoiner
 import net.tjalp.nautilus.util.profile
 import org.bukkit.command.CommandSender
 import org.bukkit.plugin.java.JavaPlugin
@@ -106,15 +109,18 @@ class Nautilus : JavaPlugin() {
         this.server.scheduler.scheduleSyncRepeatingTask(this, {
             this.server.onlinePlayers.forEach {
                 val profile = it.profile()
-                var visibility = ""
+                val joiner = ListJoiner()
 
-                if (this.masking.username(profile) != null) visibility += "Username "
-                if (this.masking.rank(profile) != null) visibility += "Rank "
-                if (this.masking.skin(profile) != null) visibility += "Skin "
-                if (this.disguises.disguise(profile) != null) visibility += "Disguise "
+                if (this.masking.username(profile) != null) joiner.add("Username")
+                if (this.masking.rank(profile) != null) joiner.add("Rank")
+                if (this.masking.skin(profile) != null) joiner.add("Skin")
+                if (this.disguises.disguise(profile) != null) joiner.add("Disguise")
 
-                if (visibility.isNotBlank()) {
-                    it.sendActionBar(text(visibility))
+                if (joiner.size() > 0) {
+                    it.sendActionBar(
+                        text("Visibility Modifiers: ", GRAY)
+                            .append(text(joiner.toString(), GOLD))
+                    )
                 }
             }
         }, 0, 20)

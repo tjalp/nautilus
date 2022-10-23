@@ -43,7 +43,9 @@ dependencies {
     compileOnly("net.luckperms:api:5.4")
     compileOnly("me.neznamy:tab-api:3.1.5")
     compileOnly("com.comphenix.protocol:ProtocolLib:4.8.0")
-    compileOnly("LibsDisguises:LibsDisguises:10.0.31")
+    compileOnly("LibsDisguises:LibsDisguises:10.0.31") {
+        exclude("org.spigotmc")
+    }
 
     kapt("cloud.commandframework:cloud-annotations:1.7.1")
 }
