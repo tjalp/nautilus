@@ -16,8 +16,13 @@ class DisguiseCommand(
     private val scheduler = this.nautilus.scheduler
 
     init {
-        val builder = builder("ndisguise", "dis").senderType(Player::class.java)
+        val builder = builder("disguise", "dis").senderType(Player::class.java)
+        val unbuilder = builder("undisguise", "undis").senderType(Player::class.java)
         val entityTypeArg = EnumArgument.of<CommandSender, EntityType>(EntityType::class.java, "entity")
+
+        val undisguiseCommand = builder.literal("none", "reset", "clear").handler {
+            this.undisguise(it.sender as Player)
+        }.apply { register(this) }
 
         register(
             builder.argument(entityTypeArg).handler {
@@ -25,11 +30,7 @@ class DisguiseCommand(
             }
         )
 
-        register(
-            builder.literal("none", "reset", "clear").handler {
-                this.undisguise(it.sender as Player)
-            }
-        )
+        register(unbuilder.proxies(undisguiseCommand.build()))
     }
 
     private fun disguise(sender: Player, entityType: EntityType) {

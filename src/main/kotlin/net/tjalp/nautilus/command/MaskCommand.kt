@@ -1,9 +1,7 @@
 package net.tjalp.nautilus.command
 
 import cloud.commandframework.arguments.standard.StringArgument
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import net.tjalp.nautilus.Nautilus
 import net.tjalp.nautilus.player.profile.ProfileSnapshot
 import net.tjalp.nautilus.util.mini
@@ -23,6 +21,7 @@ class MaskCommand(
 
     init {
         val builder = builder("mask", "nick").senderType(Player::class.java)
+        val unbuilder = builder("unmask", "unnick").senderType(Player::class.java)
         val nameArg = StringArgument.quoted<CommandSender>("username")
         val rankArg = StringArgument.of<CommandSender>("rank")
         val skinArg = StringArgument.of<CommandSender>("skin")
@@ -39,11 +38,9 @@ class MaskCommand(
             }
         )
 
-        register(
-            builder.literal("none").handler {
-                this.none(it.sender as Player)
-            }
-        )
+        val unmask = builder.literal("none", "clear", "reset").handler { this.none(it.sender as Player) }
+            .apply { register(this) }
+        register(unbuilder.proxies(unmask.build()))
 
         register(
             builder.argument(nameArg).handler {

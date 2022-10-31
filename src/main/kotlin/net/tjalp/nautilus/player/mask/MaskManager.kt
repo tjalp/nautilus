@@ -12,8 +12,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.Component.text
+import net.kyori.adventure.text.TranslatableComponent
 import net.kyori.adventure.text.format.NamedTextColor.GRAY
 import net.kyori.adventure.text.format.NamedTextColor.YELLOW
+import net.kyori.adventure.text.format.TextColor.color
 import net.minecraft.network.protocol.game.ClientboundPlayerChatPacket
 import net.tjalp.nautilus.Nautilus
 import net.tjalp.nautilus.event.ProfileUpdateEvent
@@ -23,6 +25,8 @@ import net.tjalp.nautilus.util.*
 import org.bson.conversions.Bson
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
+import org.bukkit.event.entity.PlayerDeathEvent
+import org.bukkit.event.player.PlayerAdvancementDoneEvent
 import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.event.player.PlayerQuitEvent
 import org.litote.kmongo.setValue
@@ -250,6 +254,37 @@ class MaskManager(
             if (skin(profile) != skin(prev) || username(profile) != username(prev)) {
                 event.player?.refresh()
             }
+        }
+
+        @EventHandler
+        fun on(event: PlayerDeathEvent) {
+            val deathMessage = (event.deathMessage() ?: return) as TranslatableComponent
+            val profile = event.player.profile()
+            val args = deathMessage.args().toMutableList()
+
+            args[0] = profile.nameComponent(showSuffix = false)
+
+            val finalComponent = text().color(color(250, 160, 160))
+                .append(text("\u2620 ").color(color(244,54,76)))
+                .append(deathMessage.args(args))
+                .build()
+
+            event.deathMessage(finalComponent)
+        }
+
+        @EventHandler
+        fun on(event: PlayerAdvancementDoneEvent) {
+            val message = (event.message() ?: return) as TranslatableComponent
+            val profile = event.player.profile()
+            val args = message.args().toMutableList()
+
+            args[0] = profile.nameComponent(showSuffix = false)
+
+            val finalComponent = text().color(color(119, 221, 119))
+                .append(message.args(args))
+                .build()
+
+            event.message(finalComponent)
         }
     }
 }

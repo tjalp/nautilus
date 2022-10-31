@@ -2,6 +2,7 @@ package net.tjalp.nautilus.player.disguise
 
 import me.libraryaddict.disguise.DisguiseAPI.disguiseToAll
 import me.libraryaddict.disguise.DisguiseAPI.undisguiseToAll
+import me.libraryaddict.disguise.LibsDisguises
 import me.libraryaddict.disguise.disguisetypes.*
 import net.kyori.adventure.text.Component.text
 import net.kyori.adventure.text.Component.translatable
@@ -13,6 +14,7 @@ import net.tjalp.nautilus.player.profile.ProfileSnapshot
 import net.tjalp.nautilus.util.player
 import net.tjalp.nautilus.util.profile
 import net.tjalp.nautilus.util.register
+import org.bukkit.command.PluginCommand
 import org.bukkit.entity.EntityType
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
@@ -28,7 +30,11 @@ import kotlin.system.measureTimeMillis
 class DisguiseManager(private val nautilus: Nautilus) {
 
     init {
+        val server = this.nautilus.server
+
         DisguiseListener().register()
+
+        (server.pluginManager.getPlugin("LibsDisguises") as LibsDisguises).unregisterCommands(true)
     }
 
     /**
