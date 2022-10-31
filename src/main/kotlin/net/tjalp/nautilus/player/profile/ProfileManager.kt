@@ -194,33 +194,5 @@ class ProfileManager(
                 profile.update(setValue(ProfileSnapshot::lastOnline, LocalDateTime.now()))
             }
         }
-
-        @EventHandler // todo remove: temporary to test random unique id
-        fun on(event: PlayerSwapHandItemsEvent) {
-            val player = event.player
-            val uniqueId = UUID.randomUUID()
-            val startTime = System.currentTimeMillis()
-
-            player.playSound(player.location, Sound.UI_BUTTON_CLICK, 10f, 1f)
-            player.sendActionBar(
-                text().append(text("Please Wait: ", GRAY))
-                    .append(text("Fetching profile of $uniqueId...", color(255, 191, 0)))
-            )
-
-            nautilus.scheduler.launch {
-                val profile = profile(uniqueId)
-
-                if (profile == null) {
-                    player.sendMessage(text("No profile found (took ${System.currentTimeMillis() - startTime}ms)"))
-                    delay(500)
-                    player.sendActionBar(text(""))
-                    return@launch
-                }
-
-                player.sendMessage(text("Profile uniqueId = ${profile.uniqueId}"))
-                delay(500)
-                player.sendActionBar(text(""))
-            }
-        }
     }
 }
