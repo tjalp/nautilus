@@ -75,6 +75,7 @@ class Nautilus : JavaPlugin() {
         if (!server.pluginManager.isPluginEnabled("LibsDisguises")) {
             throw UnmetDependencyException("LibsDisguises cannot be found")
         }
+        this.protocol = ProtocolLibrary.getProtocolManager() ?: throw UnmetDependencyException("ProtocolLib cannot be found")
 
         Players.initialize(this)
 
@@ -83,7 +84,6 @@ class Nautilus : JavaPlugin() {
         this.mongo = MongoManager()
         this.perms = PermissionManager(this)
         this.profiles = ProfileManager(this)
-        this.protocol = ProtocolLibrary.getProtocolManager() ?: throw UnmetDependencyException("ProtocolLib cannot be found")
         this.scheduler = NautilusScheduler(this)
         this.masking = MaskManager(this)
         this.nametags = NametagManager(this)
