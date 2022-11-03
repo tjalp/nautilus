@@ -13,6 +13,7 @@ import net.kyori.adventure.text.format.NamedTextColor.WHITE
 import net.kyori.adventure.text.format.TextDecoration.BOLD
 import net.tjalp.nautilus.Nautilus
 import net.tjalp.nautilus.database.MongoCollections
+import net.tjalp.nautilus.player.profile.ProfileContainer
 import net.tjalp.nautilus.player.profile.ProfileSnapshot
 import net.tjalp.nautilus.util.GsonHelper
 import net.tjalp.nautilus.util.mini
@@ -100,6 +101,8 @@ class ProfileCommand(
                 ).append(space()).append(text(profile.lastKnownName, WHITE).decoration(BOLD, false))
 
                 sender.sendMessage(component.build())
+
+                if (sender is Player) ProfileContainer(profile).open(sender)
             }
         }
     }
