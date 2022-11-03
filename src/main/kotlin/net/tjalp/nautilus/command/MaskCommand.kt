@@ -43,8 +43,8 @@ class MaskCommand(
         register(unbuilder.proxies(unmask.build()))
 
         register(
-            builder.argument(nameArg).handler {
-                this.mask(it.sender as Player, it.get(nameArg))
+            builder.literal("name", "username").argument(nameArg).handler {
+                this.name(it.sender as Player, it.get(nameArg))
             }
         )
     }
@@ -80,7 +80,7 @@ class MaskCommand(
         }
     }
 
-    private fun mask(sender: Player, username: String) {
+    private fun name(sender: Player, username: String) {
         this.scheduler.launch { masking.mask(sender.profile(), username = username) }
     }
 }

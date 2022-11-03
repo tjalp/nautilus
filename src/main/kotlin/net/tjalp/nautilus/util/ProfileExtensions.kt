@@ -6,6 +6,8 @@ import net.kyori.adventure.text.Component.text
 import net.kyori.adventure.text.TextComponent
 import net.kyori.adventure.text.event.ClickEvent.runCommand
 import net.kyori.adventure.text.event.HoverEvent.showText
+import net.kyori.adventure.text.format.NamedTextColor.GRAY
+import net.kyori.adventure.text.format.NamedTextColor.WHITE
 import net.tjalp.nautilus.Nautilus
 import net.tjalp.nautilus.permission.PermissionRank
 import net.tjalp.nautilus.player.profile.ProfileSnapshot
@@ -92,8 +94,16 @@ fun ProfileSnapshot.nameComponent(
     component.append(username.color(rank.nameColor)) // todo make this better
     if (showSuffix && rank.suffix.content().isNotEmpty()) component.append(space()).append(rank.suffix)
 
-    component.hoverEvent(showText(mini("<rainbow>#savetheturtle (me)")))
-    component.clickEvent(runCommand("/profile ${username.content()}"))
+    component.hoverEvent(showText {
+        val ranks = ListJoiner().apply {
+            this@nameComponent.ranks().forEach { this.add(it.prefix.content()) }
+        }
+        text().color(GRAY)
+            .append(text("Ranks: "))
+            .append(text(ranks.toString(), WHITE))
+            .build()
+    })
+    component.clickEvent(runCommand("/profile \"${username.content()}\""))
 
     return component.build().compact()
 }

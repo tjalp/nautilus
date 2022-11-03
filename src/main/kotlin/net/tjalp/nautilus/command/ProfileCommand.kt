@@ -36,7 +36,7 @@ class ProfileCommand(
 
     init {
         val builder = builder("profile")
-        val usernameArg = StringArgument.of<CommandSender>("username")
+        val usernameArg = StringArgument.quoted<CommandSender>("username")
         val dataArg = StringArgument.newBuilder<CommandSender>("data").greedy().build()
 
         register(

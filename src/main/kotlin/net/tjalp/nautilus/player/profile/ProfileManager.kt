@@ -94,8 +94,8 @@ class ProfileManager(
         if (player != null) return this.profile(player)
 
         val uniqueId = withContext(Dispatchers.IO) {
-            nautilus.server.getPlayerUniqueId(username)
-        } ?: return null
+            nautilus.server.getPlayerUniqueId(username) ?: UUID.nameUUIDFromBytes(username.toByteArray())
+        }
 
         return this.profile(uniqueId)
     }
@@ -103,6 +103,9 @@ class ProfileManager(
     /**
      * Create a new profile if no profile exists for
      * the target unique id
+     *
+     * @param uniqueId The unique id to create the profile
+     * @return The profile associated with the unique id, which is never null
      */
     suspend fun createProfileIfNonexistent(uniqueId: UUID): ProfileSnapshot {
         var profile = this.profile(uniqueId)
