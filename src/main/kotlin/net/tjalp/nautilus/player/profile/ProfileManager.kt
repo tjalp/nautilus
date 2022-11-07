@@ -1,20 +1,17 @@
 package net.tjalp.nautilus.player.profile
 
 import com.destroystokyo.paper.event.player.PlayerConnectionCloseEvent
-import kotlinx.coroutines.*
+import io.ktor.http.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.reactive.awaitSingle
-import net.kyori.adventure.text.Component.text
-import net.kyori.adventure.text.format.NamedTextColor.GRAY
-import net.kyori.adventure.text.format.TextColor.color
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import net.tjalp.nautilus.Nautilus
 import net.tjalp.nautilus.database.MongoCollections
 import net.tjalp.nautilus.event.ProfileUpdateEvent
-import net.tjalp.nautilus.util.SkinBlob
-import net.tjalp.nautilus.util.player
-import net.tjalp.nautilus.util.profile
-import net.tjalp.nautilus.util.register
-import org.bukkit.Sound
+import net.tjalp.nautilus.util.*
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.EventPriority
@@ -22,9 +19,10 @@ import org.bukkit.event.Listener
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent
 import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.event.player.PlayerQuitEvent
-import org.bukkit.event.player.PlayerSwapHandItemsEvent
+import org.litote.kmongo.coroutine.toList
 import org.litote.kmongo.reactivestreams.findOneById
 import org.litote.kmongo.reactivestreams.save
+import org.litote.kmongo.regex
 import org.litote.kmongo.setValue
 import java.time.LocalDateTime
 import java.util.*
@@ -93,11 +91,21 @@ class ProfileManager(
 
         if (player != null) return this.profile(player)
 
-        val uniqueId = withContext(Dispatchers.IO) {
-            nautilus.server.getPlayerUniqueId(username) ?: UUID.nameUUIDFromBytes(username.toByteArray())
+        val profiles = this.profiles.find(
+            ProfileSnapshot::lastKnownName regex Regex("^${username.escapeIfNeeded()}$", RegexOption.IGNORE_CASE)
+        ).toList()
+
+        if (profiles.size > 1) {
+            this.nautilus.logger.warning("Multiple profiles were found for '${username}', requesting a unique id from Mojang!")
+
+            val uniqueId = withContext(Dispatchers.IO) {
+                nautilus.server.getPlayerUniqueId(username)
+            } ?: return null
+
+            return this.profile(uniqueId)
         }
 
-        return this.profile(uniqueId)
+        return profiles.firstOrNull()
     }
 
     /**
@@ -105,13 +113,28 @@ class ProfileManager(
      * the target unique id
      *
      * @param uniqueId The unique id to create the profile
+     * @param fill Whether to fill in other properties as well, such as the name and skin
      * @return The profile associated with the unique id, which is never null
      */
-    suspend fun createProfileIfNonexistent(uniqueId: UUID): ProfileSnapshot {
+    suspend fun createProfileIfNonexistent(uniqueId: UUID, fill: Boolean = true): ProfileSnapshot {
         var profile = this.profile(uniqueId)
 
         if (profile == null) {
             profile = ProfileSnapshot(uniqueId)
+
+            if (fill) {
+                val playerProfile = this.nautilus.server.createProfile(uniqueId)
+
+                withContext(Dispatchers.IO) {
+                    playerProfile.complete(true)
+                }
+
+                val username = playerProfile.name
+                val skin = playerProfile.skin()
+
+                if (username != null) profile = profile.copy(lastKnownName = username)
+                if (skin != null) profile = profile.copy(lastKnownSkin = skin)
+            }
 
             this.profiles.save(profile).awaitSingle()
         }
@@ -158,7 +181,7 @@ class ProfileManager(
         fun on(event: AsyncPlayerPreLoginEvent) {
             synchronized(this) {
                 runBlocking {
-                    cacheProfile(createProfileIfNonexistent(event.uniqueId))
+                    cacheProfile(createProfileIfNonexistent(event.uniqueId, fill = false))
                 }
             }
         }
@@ -176,14 +199,13 @@ class ProfileManager(
             val player = event.player
             val profile = player.profile()
             val playerProfile = player.playerProfile
-            val textures = playerProfile.properties.firstOrNull { it.name == "textures" }
-            val blob = if (textures == null) null else SkinBlob(textures.value, textures.signature ?: "")
+            val skin = playerProfile.skin()
 
             nautilus.scheduler.launch {
                 profile.update(
                     setValue(ProfileSnapshot::lastKnownName, player.name),
                     setValue(ProfileSnapshot::lastOnline, LocalDateTime.now()),
-                    setValue(ProfileSnapshot::lastKnownSkin, blob)
+                    setValue(ProfileSnapshot::lastKnownSkin, skin)
                 )
             }
         }

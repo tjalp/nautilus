@@ -6,6 +6,7 @@ import kotlinx.coroutines.reactive.awaitSingle
 import net.tjalp.nautilus.Nautilus
 import net.tjalp.nautilus.database.MongoCollections
 import net.tjalp.nautilus.player.profile.data.PermissionInfo
+import net.tjalp.nautilus.registry.Skins
 import net.tjalp.nautilus.util.SkinBlob
 import org.bson.codecs.pojo.annotations.BsonId
 import org.bson.conversions.Bson
@@ -23,7 +24,7 @@ data class ProfileSnapshot(
     @BsonId val uniqueId: UUID,
     val data: String? = null,
     val lastKnownName: String = "(unknown)",
-    val lastKnownSkin: SkinBlob = SkinBlob("ewogICJ0aW1lc3RhbXAiIDogMTY2NTY4MTM0ODA2NywKICAicHJvZmlsZUlkIiA6ICIwNDNkZWIzOGIyNjE0MTg1YTIzYzU4ZmI2YTc5ZWZkYyIsCiAgInByb2ZpbGVOYW1lIiA6ICJWaXRhbFNpZ256MiIsCiAgInNpZ25hdHVyZVJlcXVpcmVkIiA6IHRydWUsCiAgInRleHR1cmVzIiA6IHsKICAgICJTS0lOIiA6IHsKICAgICAgInVybCIgOiAiaHR0cDovL3RleHR1cmVzLm1pbmVjcmFmdC5uZXQvdGV4dHVyZS8yOWIzN2ZkMDE0MjIzYTk5NmQxYmJkMGY0NmQwN2M2YzViMDlmM2IxMTRhNTgyMWQ2N2RlYTE4YTY2YmY5ZDRlIgogICAgfQogIH0KfQ==", "erK6MuC6f5PMf3vUcmwCrOtcgvSvTfj4vgd4qkrNgPMnR5tp0EEiBKDgb1t5Bou9UUlZcJqxzfVomNAbkkD13P3yVxbcw/rENK6lwCtAPJMG3miM/mGNS9CTpFd2aGPcDajaH9dztdxgdNMFS3f088kOUxV1a7NT0hicSBb8ZxDPcGgQkKlpH1hI88uqC4kV4N0CeaSlb3K0du1Q9Bgd5bmDJ4Ns5goOQtOhIPHkWwOt/s0NgIYTS7Glo2YxG4Kk5WvaN4dxzpZTBtLv95+zrR2Rok/720WKG/00A5HkcDO2hoM9ewHVPSUPmgRZS9wrQqPTEOut2xZ2Qac1wfsVKYIpQpI+DyOwlCAiTeRP1YGf/emcvTdM37FdLMZC4DntKZIdV7WExRYQS9DLZRoFA1//HaiBi+QU5iRWMEBdFfyYdLye1nNGOgrXTNRQi8Aj+9Ky9j5PwXIUVMC4ehOQolqUGZ17az9j0HYzZYMiKbNkGf5TxRevp3O3VRMar6ECJ1RlZ0rm4yc1IUlWfz+D9k/rXvGa6wt4hXPiPkCJwP58ua9wRHwbPzb36RddBffR3uv5h71FfDrn0L7QX7k6ePMhWx11duvlWDAJ7z2ULG6jNmBJCPW2/KniFlIjgfAmC94grZZSdAv7PS3ac3osn6hw2pTUoTF+chE9Uo37MQI="),
+    val lastKnownSkin: SkinBlob = Skins.QUESTION_MARK,
     val lastOnline: LocalDateTime = LocalDateTime.ofEpochSecond(0, 0, ZoneOffset.UTC),
     val maskName: String? = null,
     val maskRank: String? = null,

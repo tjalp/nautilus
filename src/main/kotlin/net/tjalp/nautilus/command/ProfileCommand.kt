@@ -78,8 +78,13 @@ class ProfileCommand(
                 profile = profiles.profile(username)
             }
             if (profile == null) {
-                sender.sendMessage(mini("<red>Profile does not exist <gray>(${time}ms)"))
+                sender.sendMessage(mini("<red>The profile either does not exist or the user has requested to hide their profile <gray>(${time}ms)"))
             } else {
+                if (sender is Player) {
+                    ProfileContainer(profile).open(sender)
+                    return@launch
+                }
+
                 val profileJson = GsonHelper.pretty().toJson(JsonParser.parseString(profile.json))
                 sender.sendMessage(mini(profileJson + " (${time}ms)").append(newline()))
 
@@ -101,8 +106,6 @@ class ProfileCommand(
                 ).append(space()).append(text(profile.lastKnownName, WHITE).decoration(BOLD, false))
 
                 sender.sendMessage(component.build())
-
-                if (sender is Player) ProfileContainer(profile).open(sender)
             }
         }
     }

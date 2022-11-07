@@ -81,6 +81,11 @@ class MaskCommand(
     }
 
     private fun name(sender: Player, username: String) {
+        if (username.length > 16) {
+            sender.sendMessage(mini("<red>The username cannot be longer than 16 characters, you have ${username.length}!"))
+            return
+        }
+
         this.scheduler.launch { masking.mask(sender.profile(), username = username) }
     }
 }

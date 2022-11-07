@@ -1,5 +1,6 @@
 package net.tjalp.nautilus.util
 
+import com.destroystokyo.paper.profile.ProfileProperty
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor.WHITE
 import net.kyori.adventure.text.format.TextDecoration.ITALIC
@@ -13,6 +14,7 @@ import org.bukkit.inventory.meta.Damageable
 import org.bukkit.inventory.meta.ItemMeta
 import org.bukkit.inventory.meta.SkullMeta
 import org.bukkit.persistence.PersistentDataType
+import java.util.*
 
 class ItemBuilder {
 
@@ -206,6 +208,23 @@ class ItemBuilder {
         val meta = this.itemMeta
         if (meta is SkullMeta) {
             val profile = Bukkit.getServer().createProfile(username)
+            meta.playerProfile = profile
+        }
+        return this
+    }
+
+    /**
+     * Set the player profile of the skull
+     *
+     * @param skin The skin to set
+     * @return self
+     */
+    fun skull(skin: SkinBlob): ItemBuilder {
+        val meta = this.itemMeta
+        if (meta is SkullMeta) {
+            val profile = Bukkit.createProfile(UUID.randomUUID()).apply {
+                setProperty(ProfileProperty("textures", skin.value, skin.signature))
+            }
             meta.playerProfile = profile
         }
         return this
