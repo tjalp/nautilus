@@ -12,6 +12,7 @@ import net.tjalp.nautilus.command.DisguiseCommand
 import net.tjalp.nautilus.command.MaskCommand
 import net.tjalp.nautilus.command.NautilusCommandImpl
 import net.tjalp.nautilus.command.ProfileCommand
+import net.tjalp.nautilus.config.NautilusConfig
 import net.tjalp.nautilus.database.MongoManager
 import net.tjalp.nautilus.exception.UnmetDependencyException
 import net.tjalp.nautilus.permission.PermissionManager
@@ -39,6 +40,9 @@ class Nautilus : JavaPlugin() {
 
     /** The command manager */
     lateinit var commands: PaperCommandManager<CommandSender>; private set
+
+    /** The config */
+    lateinit var config: NautilusConfig; private set
 
     /** The Disguise Manager */
     lateinit var disguises: DisguiseManager; private set
@@ -77,11 +81,13 @@ class Nautilus : JavaPlugin() {
         }
         this.protocol = ProtocolLibrary.getProtocolManager() ?: throw UnmetDependencyException("ProtocolLib cannot be found")
 
+        this.config = NautilusConfig.load(this)
+
         Players.initialize(this)
 
         this.chat = ChatManager(this)
         this.disguises = DisguiseManager(this)
-        this.mongo = MongoManager()
+        this.mongo = MongoManager(this.logger, this.config.mongo)
         this.perms = PermissionManager(this)
         this.profiles = ProfileManager(this)
         this.scheduler = NautilusScheduler(this)

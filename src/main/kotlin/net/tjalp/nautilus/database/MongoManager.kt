@@ -3,8 +3,8 @@ package net.tjalp.nautilus.database
 import com.mongodb.ConnectionString
 import com.mongodb.MongoClientSettings
 import com.mongodb.reactivestreams.client.MongoClient
-import com.mongodb.reactivestreams.client.MongoClients
 import com.mongodb.reactivestreams.client.MongoDatabase
+import net.tjalp.nautilus.config.details.MongoDetails
 import org.bson.UuidRepresentation
 import org.litote.kmongo.coroutine.CoroutineClient
 import org.litote.kmongo.coroutine.coroutine
@@ -18,7 +18,7 @@ import java.util.logging.Logger
  * has to do with database stuff, such as
  * writing, reading etc.
  */
-class MongoManager {
+class MongoManager(private val logger: Logger, private val details: MongoDetails) {
 
     /** The MongoDB database client */
     val mongoClient: MongoClient
@@ -37,15 +37,23 @@ class MongoManager {
         System.setProperty("org.litote.mongo.mapping.service", "org.litote.kmongo.jackson.JacksonClassMappingTypeService")
         KMongoJacksonFeature.setUUIDRepresentation(UuidRepresentation.STANDARD)
 
+        val connectionString = this.details.connectionString.ifEmpty {
+            "mongodb://${this.details.server}:${this.details.port}/"
+        }
+        val database = this.details.database
+
+        this.logger.info("MongoDB -> Using connection '$connectionString'")
+        this.logger.info("MongoDB -> Using database '$database'")
+
         this.mongoClient = KMongo.createClient(
             MongoClientSettings
                 .builder()
                 .uuidRepresentation(UuidRepresentation.STANDARD)
-                .applyConnectionString(ConnectionString(CONNECTION_STRING))
+                .applyConnectionString(ConnectionString(connectionString))
                 .build()
         )
         this.mongoCoroutine = this.mongoClient.coroutine
-        this.mongoDatabase = this.mongoClient.getDatabase("nautilus") // todo dont hardcode this
+        this.mongoDatabase = this.mongoClient.getDatabase(database)
     }
 
     /**
@@ -53,11 +61,5 @@ class MongoManager {
      */
     fun dispose() {
         this.mongoClient.close()
-    }
-
-    companion object {
-
-        // todo dont hardcore this
-        private const val CONNECTION_STRING = "mongodb+srv://tjalp:mongopw@tjalp-cluster.dtmviyw.mongodb.net/?retryWrites=true&w=majority"
     }
 }
