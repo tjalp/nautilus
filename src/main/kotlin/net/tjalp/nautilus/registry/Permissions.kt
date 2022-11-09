@@ -49,7 +49,7 @@ fun registerRanks(nautilus: Nautilus) {
     perms.registerRank(PermissionRank(
         id = ADMIN_RANK,
         weight = 2,
-        name = "Admin",
+        name = "Administrator",
         nameColor = fromHexString("#c3b1e1")!!,
         prefix = mini("<white>ꐀ") as TextComponent,
         chatColor = color(218, 199, 252),

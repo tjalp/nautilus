@@ -1,13 +1,14 @@
 package net.tjalp.nautilus.util
 
 import net.kyori.adventure.text.Component
-import net.kyori.adventure.text.Component.space
-import net.kyori.adventure.text.Component.text
+import net.kyori.adventure.text.Component.*
 import net.kyori.adventure.text.TextComponent
 import net.kyori.adventure.text.event.ClickEvent.runCommand
 import net.kyori.adventure.text.event.HoverEvent.showText
+import net.kyori.adventure.text.format.NamedTextColor
 import net.kyori.adventure.text.format.NamedTextColor.GRAY
 import net.kyori.adventure.text.format.NamedTextColor.WHITE
+import net.kyori.adventure.text.format.TextColor
 import net.tjalp.nautilus.Nautilus
 import net.tjalp.nautilus.permission.PermissionRank
 import net.tjalp.nautilus.player.profile.ProfileSnapshot
@@ -76,14 +77,19 @@ fun ProfileSnapshot.displayName(): String {
 /**
  * Get a component of a profile
  *
+ * @param useMask Whether to display the masked name or the real name
  * @param showPrefix Whether to show the prefix
  * @param showSuffix Whether to show the suffix
+ * @param showHover Whether to add a hover effect
+ * @param isClickable Whether to open the profile on click
  * @return A formatted [Component] of the profile
  */
 fun ProfileSnapshot.nameComponent(
     useMask: Boolean = true,
     showPrefix: Boolean = true,
-    showSuffix: Boolean = true
+    showSuffix: Boolean = true,
+    showHover: Boolean = true,
+    isClickable: Boolean = true
 ): Component {
     val player = this.player()
     val username = if (useMask) text(this.displayName()) else (player?.name() ?: text(this.lastKnownName)) as TextComponent
@@ -94,16 +100,24 @@ fun ProfileSnapshot.nameComponent(
     component.append(username.color(rank.nameColor)) // todo make this better
     if (showSuffix && rank.suffix.content().isNotEmpty()) component.append(space()).append(rank.suffix)
 
-    component.hoverEvent(showText {
-        val ranks = ListJoiner().apply {
-            this@nameComponent.ranks().forEach { this.add(it.prefix.content()) }
-        }
-        text().color(GRAY)
-            .append(text("Ranks: "))
-            .append(text(ranks.toString(), WHITE))
-            .build()
-    })
-    component.clickEvent(runCommand("/profile \"${username.content()}\""))
+    if (showHover) {
+        component.hoverEvent(showText {
+            val hoverComponent = text().color(GRAY)
+                .append(rank.prefix).append(space()).append(username.color(rank.nameColor))
+
+            if (isClickable) {
+                hoverComponent.append(newline()).append(newline())
+                    .append(text().color(TextColor.color(236, 151, 4))
+                        .append(text("\u2620"))
+                        .append(text(" > ", NamedTextColor.DARK_GRAY))
+                        .append(text("Click to "))
+                        .append(text().color(TextColor.color(247, 200, 21)).append(text("Inspect"))))
+            }
+
+            hoverComponent.build()
+        })
+    }
+    if (isClickable) component.clickEvent(runCommand("/profile \"${username.content()}\""))
 
     return component.build().compact()
 }

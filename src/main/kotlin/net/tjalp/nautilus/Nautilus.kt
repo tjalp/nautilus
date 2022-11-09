@@ -1,6 +1,7 @@
 package net.tjalp.nautilus
 
-import cloud.commandframework.bukkit.CloudBukkitCapabilities
+import cloud.commandframework.bukkit.CloudBukkitCapabilities.BRIGADIER
+import cloud.commandframework.bukkit.CloudBukkitCapabilities.ASYNCHRONOUS_COMPLETION
 import cloud.commandframework.execution.CommandExecutionCoordinator
 import cloud.commandframework.paper.PaperCommandManager
 import com.comphenix.protocol.ProtocolLibrary
@@ -8,10 +9,7 @@ import com.comphenix.protocol.ProtocolManager
 import io.ktor.client.*
 import io.ktor.client.engine.okhttp.*
 import net.tjalp.nautilus.chat.ChatManager
-import net.tjalp.nautilus.command.DisguiseCommand
-import net.tjalp.nautilus.command.MaskCommand
-import net.tjalp.nautilus.command.NautilusCommandImpl
-import net.tjalp.nautilus.command.ProfileCommand
+import net.tjalp.nautilus.command.*
 import net.tjalp.nautilus.config.NautilusConfig
 import net.tjalp.nautilus.database.MongoManager
 import net.tjalp.nautilus.exception.UnmetDependencyException
@@ -102,12 +100,13 @@ class Nautilus : JavaPlugin() {
             Function.identity(),
             Function.identity()
         )
-        if (this.commands.hasCapability(CloudBukkitCapabilities.BRIGADIER)) this.commands.registerBrigadier()
-        if (this.commands.hasCapability(CloudBukkitCapabilities.ASYNCHRONOUS_COMPLETION)) this.commands.registerAsynchronousCompletions()
+        if (this.commands.hasCapability(BRIGADIER)) this.commands.registerBrigadier()
+        if (this.commands.hasCapability(ASYNCHRONOUS_COMPLETION)) this.commands.registerAsynchronousCompletions()
 
         DisguiseCommand(this)
         MaskCommand(this)
         NautilusCommandImpl(this)
+        PermissionsCommand(this)
         ProfileCommand(this)
 
         this.logger.info("Startup took ${System.currentTimeMillis() - startTime}ms!")

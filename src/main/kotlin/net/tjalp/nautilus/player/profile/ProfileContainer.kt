@@ -13,7 +13,7 @@ class ProfileContainer(
     val profile: ProfileSnapshot
 ) : Container(
     title = text()
-        .append(profile.nameComponent(useMask = false))
+        .append(profile.nameComponent(useMask = false, showPrefix = false, showSuffix = false, showHover = false, isClickable = false))
         .append(text("'s profile"))
         .build(),
     rows = 3
@@ -23,7 +23,7 @@ class ProfileContainer(
         val head = ContainerSlot(
             ItemGenerator.clickable(
                 material = PLAYER_HEAD,
-                name = profile.nameComponent(useMask = false, showSuffix = false),
+                name = profile.nameComponent(useMask = false, showSuffix = false, showHover = false, isClickable = false),
                 description = text("Contains data: ${profile.data.toString()}"),
                 clickTo = text("View")
             ).skull(profile.lastKnownSkin).build()

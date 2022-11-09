@@ -2,6 +2,7 @@ package net.tjalp.nautilus.player.profile
 
 import com.mongodb.client.model.FindOneAndUpdateOptions
 import com.mongodb.client.model.ReturnDocument
+import com.mongodb.client.model.Updates
 import kotlinx.coroutines.reactive.awaitSingle
 import net.tjalp.nautilus.Nautilus
 import net.tjalp.nautilus.database.MongoCollections
@@ -10,6 +11,7 @@ import net.tjalp.nautilus.registry.Skins
 import net.tjalp.nautilus.util.SkinBlob
 import org.bson.codecs.pojo.annotations.BsonId
 import org.bson.conversions.Bson
+import org.litote.kmongo.combine
 import org.litote.kmongo.eq
 import java.time.LocalDateTime
 import java.time.ZoneOffset
@@ -76,7 +78,7 @@ data class ProfileSnapshot(
     suspend fun update(vararg bson: Bson): ProfileSnapshot {
         val newProfile = this.profiles.findOneAndUpdate(
             ::uniqueId eq this.uniqueId,
-            bson.toList(),
+            combine(*bson),
             FindOneAndUpdateOptions().returnDocument(ReturnDocument.AFTER)
         ).awaitSingle()
         this.nautilus.profiles.onProfileUpdate(newProfile)
