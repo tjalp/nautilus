@@ -90,6 +90,21 @@ tasks {
         relocate("com.github.twitch4j", "net.tjalp.nautilus.lib.twitch4j")
         //relocate("kotlin", "net.tjalp.aquarium.lib.kotlin")
     }
+
+    build {
+        doLast {
+            val nautilusOut: String by project
+
+            if (project.hasProperty("nautilusOut")) {
+                copy {
+                    from("./build/libs/nautilus-$version.jar")
+                    into(nautilusOut)
+
+                    rename("nautilus-$version.jar", "nautilus.jar")
+                }
+            }
+        }
+    }
 }
 
 bukkit {
