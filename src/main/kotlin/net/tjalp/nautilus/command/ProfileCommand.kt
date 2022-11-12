@@ -125,7 +125,7 @@ class ProfileCommand(
             }
             sender.sendMessage(
                 text("Set data of ", GRAY)
-                    .append(profile!!.nameComponent(useMask = false, showSuffix = false))
+                    .append(profile!!.nameComponent(useMask = false, showPrefix = false, showSuffix = false))
                     .append(text("'s profile to '"))
                     .append(text(profile!!.data ?: return@launch, WHITE))
                     .append(text("'"))
@@ -162,7 +162,7 @@ class ProfileCommand(
             if (profile != null) {
                 sender.sendMessage(
                     text("Updated ", GRAY)
-                        .append(profile.nameComponent(useMask = false, showSuffix = false))
+                        .append(profile.nameComponent(useMask = false, showPrefix = false, showSuffix = false))
                         .append(text("'s profile")).append(space())
                         .append(text("(${time}ms)", WHITE))
                 )

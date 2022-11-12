@@ -76,6 +76,8 @@ data class ProfileSnapshot(
      * @return The updated profile
      */
     suspend fun update(vararg bson: Bson): ProfileSnapshot {
+        if (bson.isEmpty()) return this
+
         val newProfile = this.profiles.findOneAndUpdate(
             ::uniqueId eq this.uniqueId,
             combine(*bson),

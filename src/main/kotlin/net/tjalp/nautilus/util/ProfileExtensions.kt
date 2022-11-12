@@ -9,6 +9,7 @@ import net.kyori.adventure.text.format.NamedTextColor
 import net.kyori.adventure.text.format.NamedTextColor.GRAY
 import net.kyori.adventure.text.format.NamedTextColor.WHITE
 import net.kyori.adventure.text.format.TextColor
+import net.kyori.adventure.text.format.TextColor.color
 import net.tjalp.nautilus.Nautilus
 import net.tjalp.nautilus.permission.PermissionRank
 import net.tjalp.nautilus.player.profile.ProfileSnapshot
@@ -107,11 +108,11 @@ fun ProfileSnapshot.nameComponent(
 
             if (isClickable) {
                 hoverComponent.append(newline()).append(newline())
-                    .append(text().color(TextColor.color(236, 151, 4))
+                    .append(text().color(color(233, 210, 130))
                         .append(text("\u2620"))
                         .append(text(" > ", NamedTextColor.DARK_GRAY))
                         .append(text("Click to "))
-                        .append(text().color(TextColor.color(247, 200, 21)).append(text("Inspect"))))
+                        .append(text().color(color(251, 228, 96)).append(text("Inspect"))))
             }
 
             hoverComponent.build()

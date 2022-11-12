@@ -3,6 +3,7 @@ package net.tjalp.nautilus.command
 import cloud.commandframework.arguments.standard.StringArgument
 import kotlinx.coroutines.launch
 import net.tjalp.nautilus.Nautilus
+import net.tjalp.nautilus.player.mask.MaskContainer
 import net.tjalp.nautilus.player.profile.ProfileSnapshot
 import net.tjalp.nautilus.util.mini
 import net.tjalp.nautilus.util.profile
@@ -47,6 +48,12 @@ class MaskCommand(
                 this.name(it.sender as Player, it.get(nameArg))
             }
         )
+
+        register(
+            builder.handler {
+                this.mask(it.sender as Player)
+            }
+        )
     }
 
     private fun rank(sender: Player, rank: String) {
@@ -87,5 +94,9 @@ class MaskCommand(
         }
 
         this.scheduler.launch { masking.mask(sender.profile(), username = username) }
+    }
+
+    private fun mask(sender: Player) {
+        MaskContainer().open(sender)
     }
 }

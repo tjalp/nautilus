@@ -77,21 +77,24 @@ class MaskManager(
                 skinProfile = nautilus.server.createProfile(skin)
                 val completed: Boolean
 
+                if (message && username == null && rank == null) profile.player()?.sendMessage(text("Please wait, applying skin...").color(GRAY))
+
                 withContext(Dispatchers.Default) {
                     completed = skinProfile!!.complete()
                 }
 
                 if (!completed) {
-                    if (message) profile.player()?.sendMessage(mini("<red>Setting skin failed. Is there no user with that name?"))
+                    if (message && username == null && rank == null) profile.player()?.sendMessage(mini("<red>Something went wrong while applying the skin. Is there no user with that name?"))
                     return
-                } else {
-                    val texturesProperty = skinProfile!!.properties.first { it.name == "textures" }
-                    bson += setValue(ProfileSnapshot::maskSkin, SkinBlob(texturesProperty.value, texturesProperty.signature!!))
                 }
+
+                bson += setValue(ProfileSnapshot::maskSkin, skinProfile!!.skin())
             }
 
             updatedProfile = profile.update(*bson.toTypedArray())
         }
+
+        if (profile == updatedProfile) return
 
         if (message) {
             if (username != null || rank != null) {
@@ -149,18 +152,17 @@ class MaskManager(
         val username = profile.displayName()
         val uniqueId = profile.uniqueId
         val gameProfile = identity?.withName(username)?.withId(uniqueId.toString()) ?: WrappedGameProfile(uniqueId, username)
-        val skinBlob = if (profile.maskSkin != null) {
-            profile.maskSkin
-        } else if (identity == null) {
-            profile.lastKnownSkin
-        } else {
-            val texturesProperty = identity.properties.get("textures").firstOrNull() ?: return null
+        val skinBlob = profile.maskSkin
+            ?: if (identity == null) {
+                profile.lastKnownSkin
+            } else {
+                val texturesProperty = identity.properties.get("textures").firstOrNull() ?: return null
 
-            SkinBlob(
-                texturesProperty.value,
-                texturesProperty.signature
-            )
-        }
+                SkinBlob(
+                    texturesProperty.value,
+                    texturesProperty.signature
+                )
+            }
 
         gameProfile.properties.put("textures", WrappedSignedProperty.fromValues(
             "textures",

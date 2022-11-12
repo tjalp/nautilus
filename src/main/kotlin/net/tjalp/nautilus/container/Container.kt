@@ -4,6 +4,7 @@ import net.kyori.adventure.text.Component
 import net.tjalp.nautilus.util.register
 import net.tjalp.nautilus.util.unregister
 import org.bukkit.Bukkit
+import org.bukkit.entity.HumanEntity
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
@@ -50,7 +51,7 @@ abstract class Container(
         player.openInventory(this.inventory!!)
     }
 
-    fun close() {
+    fun close(vararg exempt: HumanEntity) {
         if (this.inventory == null) return
 
         this.listener.unregister()
@@ -58,6 +59,7 @@ abstract class Container(
         onClose(viewer!!)
 
         for (viewer in this.inventory!!.viewers.toTypedArray()) {
+            if (viewer in exempt) continue
             viewer.closeInventory()
         }
 
@@ -80,12 +82,12 @@ abstract class Container(
 
         @EventHandler
         fun on(event: InventoryCloseEvent) {
-            if (event.inventory == this@Container.inventory) this@Container.close()
+            if (event.inventory == this@Container.inventory) this@Container.close(event.player)
         }
 
         @EventHandler
         fun on(event: PlayerQuitEvent) {
-            if (event.player == this@Container.viewer) this@Container.close()
+            if (event.player == this@Container.viewer) this@Container.close(event.player)
         }
 
         @EventHandler
@@ -108,6 +110,7 @@ abstract class Container(
             val click = ContainerClick(event, player, clickSlot)
 
             clickSlot.handler?.invoke(click)
+            clickSlot.clickSound?.let { player.playSound(it) }
         }
 
         @EventHandler

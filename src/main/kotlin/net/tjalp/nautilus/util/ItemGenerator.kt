@@ -12,13 +12,13 @@ object ItemGenerator {
     fun clickable(material: Material, name: Component, description: Component, clickTo: Component): ItemBuilder {
         val lore = arrayOf(
             empty(),
-            text().color(color(247, 200, 21)).append(description).build(),
+            text().color(color(251, 228, 96)).append(description).build(),
             empty(),
-            text().color(color(236, 151, 4))
+            text().color(color(233, 210, 130))
                 .append(text("\u2620"))
                 .append(text(" > ", DARK_GRAY))
                 .append(text("Click to "))
-                .append(text().color(color(247, 200, 21)).append(clickTo))
+                .append(text().color(color(251, 228, 96)).append(clickTo))
                 .build()
         )
 

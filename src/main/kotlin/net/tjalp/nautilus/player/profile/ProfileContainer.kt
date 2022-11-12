@@ -4,7 +4,9 @@ import net.kyori.adventure.text.Component.text
 import net.tjalp.nautilus.container.Blueprint
 import net.tjalp.nautilus.container.Container
 import net.tjalp.nautilus.container.ContainerSlot
+import net.tjalp.nautilus.player.mask.MaskContainer
 import net.tjalp.nautilus.util.ItemGenerator
+import net.tjalp.nautilus.util.TextInput
 import net.tjalp.nautilus.util.nameComponent
 import org.bukkit.Material.PLAYER_HEAD
 import org.bukkit.entity.Player
@@ -27,13 +29,14 @@ class ProfileContainer(
                 description = text("Contains data: ${profile.data.toString()}"),
                 clickTo = text("View")
             ).skull(profile.lastKnownSkin).build()
-        ) {
-            val clicker = it.player
+        ) { click ->
+            val clicker = click.player
 
-            clicker.closeInventory()
-            clicker.sendMessage(text("The text value is: ${profile.data.toString()}"))
+            TextInput.signSmall(player, label = text("Text Input")) {
+                clicker.sendMessage(it)
+            }
         }
 
-        blueprint.slot(13).set(head)
+        blueprint.slot(13).set(head).clickSound()
     }
 }

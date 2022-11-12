@@ -1,5 +1,9 @@
 package net.tjalp.nautilus.container
 
+import net.kyori.adventure.sound.Sound
+import net.kyori.adventure.sound.Sound.Source.MASTER
+import net.kyori.adventure.sound.Sound.sound
+import org.bukkit.Sound.UI_BUTTON_CLICK
 import org.bukkit.Material.AIR
 import org.bukkit.inventory.ItemStack
 
@@ -29,9 +33,18 @@ class Blueprint(
         return this
     }
 
+    fun sound(sound: Sound): Blueprint {
+        this.container.slotData[this.currentSlot]!!.clickSound = sound
+        return this
+    }
+
     fun clear(): Blueprint {
         this.container.inventory!!.setItem(this.currentSlot, ItemStack(AIR))
         this.container.slotData.remove(this.currentSlot)
         return this
+    }
+
+    fun clickSound(): Blueprint {
+        return this.sound(sound(UI_BUTTON_CLICK.key(), MASTER, 1f, 1f))
     }
 }
