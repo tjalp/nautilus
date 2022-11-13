@@ -4,6 +4,7 @@ import com.destroystokyo.paper.profile.ProfileProperty
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor.WHITE
 import net.kyori.adventure.text.format.TextDecoration.ITALIC
+import net.kyori.adventure.util.RGBLike
 import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.NamespacedKey
@@ -12,6 +13,7 @@ import org.bukkit.inventory.ItemFlag
 import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.meta.Damageable
 import org.bukkit.inventory.meta.ItemMeta
+import org.bukkit.inventory.meta.LeatherArmorMeta
 import org.bukkit.inventory.meta.SkullMeta
 import org.bukkit.persistence.PersistentDataType
 import java.util.*
@@ -226,6 +228,17 @@ class ItemBuilder {
                 setProperty(ProfileProperty("textures", skin.value, skin.signature))
             }
             meta.playerProfile = profile
+        }
+        return this
+    }
+
+    /**
+     * Set the color of the [Dyeable]
+     */
+    fun color(color: RGBLike): ItemBuilder {
+        val meta = this.itemMeta
+        if (meta is LeatherArmorMeta) {
+            meta.setColor(org.bukkit.Color.fromRGB(color.red(), color.green(), color.blue()))
         }
         return this
     }
