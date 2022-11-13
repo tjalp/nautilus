@@ -23,6 +23,8 @@ import net.tjalp.nautilus.permission.PermissionRank
 import net.tjalp.nautilus.player.profile.ProfileSnapshot
 import net.tjalp.nautilus.util.*
 import org.bson.conversions.Bson
+import org.bukkit.craftbukkit.v1_19_R1.entity.CraftPlayer
+import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.entity.PlayerDeathEvent
@@ -261,10 +263,16 @@ class MaskManager(
         @EventHandler
         fun on(event: PlayerDeathEvent) {
             val deathMessage = (event.deathMessage() ?: return) as TranslatableComponent
-            val profile = event.player.profile()
+            val player = event.player
+            val profile = player.profile()
             val args = deathMessage.args().toMutableList()
+            val killCredit = (player as CraftPlayer).handle.killCredit?.bukkitLivingEntity
 
             args[0] = profile.nameComponent(showSuffix = false)
+
+            if (killCredit != null && killCredit is Player) {
+                args[1] = killCredit.profile().nameComponent(showSuffix = false)
+            }
 
             val finalComponent = text().color(color(250, 160, 160))
                 .append(text("\u2620 ").color(color(244,54,76)))

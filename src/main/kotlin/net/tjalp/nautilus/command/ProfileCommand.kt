@@ -41,12 +41,6 @@ class ProfileCommand(
         val dataArg = StringArgument.newBuilder<CommandSender>("data").greedy().build()
 
         register(
-            builder.argument(usernameArg.copy()).handler {
-                profile(it.sender, it.get(usernameArg))
-            }
-        )
-
-        register(
             builder.argument(usernameArg.copy()).argument(dataArg).handler {
                 data(it.sender, it.get(usernameArg), it.get(dataArg))
             }
@@ -63,51 +57,6 @@ class ProfileCommand(
                 update(it.sender, it.get(usernameArg))
             }
         )
-
-        register(
-            builder.senderType(Player::class.java).handler {
-                profile(it.sender, it.sender.name)
-            }
-        )
-    }
-
-    private fun profile(sender: CommandSender, username: String) {
-        this.scheduler.launch {
-            val profile: ProfileSnapshot?
-            val time = measureTimeMillis {
-                profile = profiles.profile(username)
-            }
-            if (profile == null) {
-                sender.sendMessage(mini("<red>The profile either does not exist or the user has requested to hide their profile <gray>(${time}ms)"))
-            } else {
-                if (sender is Player) {
-                    ProfileContainer(profile).open(sender)
-                    return@launch
-                }
-
-                val profileJson = GsonHelper.pretty().toJson(JsonParser.parseString(profile.json))
-                sender.sendMessage(mini(profileJson + " (${time}ms)").append(newline()))
-
-                val component = text()
-
-                component.append(text("ʀᴀɴᴋs", GRAY, BOLD).append(mini(" <#82826f><!b>→")))
-                for (rank in profile.ranks().sortedBy { it.weight }) component.append(newline()).append(rank.prefix)
-
-                component.append(newline()).append(
-                    text("ʟᴀsᴛ ᴏɴʟɪɴᴇ", GRAY, BOLD).append(mini(" <#82826f><!b>→"))
-                ).append(space()).append(text(Nautilus.TIME_FORMAT.format(profile.lastOnline), WHITE).decoration(BOLD, false))
-
-                component.append(newline()).append(
-                    text("ᴅᴀᴛᴀ", GRAY, BOLD).append(mini(" <#82826f><!b>→"))
-                ).append(space()).append(text(profile.data ?: "", WHITE).decoration(BOLD, false))
-
-                component.append(newline()).append(
-                    text("ʟᴀsᴛ ᴋɴᴏᴡɴ ɴᴀᴍᴇ", GRAY, BOLD).append(mini(" <#82826f><!b>→"))
-                ).append(space()).append(text(profile.lastKnownName, WHITE).decoration(BOLD, false))
-
-                sender.sendMessage(component.build())
-            }
-        }
     }
 
     private fun data(sender: CommandSender, username: String, data: String) {

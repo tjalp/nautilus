@@ -2,14 +2,12 @@ package net.tjalp.nautilus.util
 
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.Component.*
-import net.kyori.adventure.text.TextComponent
 import net.kyori.adventure.text.event.ClickEvent.runCommand
 import net.kyori.adventure.text.event.HoverEvent.showText
 import net.kyori.adventure.text.format.NamedTextColor
 import net.kyori.adventure.text.format.NamedTextColor.GRAY
-import net.kyori.adventure.text.format.NamedTextColor.WHITE
-import net.kyori.adventure.text.format.TextColor
 import net.kyori.adventure.text.format.TextColor.color
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer.plainText
 import net.tjalp.nautilus.Nautilus
 import net.tjalp.nautilus.permission.PermissionRank
 import net.tjalp.nautilus.player.profile.ProfileSnapshot
@@ -93,7 +91,7 @@ fun ProfileSnapshot.nameComponent(
     isClickable: Boolean = true
 ): Component {
     val player = this.player()
-    val username = if (useMask) text(this.displayName()) else (player?.name() ?: text(this.lastKnownName)) as TextComponent
+    val username = if (useMask) text(this.displayName()) else (player?.name() ?: text(this.lastKnownName))
     val rank = if (useMask) this.displayRank() else this.primaryRank()
     val component = text()
 
@@ -110,7 +108,7 @@ fun ProfileSnapshot.nameComponent(
                 hoverComponent.append(newline()).append(newline())
                     .append(text().color(color(233, 210, 130))
                         .append(text("\u2620"))
-                        .append(text(" > ", NamedTextColor.DARK_GRAY))
+                        .append(text(" \u2192 ", NamedTextColor.DARK_GRAY))
                         .append(text("Click to "))
                         .append(text().color(color(251, 228, 96)).append(text("Inspect"))))
             }
@@ -118,7 +116,7 @@ fun ProfileSnapshot.nameComponent(
             hoverComponent.build()
         })
     }
-    if (isClickable) component.clickEvent(runCommand("/profile \"${username.content()}\""))
+    if (isClickable) component.clickEvent(runCommand("/inspect \"${plainText().serialize(username)}\""))
 
     return component.build().compact()
 }

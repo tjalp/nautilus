@@ -16,7 +16,7 @@ object ItemGenerator {
             empty(),
             text().color(color(233, 210, 130))
                 .append(text("\u2620"))
-                .append(text(" > ", DARK_GRAY))
+                .append(text(" \u2192 ", DARK_GRAY))
                 .append(text("Click to "))
                 .append(text().color(color(251, 228, 96)).append(clickTo))
                 .build()

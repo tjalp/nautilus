@@ -20,6 +20,7 @@ import net.tjalp.nautilus.player.mask.MaskManager
 import net.tjalp.nautilus.player.profile.ProfileManager
 import net.tjalp.nautilus.player.tag.NametagManager
 import net.tjalp.nautilus.registry.registerRanks
+import net.tjalp.nautilus.registry.registerSuggestions
 import net.tjalp.nautilus.scheduler.NautilusScheduler
 import org.bukkit.command.CommandSender
 import org.bukkit.plugin.java.JavaPlugin
@@ -103,7 +104,10 @@ class Nautilus : JavaPlugin() {
         if (this.commands.hasCapability(BRIGADIER)) this.commands.registerBrigadier()
         if (this.commands.hasCapability(ASYNCHRONOUS_COMPLETION)) this.commands.registerAsynchronousCompletions()
 
+        registerSuggestions(this)
+
         DisguiseCommand(this)
+        InspectCommand(this)
         MaskCommand(this)
         NautilusCommandImpl(this)
         PermissionsCommand(this)
