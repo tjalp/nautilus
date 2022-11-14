@@ -1,0 +1,40 @@
+{
+  "providers": [
+    {
+      "type": "bitmap",
+      "file": "custom/ui/rank/admin.png",
+      "ascent": 7,
+      "height": 7,
+      "chars": [
+        "ꐀ"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "custom/ui/rank/player.png",
+      "ascent": 7,
+      "height": 7,
+      "chars": [
+        "ꐁ"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "custom/ui/rank/media.png",
+      "ascent": 7,
+      "height": 7,
+      "chars": [
+        "ꐂ"
+      ]
+    },
+    {
+      "type": "bitmap",
+      "file": "custom/ui/streaming.png",
+      "ascent": 7,
+      "height": 7,
+      "chars": [
+        "ꔀ"
+      ]
+    }
+  ]
+}

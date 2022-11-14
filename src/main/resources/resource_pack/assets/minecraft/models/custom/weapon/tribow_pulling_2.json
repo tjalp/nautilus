@@ -1,0 +1,6 @@
+{
+  "parent": "item/bow",
+  "textures": {
+    "layer0": "custom/weapon/tribow_pulling_2"
+  }
+}

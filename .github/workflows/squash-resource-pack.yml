@@ -1,0 +1,24 @@
+ame: Squash Resource Pack
+on: [push]
+jobs:
+  packsquash:
+    name: Squash Resource Pack
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0 # A non-shallow repository clone is required
+      - name: Squash
+        uses: ComunidadAylas/PackSquash-action@v3
+        with:
+          path: release
+      - name: Download resource pack
+        uses: actions/download-artifact@v3
+        with:
+          name: Optimized pack
+      - name: Tag and create release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: nautilus-resource-pack-v${{ github.run_number }}
+          files: nautilus-resource-pack.zip

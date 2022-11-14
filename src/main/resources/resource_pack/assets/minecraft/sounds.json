@@ -1,0 +1,202 @@
+{
+  "music_disc.alive": {
+    "sounds": [
+      {
+        "name": "records/alive",
+        "stream": true
+      }
+    ]
+  },
+  "music_disc.bad_omen": {
+    "sounds": [
+      {
+        "name": "records/bad_omen",
+        "stream": true
+      }
+    ]
+  },
+  "music_disc.brute": {
+    "sounds": [
+      {
+        "name": "records/brute",
+        "stream": true
+      }
+    ]
+  },
+  "music_disc.cascade": {
+    "sounds": [
+      {
+        "name": "records/cascade",
+        "stream": true
+      }
+    ]
+  },
+  "music_disc.comet": {
+    "sounds": [
+      {
+        "name": "records/comet",
+        "stream": true
+      }
+    ]
+  },
+  "music_disc.forest": {
+    "sounds": [
+      {
+        "name": "records/forest",
+        "stream": true
+      }
+    ]
+  },
+  "music_disc.glide": {
+    "sounds": [
+      {
+        "name": "records/glide",
+        "stream": true
+      }
+    ]
+  },
+  "music_disc.husk": {
+    "sounds": [
+      {
+        "name": "records/husk",
+        "stream": true
+      }
+    ]
+  },
+  "music_disc.lightning": {
+    "sounds": [
+      {
+        "name": "records/lightning",
+        "stream": true
+      }
+    ]
+  },
+  "music_disc.luminous": {
+    "sounds": [
+      {
+        "name": "records/luminous",
+        "stream": true
+      }
+    ]
+  },
+  "music_disc.northern_lights": {
+    "sounds": [
+      {
+        "name": "records/northern_lights",
+        "stream": true
+      }
+    ]
+  },
+  "music_disc.ochre": {
+    "sounds": [
+      {
+        "name": "records/ochre",
+        "stream": true
+      }
+    ]
+  },
+  "music_disc.overtune": {
+    "sounds": [
+      {
+        "name": "records/overtune",
+        "stream": true
+      }
+    ]
+  },
+  "music_disc.raiders": {
+    "sounds": [
+      {
+        "name": "records/raiders",
+        "stream": true
+      }
+    ]
+  },
+  "music_disc.shrieker_spotify": {
+    "sounds": [
+      {
+        "name": "records/shrieker_spotify",
+        "stream": true
+      }
+    ]
+  },
+  "music_disc.shriekerxbrute": {
+    "sounds": [
+      {
+        "name": "records/shriekerxbrute",
+        "stream": true
+      }
+    ]
+  },
+  "music_disc.sleigh": {
+    "sounds": [
+      {
+        "name": "records/sleigh",
+        "stream": true
+      }
+    ]
+  },
+  "music_disc.snowstorm": {
+    "sounds": [
+      {
+        "name": "records/snowstorm",
+        "stream": true
+      }
+    ]
+  },
+  "music_disc.soulless": {
+    "sounds": [
+      {
+        "name": "records/soulless",
+        "stream": true
+      }
+    ]
+  },
+  "music_disc.storm": {
+    "sounds": [
+      {
+        "name": "records/storm",
+        "stream": true
+      }
+    ]
+  },
+  "music_disc.stride": {
+    "sounds": [
+      {
+        "name": "records/stride",
+        "stream": true
+      }
+    ]
+  },
+  "music_disc.the_ender_dragon": {
+    "sounds": [
+      {
+        "name": "records/the_ender_dragon",
+        "stream": true
+      }
+    ]
+  },
+  "music_disc.the_wither": {
+    "sounds": [
+      {
+        "name": "records/the_wither",
+        "stream": true
+      }
+    ]
+  },
+  "music_disc.underscore": {
+    "sounds": [
+      {
+        "name": "records/underscore",
+        "stream": true
+      }
+    ]
+  },
+  "music_disc.warden_run": {
+    "sounds": [
+      {
+        "name": "records/warden_run",
+        "stream": true
+      }
+    ]
+  }
+}
