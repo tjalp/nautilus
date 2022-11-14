@@ -12,7 +12,7 @@ jobs:
       - name: Squash
         uses: ComunidadAylas/PackSquash-action@v3
         with:
-          path: release
+          path: src/main/resources/resource_pack
       - name: Download resource pack
         uses: actions/download-artifact@v3
         with:
