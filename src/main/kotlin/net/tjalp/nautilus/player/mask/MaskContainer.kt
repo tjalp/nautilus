@@ -123,8 +123,8 @@ class MaskContainer : Container(
 
     private inner class RankContainer(val player: Player) : PageableContainer(
         title = text("Ranks"),
-        rows = 3,
-        fillableSlots = 11..15
+        rows = 4,
+        fillableSlots = intArrayOf(11, 12, 13, 14, 15, 20, 21, 22, 23, 24)
     ) {
 
         init {

@@ -39,13 +39,13 @@ abstract class PageableContainer(
         this.rerender innerRerender@{ blueprint ->
             if (clean) this@PageableContainer.clear()
 
-            if (currentPageIndex <= 0) blueprint.slot(21).set(ContainerSlot.VOID)
-            else blueprint.slot(21).set(
+            if (currentPageIndex <= 0) blueprint.slot(size - 6).set(ContainerSlot.VOID)
+            else blueprint.slot(size - 6).set(
                 ContainerSlot(
                     clickable(
                         material = Material.ARROW,
                         name = text("Previous Page"),
-                        description = empty(),
+                        description = text("Return to the previous page"),
                         clickTo = text("Move")
                     ).build()
                 ) {
@@ -53,13 +53,13 @@ abstract class PageableContainer(
                 }
             ).clickSound()
 
-            if (currentPageIndex >= slots!!.groupCount - 1) blueprint.slot(23).set(ContainerSlot.VOID)
-            else blueprint.slot(23).set(
+            if (currentPageIndex >= slots!!.groupCount - 1) blueprint.slot(size - 4).set(ContainerSlot.VOID)
+            else blueprint.slot(size - 4).set(
                 ContainerSlot(
                     clickable(
                         material = Material.ARROW,
                         name = text("Next Page"),
-                        description = empty(),
+                        description = text("Continue on the next page"),
                         clickTo = text("Move")
                     ).build()
                 ) {

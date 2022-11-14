@@ -126,8 +126,9 @@ class ItemBuilder {
      * @return self
      */
     fun flags(vararg flags: ItemFlag): ItemBuilder {
-        for (flag in flags) if (this.itemStack.hasItemFlag(flag)) this.itemStack.removeItemFlags(flag)
-        this.itemStack.addItemFlags(*flags)
+        val meta = this.itemMeta
+        for (flag in flags) if (meta.hasItemFlag(flag)) meta.removeItemFlags(flag)
+        meta.addItemFlags(*flags)
         return this
     }
 
