@@ -1,4 +1,4 @@
-ame: Squash Resource Pack
+name: Squash Resource Pack
 on: [push]
 jobs:
   packsquash:
