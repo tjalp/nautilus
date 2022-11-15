@@ -194,7 +194,7 @@ class MaskManager(
             val handle = packet.handle as ClientboundPlayerChatPacket
             val message = handle.message
             val uniqueId = message.signedHeader.sender
-            val sender = nautilus.server.getPlayer(uniqueId)!!
+            val sender = nautilus.server.getPlayer(uniqueId) ?: return
             val chat = text(message.signedContent().plain)
 
             event.isCancelled = true
