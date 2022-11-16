@@ -3,6 +3,7 @@ package net.tjalp.nautilus.permission
 import net.tjalp.nautilus.Nautilus
 import net.tjalp.nautilus.event.ProfileUpdateEvent
 import net.tjalp.nautilus.player.profile.ProfileSnapshot
+import net.tjalp.nautilus.registry.OPERATOR
 import net.tjalp.nautilus.util.player
 import net.tjalp.nautilus.util.register
 import org.bukkit.event.EventHandler
@@ -114,10 +115,10 @@ class PermissionManager(val nautilus: Nautilus) {
 
         val permissionInfo = profile.permissionInfo
 
-        if (permission in permissionInfo.permissions) return true
+        if (OPERATOR in permissionInfo.permissions || permission in permissionInfo.permissions) return true
 
         for (rank in getRanks(profile)) {
-            if (has(rank, permission)) return true
+            if (has(rank, OPERATOR) || has(rank, permission)) return true
         }
 
         return false
