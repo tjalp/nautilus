@@ -11,7 +11,10 @@ import kotlinx.coroutines.withContext
 import net.tjalp.nautilus.Nautilus
 import net.tjalp.nautilus.database.MongoCollections
 import net.tjalp.nautilus.event.ProfileUpdateEvent
-import net.tjalp.nautilus.util.*
+import net.tjalp.nautilus.util.player
+import net.tjalp.nautilus.util.profile
+import net.tjalp.nautilus.util.register
+import net.tjalp.nautilus.util.skin
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.EventPriority
@@ -47,16 +50,14 @@ class ProfileManager(
     }
 
     /**
-     * Retrieve the latest [ProfileSnapshot] of an
-     * online player. If not online, an error will
+     * Retrieve the latest [ProfileSnapshot] of a
+     * cached player. If not cached, an error will
      * be thrown.
      *
      * @param player The player to retrieve the profile of
      * @return The associated & cached [ProfileSnapshot] of the specified player
      */
     fun profile(player: Player): ProfileSnapshot {
-        check(player.isOnline) { "Player must be online to retrieve profile" }
-
         return this.profileCache[player.uniqueId] ?: run {
             throw IllegalStateException("No profile present for ${player.uniqueId}")
         }

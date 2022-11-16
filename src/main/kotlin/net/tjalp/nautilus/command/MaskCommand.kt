@@ -5,6 +5,8 @@ import kotlinx.coroutines.launch
 import net.tjalp.nautilus.Nautilus
 import net.tjalp.nautilus.player.mask.MaskContainer
 import net.tjalp.nautilus.player.profile.ProfileSnapshot
+import net.tjalp.nautilus.registry.MASK_COMMAND
+import net.tjalp.nautilus.util.has
 import net.tjalp.nautilus.util.mini
 import net.tjalp.nautilus.util.profile
 import org.bukkit.command.CommandSender
@@ -21,7 +23,9 @@ class MaskCommand(
     private val masking = this.nautilus.masking
 
     init {
-        val builder = builder("mask", "nick").senderType(Player::class.java)
+        val builder = builder("mask", "nick")
+            .senderType(Player::class.java)
+            .permission { sender -> if (sender is Player) sender has MASK_COMMAND else true }
         val unbuilder = builder("unmask", "unnick").senderType(Player::class.java)
         val nameArg = StringArgument.quoted<CommandSender>("username")
         val rankArg = StringArgument.of<CommandSender>("rank")

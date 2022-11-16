@@ -84,7 +84,7 @@ class ChatManager(
         fun on(event: AsyncChatDecorateEvent) {
             val player = event.player()
 
-            if (player != null && nautilus.perms.has(player.profile(), DECORATED_CHAT)) {
+            if (player != null && player has DECORATED_CHAT) {
                 val profile = player.profile()
                 val decorated = decorateChatMessage(player, event.result(), useChatColor = false)
 

@@ -15,6 +15,9 @@ const val ADMIN_RANK = "admin"
 // Permissions
 const val OPERATOR = "*"
 const val DECORATED_CHAT = "nautilus.decorated_chat"
+const val DISGUISE_COMMAND = "nautilus.command.disguise"
+const val MASK_COMMAND = "nautilus.command.mask"
+const val PROFILE_COMMAND = "nautilus.command.profile"
 
 /**
  * Register all ranks
@@ -42,7 +45,9 @@ fun registerRanks(nautilus: Nautilus) {
             DEFAULT_RANK
         ),
         permissions = setOf(
-            DECORATED_CHAT
+            DECORATED_CHAT,
+            DISGUISE_COMMAND,
+            MASK_COMMAND
         )
     ))
 
@@ -54,8 +59,7 @@ fun registerRanks(nautilus: Nautilus) {
         prefix = mini("<white>ꐀ") as TextComponent,
         chatColor = color(218, 199, 252),
         inherits = setOf(
-            DEFAULT_RANK,
-            MEDIA_RANK
+            DEFAULT_RANK
         ),
         permissions = setOf(
             OPERATOR

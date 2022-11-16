@@ -15,10 +15,8 @@ import net.tjalp.nautilus.Nautilus
 import net.tjalp.nautilus.database.MongoCollections
 import net.tjalp.nautilus.player.profile.ProfileContainer
 import net.tjalp.nautilus.player.profile.ProfileSnapshot
-import net.tjalp.nautilus.util.GsonHelper
-import net.tjalp.nautilus.util.mini
-import net.tjalp.nautilus.util.nameComponent
-import net.tjalp.nautilus.util.ranks
+import net.tjalp.nautilus.registry.PROFILE_COMMAND
+import net.tjalp.nautilus.util.*
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
 import org.litote.kmongo.json
@@ -37,6 +35,7 @@ class ProfileCommand(
 
     init {
         val builder = builder("profile")
+            .permission { sender -> if (sender is Player) sender has PROFILE_COMMAND else true }
         val usernameArg = StringArgument.quoted<CommandSender>("username")
         val dataArg = StringArgument.newBuilder<CommandSender>("data").greedy().build()
 

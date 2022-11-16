@@ -9,11 +9,14 @@ import net.kyori.adventure.text.format.TextDecoration.UNDERLINED
 import net.tjalp.nautilus.Nautilus
 import net.tjalp.nautilus.player.profile.ProfileSnapshot
 import net.tjalp.nautilus.player.profile.data.PermissionInfo
+import net.tjalp.nautilus.registry.OPERATOR
 import net.tjalp.nautilus.registry.RANK_SUGGESTIONS
+import net.tjalp.nautilus.util.has
 import net.tjalp.nautilus.util.nameComponent
 import net.tjalp.nautilus.util.primaryRank
 import net.tjalp.nautilus.util.ranks
 import org.bukkit.command.CommandSender
+import org.bukkit.entity.Player
 import org.litote.kmongo.div
 import org.litote.kmongo.pull
 import org.litote.kmongo.push
@@ -28,6 +31,7 @@ class PermissionsCommand(
 
     init {
         val builder = builder("permissions", "perms")
+            .permission { sender -> if (sender is Player) sender has OPERATOR else true }
         val usernameArg = StringArgument.quoted<CommandSender>("username")
         val rankArg = StringArgument.newBuilder<CommandSender>("rank").quoted().withSuggestionsProvider(RANK_SUGGESTIONS).build()
 

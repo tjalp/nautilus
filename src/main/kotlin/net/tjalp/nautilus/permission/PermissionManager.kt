@@ -1,6 +1,7 @@
 package net.tjalp.nautilus.permission
 
 import net.tjalp.nautilus.Nautilus
+import net.tjalp.nautilus.event.ProfileUpdateEvent
 import net.tjalp.nautilus.player.profile.ProfileSnapshot
 import net.tjalp.nautilus.util.player
 import net.tjalp.nautilus.util.register
@@ -147,6 +148,15 @@ class PermissionManager(val nautilus: Nautilus) {
             for (perm in globalPermissions) player.addAttachment(nautilus, perm.name, false)
 
             player.updateCommands()
+        }
+
+        @EventHandler
+        fun on(event: ProfileUpdateEvent) {
+            val player = event.player ?: return
+            val profile = event.profile
+            val prev = event.previous ?: return
+
+            if (profile.permissionInfo != prev.permissionInfo) player.updateCommands()
         }
     }
 }
