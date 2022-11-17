@@ -138,6 +138,10 @@ class ProfileManager(
             }
 
             this.profiles.save(profile).awaitSingle()
+        } else {
+            this.nautilus.scheduler.launch {
+                profiles.save(profile).awaitSingle()
+            }
         }
 
         return profile

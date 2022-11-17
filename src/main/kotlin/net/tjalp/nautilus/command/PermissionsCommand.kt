@@ -34,6 +34,7 @@ class PermissionsCommand(
             .permission { sender -> if (sender is Player) sender has OPERATOR else true }
         val usernameArg = StringArgument.quoted<CommandSender>("username")
         val rankArg = StringArgument.newBuilder<CommandSender>("rank").quoted().withSuggestionsProvider(RANK_SUGGESTIONS).build()
+        val permissionArg = StringArgument.quoted<CommandSender>("permission")
 
         register(
             builder.literal("addrank").argument(usernameArg.copy()).argument(rankArg.copy()).handler {
@@ -55,6 +56,28 @@ class PermissionsCommand(
             builder.literal("ranks").argument(usernameArg.copy()).handler {
                 this.scheduler.launch {
                     ranks(it.sender, it.get(usernameArg))
+                }
+            }
+        )
+
+        register(
+            builder.literal("addperm", "addpermission")
+                .argument(usernameArg.copy()).argument(permissionArg.copy()).handler {
+                    this.scheduler.launch { addPermission(it.sender, it.get(usernameArg), it.get(permissionArg).lowercase()) }
+                }
+        )
+
+        register(
+            builder.literal("delperm", "deletepermission", "remperm", "removepermission")
+                .argument(usernameArg.copy()).argument(permissionArg.copy()).handler {
+                    this.scheduler.launch { deletePermission(it.sender, it.get(usernameArg), it.get(permissionArg).lowercase()) }
+                }
+        )
+
+        register(
+            builder.literal("perms", "permissions").argument(usernameArg.copy()).handler {
+                this.scheduler.launch {
+                    permissions(it.sender, it.get(usernameArg))
                 }
             }
         )
@@ -150,7 +173,80 @@ class PermissionsCommand(
             .append(text("):"))
 
         for (rank in ranks) {
-            component.append(newline()).append(text("→ ")).append(rank.prefix).append(text(" (${rank.name})"))
+            component.append(newline())
+                .append(text("→ "))
+                .append(rank.prefix)
+                .append(text(" (${rank.name})"))
+        }
+
+        sender.sendMessage(component)
+    }
+
+    private suspend fun addPermission(sender: CommandSender, usernameArg: String, permissionArg: String) {
+        val profile = profiles.profile(usernameArg)
+
+        if (profile == null) {
+            sender.sendMessage(text().color(RED)
+                .append(text("No profile was found for "))
+                .append(text(usernameArg).color(WHITE))
+                .append(text("!"))
+            )
+            return
+        }
+
+        val updatedProfile = profile.update(push(ProfileSnapshot::permissionInfo / PermissionInfo::permissions, permissionArg))
+
+        sender.sendMessage(text().color(GRAY)
+            .append(text("Added permission "))
+            .append(text(permissionArg).color(WHITE))
+            .append(text(" to "))
+            .append(updatedProfile.nameComponent(useMask = false, showPrefix = false, showSuffix = false))
+            .append(text("!"))
+        )
+    }
+
+    private suspend fun deletePermission(sender: CommandSender, usernameArg: String, permissionArg: String) {
+        val profile = profiles.profile(usernameArg)
+
+        if (profile == null) {
+            sender.sendMessage(text().color(RED)
+                .append(text("No profile was found for "))
+                .append(text(usernameArg).color(WHITE))
+                .append(text("!"))
+            )
+            return
+        }
+
+        val updatedProfile = profile.update(pull(ProfileSnapshot::permissionInfo / PermissionInfo::permissions, permissionArg))
+
+        sender.sendMessage(text().color(GRAY)
+            .append(text("Removed permission "))
+            .append(text(permissionArg).color(WHITE))
+            .append(text(" from "))
+            .append(updatedProfile.nameComponent(useMask = false, showPrefix = false, showSuffix = false))
+            .append(text("!"))
+        )
+    }
+
+    private suspend fun permissions(sender: CommandSender, usernameArg: String) {
+        val profile = profiles.profile(usernameArg)
+
+        if (profile == null) {
+            sender.sendMessage(text().color(RED)
+                .append(text("No profile was found for "))
+                .append(text(usernameArg).color(WHITE))
+                .append(text("!"))
+            )
+            return
+        }
+
+        val permissions = profile.permissionInfo.permissions.sorted()
+        val component = text().color(GRAY)
+            .append(profile.nameComponent(useMask = false, showPrefix = false, showSuffix = false))
+            .append(text(" has the following permissions:"))
+
+        for (perm in permissions) {
+            component.append(newline()).append(text("→ $perm"))
         }
 
         sender.sendMessage(component)
