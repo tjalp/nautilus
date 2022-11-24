@@ -102,7 +102,7 @@ class ApiServer(
         @EventHandler
         fun on(event: PlayerJoinEvent) {
             val player = event.player
-            val hostname = player.virtualHost?.hostString ?: return
+            val hostname = player.virtualHost?.hostName ?: return
 
             nautilus.logger.info("Hostname is $hostname")
 

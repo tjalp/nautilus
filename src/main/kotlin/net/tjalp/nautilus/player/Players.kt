@@ -1,5 +1,6 @@
 package net.tjalp.nautilus.player
 
+import com.destroystokyo.paper.event.server.PaperServerListPingEvent
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.Component.empty
 import net.kyori.adventure.text.Component.text
@@ -8,6 +9,7 @@ import net.kyori.adventure.text.format.NamedTextColor.GRAY
 import net.tjalp.nautilus.Nautilus
 import net.tjalp.nautilus.event.ProfileUpdateEvent
 import net.tjalp.nautilus.util.ListJoiner
+import net.tjalp.nautilus.util.displayName
 import net.tjalp.nautilus.util.profile
 import net.tjalp.nautilus.util.register
 import org.bukkit.entity.Player
@@ -114,6 +116,25 @@ object Players {
                 || disguises.disguise(profile) != disguises.disguise(prev)
             ) {
                 updateActionBar(event.onlinePlayer)
+            }
+        }
+
+        @EventHandler
+        fun on(event: PaperServerListPingEvent) {
+            val players = event.playerSample
+            val online = nautilus.server.onlinePlayers
+
+            event.numPlayers = online.size
+            event.maxPlayers = event.numPlayers + 1
+            event.protocolVersion = event.client.protocolVersion
+            event.version = "Nautilus"
+
+            players.clear()
+
+            for (player in online) {
+                val profile = player.profile()
+
+                players.add(nautilus.server.createProfileExact(player.uniqueId, profile.displayName()))
             }
         }
     }
