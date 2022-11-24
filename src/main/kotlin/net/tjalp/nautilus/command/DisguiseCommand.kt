@@ -25,24 +25,26 @@ class DisguiseCommand(
         val entityTypeArg = EnumArgument.of<CommandSender, EntityType>(EntityType::class.java, "entity")
 
         val undisguiseCommand = builder.literal("none", "reset", "clear").handler {
-            this.undisguise(it.sender as Player)
+            this.nautilus.scheduler.launch { undisguise(it.sender as Player) }
         }.apply { register(this) }
 
         register(
             builder.argument(entityTypeArg).handler {
-                this.disguise(it.sender as Player, it.get(entityTypeArg))
+                this.nautilus.scheduler.launch {
+                    disguise(it.sender as Player, it.get(entityTypeArg))
+                }
             }
         )
 
         register(unbuilder.proxies(undisguiseCommand.build()))
     }
 
-    private fun disguise(sender: Player, entityType: EntityType) {
+    private suspend fun disguise(sender: Player, entityType: EntityType) {
         sender.updateCommands()
-        this.scheduler.launch { disguises.disguise(sender.profile(), entityType) }
+        this.disguises.disguise(sender.profile(), entityType)
     }
 
-    private fun undisguise(sender: Player) {
-        this.scheduler.launch { disguises.disguise(sender.profile(), null) }
+    private suspend fun undisguise(sender: Player) {
+        this.disguises.disguise(sender.profile(), null)
     }
 }

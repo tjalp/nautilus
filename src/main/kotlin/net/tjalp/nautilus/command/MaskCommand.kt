@@ -33,23 +33,24 @@ class MaskCommand(
 
         register(
             builder.literal("rank").argument(rankArg).handler {
-                this.rank(it.sender as Player, it.get(rankArg).lowercase())
+                this.scheduler.launch { rank(it.sender as Player, it.get(rankArg).lowercase()) }
             }
         )
 
         register(
             builder.literal("skin").argument(skinArg).handler {
-                this.skin(it.sender as Player, it.get(skinArg))
+                this.scheduler.launch { skin(it.sender as Player, it.get(skinArg)) }
             }
         )
 
-        val unmask = builder.literal("none", "clear", "reset").handler { this.none(it.sender as Player) }
+        val unmask = builder.literal("none", "clear", "reset")
+            .handler { this.scheduler.launch { none(it.sender as Player) } }
             .apply { register(this) }
         register(unbuilder.proxies(unmask.build()))
 
         register(
             builder.literal("name", "username").argument(nameArg).handler {
-                this.name(it.sender as Player, it.get(nameArg))
+                this.scheduler.launch { name(it.sender as Player, it.get(nameArg)) }
             }
         )
 
@@ -60,7 +61,7 @@ class MaskCommand(
         )
     }
 
-    private fun rank(sender: Player, rank: String) {
+    private suspend fun rank(sender: Player, rank: String) {
         if (!this.perms.rankExists(rank)) {
             sender.sendMessage(mini("<red>Rank <white>$rank</white> does not exist!"))
             return
@@ -68,36 +69,33 @@ class MaskCommand(
 
         val permRank = this.perms.getRank(rank)
 
-        this.scheduler.launch { masking.mask(sender.profile(), rank = permRank) }
+        this.masking.mask(sender.profile(), rank = permRank)
     }
 
-    private fun skin(sender: Player, skin: String) {
-        this.scheduler.launch { masking.mask(sender.profile(), skin = skin) }
+    private suspend fun skin(sender: Player, skin: String) {
+        this.masking.mask(sender.profile(), skin = skin)
     }
 
-    private fun none(sender: Player) {
+    private suspend fun none(sender: Player) {
         val profile = sender.profile()
-
-        this.scheduler.launch {
-            val time = measureTimeMillis {
-                profile.update(
-                    setValue(ProfileSnapshot::maskName, null),
-                    setValue(ProfileSnapshot::maskRank, null),
-                    setValue(ProfileSnapshot::maskSkin, null)
-                )
-            }
-
-            sender.sendMessage(mini("<gray>You no longer have a mask <white>(${time}ms)"))
+        val time = measureTimeMillis {
+            profile.update(
+                setValue(ProfileSnapshot::maskName, null),
+                setValue(ProfileSnapshot::maskRank, null),
+                setValue(ProfileSnapshot::maskSkin, null)
+            )
         }
+
+        sender.sendMessage(mini("<gray>You no longer have a mask <white>(${time}ms)"))
     }
 
-    private fun name(sender: Player, username: String) {
+    private suspend fun name(sender: Player, username: String) {
         if (username.length > 16) {
             sender.sendMessage(mini("<red>The username cannot be longer than 16 characters, you have ${username.length}!"))
             return
         }
 
-        this.scheduler.launch { masking.mask(sender.profile(), username = username) }
+        this.masking.mask(sender.profile(), username = username)
     }
 
     private fun mask(sender: Player) {

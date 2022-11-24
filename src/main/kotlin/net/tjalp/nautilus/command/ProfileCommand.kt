@@ -36,74 +36,68 @@ class ProfileCommand(
 
         register(
             builder.argument(usernameArg.copy()).argument(dataArg).handler {
-                data(it.sender, it.get(usernameArg), it.get(dataArg))
+                this.scheduler.launch { data(it.sender, it.get(usernameArg), it.get(dataArg)) }
             }
         )
 
         register(
             builder.argument(usernameArg.copy()).literal("delete").handler {
-                delete(it.sender, it.get(usernameArg))
+                this.scheduler.launch { delete(it.sender, it.get(usernameArg)) }
             }
         )
 
         register(
             builder.argument(usernameArg.copy()).literal("update").handler {
-                update(it.sender, it.get(usernameArg))
+                this.scheduler.launch { update(it.sender, it.get(usernameArg)) }
             }
         )
     }
 
-    private fun data(sender: CommandSender, username: String, data: String) {
-        this.scheduler.launch {
-            var profile: ProfileSnapshot?
-            val time = measureTimeMillis {
-                profile = profiles.profile(username)
-                if (profile == null) {
-                    val uniqueId = withContext(Dispatchers.IO) {
-                        nautilus.server.getPlayerUniqueId(username) ?: UUID.nameUUIDFromBytes(username.toByteArray())
-                    }
-                    profile = profiles.createProfileIfNonexistent(uniqueId)
-                }
-                profile = profile!!.update(setValue(ProfileSnapshot::data, data))
-            }
-            sender.sendMessage(
-                text("Set data of ", GRAY)
-                    .append(profile!!.nameComponent(useMask = false, showPrefix = false, showSuffix = false))
-                    .append(text("'s profile to '"))
-                    .append(text(profile!!.data ?: return@launch, WHITE))
-                    .append(text("'"))
-                    .append(text(" (${time}ms)", WHITE))
-            )
-        }
-    }
-
-    private fun delete(sender: CommandSender, username: String) {
-        this.scheduler.launch {
-            val time = measureTimeMillis {
+    private suspend fun data(sender: CommandSender, username: String, data: String) {
+        var profile: ProfileSnapshot?
+        val time = measureTimeMillis {
+            profile = profiles.profile(username)
+            if (profile == null) {
                 val uniqueId = withContext(Dispatchers.IO) {
                     nautilus.server.getPlayerUniqueId(username) ?: UUID.nameUUIDFromBytes(username.toByteArray())
                 }
-                MongoCollections.profiles.deleteOneById(uniqueId).awaitSingle()
+                profile = profiles.createProfileIfNonexistent(uniqueId)
             }
-
-            sender.sendMessage(mini("<gray>Deleted profile of <white>$username</white> (${time}ms)"))
+            profile = profile!!.update(setValue(ProfileSnapshot::data, data))
         }
+        sender.sendMessage(
+            text("Set data of ", GRAY)
+                .append(profile!!.nameComponent(useMask = false, showPrefix = false, showSuffix = false))
+                .append(text("'s profile to '"))
+                .append(text(profile!!.data ?: return, WHITE))
+                .append(text("'"))
+                .append(text(" (${time}ms)", WHITE))
+        )
     }
 
-    private fun update(sender: CommandSender, username: String) {
-        this.scheduler.launch {
-            val profile = profiles.profileIfCached(username)?.update()
-
-            if (profile != null) {
-                sender.sendMessage(
-                    text("Updated ", GRAY)
-                        .append(profile.nameComponent(useMask = false, showPrefix = false, showSuffix = false))
-                        .append(text("'s profile"))
-                )
-                return@launch
+    private suspend fun delete(sender: CommandSender, username: String) {
+        val time = measureTimeMillis {
+            val uniqueId = withContext(Dispatchers.IO) {
+                nautilus.server.getPlayerUniqueId(username) ?: UUID.nameUUIDFromBytes(username.toByteArray())
             }
-
-            sender.sendMessage(text("No cached profile was found for ", RED).append(text(username, WHITE)))
+            MongoCollections.profiles.deleteOneById(uniqueId).awaitSingle()
         }
+
+        sender.sendMessage(mini("<gray>Deleted profile of <white>$username</white> (${time}ms)"))
+    }
+
+    private suspend fun update(sender: CommandSender, username: String) {
+        val profile = profiles.profileIfCached(username)?.update()
+
+        if (profile != null) {
+            sender.sendMessage(
+                text("Updated ", GRAY)
+                    .append(profile.nameComponent(useMask = false, showPrefix = false, showSuffix = false))
+                    .append(text("'s profile"))
+            )
+            return
+        }
+
+        sender.sendMessage(text("No cached profile was found for ", RED).append(text(username, WHITE)))
     }
 }
