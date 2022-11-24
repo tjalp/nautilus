@@ -13,6 +13,7 @@ import net.tjalp.nautilus.command.*
 import net.tjalp.nautilus.config.NautilusConfig
 import net.tjalp.nautilus.database.MongoManager
 import net.tjalp.nautilus.exception.UnmetDependencyException
+import net.tjalp.nautilus.ktor.ApiServer
 import net.tjalp.nautilus.permission.PermissionManager
 import net.tjalp.nautilus.player.Players
 import net.tjalp.nautilus.player.disguise.DisguiseManager
@@ -48,6 +49,9 @@ class Nautilus : JavaPlugin() {
 
     /** The HTTP client */
     val http = HttpClient(OkHttp)
+
+    /** The Ktor Server */
+    lateinit var apiServer: ApiServer; private set
 
     /** The Mongo Manager */
     lateinit var mongo: MongoManager; private set
@@ -86,6 +90,7 @@ class Nautilus : JavaPlugin() {
 
         this.chat = ChatManager(this)
         this.disguises = DisguiseManager(this)
+        this.apiServer = ApiServer(this, this.config.resourcepack)
         this.mongo = MongoManager(this.logger, this.config.mongo)
         this.perms = PermissionManager(this)
         this.profiles = ProfileManager(this)
@@ -113,10 +118,16 @@ class Nautilus : JavaPlugin() {
         PermissionsCommand(this)
         ProfileCommand(this)
 
+        // Run task on server startup
+        this.server.scheduler.runTask(this, Runnable {
+            this.apiServer.start()
+        })
+
         this.logger.info("Startup took ${System.currentTimeMillis() - startTime}ms!")
     }
 
     override fun onDisable() {
+        this.apiServer.stop()
         this.mongo.dispose()
     }
 

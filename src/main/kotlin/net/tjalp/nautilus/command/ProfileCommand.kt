@@ -1,27 +1,22 @@
 package net.tjalp.nautilus.command
 
 import cloud.commandframework.arguments.standard.StringArgument
-import com.google.gson.JsonParser
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.reactive.awaitSingle
 import kotlinx.coroutines.withContext
-import net.kyori.adventure.text.Component.*
-import net.kyori.adventure.text.format.NamedTextColor.GRAY
-import net.kyori.adventure.text.format.NamedTextColor.WHITE
-import net.kyori.adventure.text.format.TextDecoration.BOLD
+import net.kyori.adventure.text.Component.text
+import net.kyori.adventure.text.format.NamedTextColor.*
 import net.tjalp.nautilus.Nautilus
 import net.tjalp.nautilus.database.MongoCollections
-import net.tjalp.nautilus.player.profile.ProfileContainer
 import net.tjalp.nautilus.player.profile.ProfileSnapshot
 import net.tjalp.nautilus.registry.PROFILE_COMMAND
-import net.tjalp.nautilus.util.*
+import net.tjalp.nautilus.util.has
+import net.tjalp.nautilus.util.mini
+import net.tjalp.nautilus.util.nameComponent
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
-import org.litote.kmongo.json
 import org.litote.kmongo.reactivestreams.deleteOneById
-import org.litote.kmongo.reactivestreams.findOneById
 import org.litote.kmongo.setValue
 import java.util.*
 import kotlin.system.measureTimeMillis
@@ -97,25 +92,18 @@ class ProfileCommand(
 
     private fun update(sender: CommandSender, username: String) {
         this.scheduler.launch {
-            val profile: ProfileSnapshot?
-            val time = measureTimeMillis {
-                val uniqueId = withContext(Dispatchers.IO) {
-                    nautilus.server.getPlayerUniqueId(username) ?: UUID.nameUUIDFromBytes(username.toByteArray())
-                }
-                profile = MongoCollections.profiles.findOneById(uniqueId).awaitFirstOrNull()
-
-                if (profile != null) profiles.onProfileUpdate(profile)
-            }
+            val profile = profiles.profileIfCached(username)?.update()
 
             if (profile != null) {
                 sender.sendMessage(
                     text("Updated ", GRAY)
                         .append(profile.nameComponent(useMask = false, showPrefix = false, showSuffix = false))
-                        .append(text("'s profile")).append(space())
-                        .append(text("(${time}ms)", WHITE))
+                        .append(text("'s profile"))
                 )
+                return@launch
             }
-            else sender.sendMessage(mini("<red>No profile was found for '<white>$username</white>' <gray>(${time}ms)"))
+
+            sender.sendMessage(text("No cached profile was found for ", RED).append(text(username, WHITE)))
         }
     }
 }

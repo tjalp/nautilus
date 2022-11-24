@@ -15,6 +15,7 @@ import net.tjalp.nautilus.util.player
 import net.tjalp.nautilus.util.profile
 import net.tjalp.nautilus.util.register
 import net.tjalp.nautilus.util.skin
+import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.EventPriority
@@ -61,6 +62,28 @@ class ProfileManager(
         return this.profileCache[player.uniqueId] ?: run {
             throw IllegalStateException("No profile present for ${player.uniqueId}")
         }
+    }
+
+    /**
+     * Retrieve the latest **cached** [ProfileSnapshot] of a
+     * unique identifier.
+     *
+     * @param uniqueId The unique id of the cached profile
+     * @return The profile if cached, otherwise null
+     */
+    fun profileIfCached(uniqueId: UUID): ProfileSnapshot? = this.profileCache[uniqueId]
+
+    /**
+     * Retrieve the latest **cached** [ProfileSnapshot] of a
+     * username.
+     *
+     * @param username The username of the cached profile
+     * @return The profile if cached, otherwise null
+     */
+    fun profileIfCached(username: String): ProfileSnapshot? {
+        val player = this.nautilus.server.getPlayerExact(username) ?: return null
+
+        return this.profileIfCached(player.uniqueId)
     }
 
     /**
@@ -159,10 +182,19 @@ class ProfileManager(
             previous = cacheProfile(profile)
         }
 
-        ProfileUpdateEvent(
+        val event = ProfileUpdateEvent(
             profile = profile,
             previous = previous
-        ).callEvent()
+        )
+
+        if (Bukkit.isPrimaryThread()) {
+            event.callEvent()
+            return
+        }
+
+        this.nautilus.server.scheduler.runTask(this.nautilus, Runnable {
+            event.callEvent()
+        })
     }
 
     /**

@@ -13,6 +13,7 @@ import org.bson.codecs.pojo.annotations.BsonId
 import org.bson.conversions.Bson
 import org.litote.kmongo.combine
 import org.litote.kmongo.eq
+import org.litote.kmongo.reactivestreams.findOneById
 import java.time.LocalDateTime
 import java.time.ZoneOffset
 import java.util.*
@@ -71,21 +72,29 @@ data class ProfileSnapshot(
 //    }
 
     /**
-     * Updates a profile with a bson query
+     * Updates a profile with a bson query.
+     *
+     * If no bson query is added, the latest profile
+     * from the collection will be cached.
      *
      * @param bson The bson query
      * @return The updated profile
      */
     suspend fun update(vararg bson: Bson): ProfileSnapshot {
-        if (bson.isEmpty()) return this
 
-        val newProfile = this.profiles.findOneAndUpdate(
-            ::uniqueId eq this.uniqueId,
-            combine(*bson),
-            FindOneAndUpdateOptions().returnDocument(ReturnDocument.AFTER)
-        ).awaitSingle()
-        this.nautilus.profiles.onProfileUpdate(newProfile)
-        return newProfile
+        val updatedProfile =
+            if (bson.isEmpty()) {
+                this.profiles.findOneById(this.uniqueId).awaitSingle()
+            } else {
+                this.profiles.findOneAndUpdate(
+                    ::uniqueId eq this.uniqueId,
+                    combine(*bson),
+                    FindOneAndUpdateOptions().returnDocument(ReturnDocument.AFTER)
+                ).awaitSingle()
+            }
+
+        this.nautilus.profiles.onProfileUpdate(updatedProfile)
+        return updatedProfile
     }
 
 //    /**
