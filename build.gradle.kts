@@ -34,7 +34,7 @@ dependencies {
     paperDevBundle("1.19.2-R0.1-SNAPSHOT")
     implementation("cloud.commandframework:cloud-annotations:1.7.1")
     implementation("cloud.commandframework:cloud-paper:1.7.1")
-    implementation("org.litote.kmongo:kmongo-async:4.7.2")
+    implementation("org.litote.kmongo:kmongo-async:4.8.0")
     implementation("org.litote.kmongo:kmongo-coroutine:4.7.2")
     implementation("org.ocpsoft.prettytime:prettytime:5.0.6.Final")
     implementation("io.ktor:ktor-client-core:2.1.3")
