@@ -1,6 +1,5 @@
-package net.tjalp.aquarium.util.iterator
+package net.tjalp.nautilus.util.iterator
 
-import net.tjalp.nautilus.util.iterator.LineIterator
 import org.bukkit.Location
 import org.bukkit.util.Vector
 

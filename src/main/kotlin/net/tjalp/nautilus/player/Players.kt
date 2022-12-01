@@ -2,16 +2,12 @@ package net.tjalp.nautilus.player
 
 import com.destroystokyo.paper.event.server.PaperServerListPingEvent
 import net.kyori.adventure.text.Component
-import net.kyori.adventure.text.Component.empty
-import net.kyori.adventure.text.Component.text
-import net.kyori.adventure.text.format.NamedTextColor.GOLD
-import net.kyori.adventure.text.format.NamedTextColor.GRAY
+import net.kyori.adventure.text.Component.*
+import net.kyori.adventure.text.format.NamedTextColor.*
+import net.kyori.adventure.text.format.TextDecoration
 import net.tjalp.nautilus.Nautilus
 import net.tjalp.nautilus.event.ProfileUpdateEvent
-import net.tjalp.nautilus.util.ListJoiner
-import net.tjalp.nautilus.util.displayName
-import net.tjalp.nautilus.util.profile
-import net.tjalp.nautilus.util.register
+import net.tjalp.nautilus.util.*
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
@@ -136,6 +132,15 @@ object Players {
 
                 players.add(nautilus.server.createProfileExact(player.uniqueId, profile.displayName()))
             }
+
+            val firstMotd = mini("<gradient:#12c2e9:#c471ed:#f7797d><b>Nautilus</b></gradient> <dark_gray>- <gold><b>v${nautilus.description.version}")
+            val secondMotd = text("In development | Check back soon!", RED)
+            val motd = text()
+                .append(centerComponent(firstMotd, MAX_MOTD_WIDTH)).append(newline())
+                .append(centerComponent(secondMotd, MAX_MOTD_WIDTH))
+                .build()
+
+            event.motd(motd)
         }
     }
 }

@@ -1,6 +1,9 @@
 package net.tjalp.nautilus.item
 
+import org.bukkit.Material
 import org.bukkit.NamespacedKey
+import org.bukkit.event.entity.EntityShootBowEvent
+import org.bukkit.event.player.PlayerInteractEvent
 
 /**
  * A Nautilus item is a custom item, usually with
@@ -8,7 +11,14 @@ import org.bukkit.NamespacedKey
  */
 abstract class NautilusItem {
 
-    abstract val id: String
+    abstract val identifier: String
+
+    abstract val customModelData: Int?
+
+    abstract val preferredMaterial: Material
+
+    open fun onUse(event: PlayerInteractEvent) {}
+    open fun onShoot(event: EntityShootBowEvent) {}
 
     companion object {
 

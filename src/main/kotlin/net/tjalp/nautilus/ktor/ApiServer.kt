@@ -5,7 +5,9 @@ import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import kotlinx.coroutines.launch
+import net.kyori.adventure.text.Component.text
+import net.kyori.adventure.text.format.NamedTextColor
+import net.kyori.adventure.text.format.NamedTextColor.RED
 import net.tjalp.nautilus.Nautilus
 import net.tjalp.nautilus.config.details.ResourcePackDetails
 import net.tjalp.nautilus.util.isUniqueId
@@ -13,6 +15,9 @@ import net.tjalp.nautilus.util.register
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.player.PlayerJoinEvent
+import org.bukkit.event.player.PlayerResourcePackStatusEvent
+import org.bukkit.event.player.PlayerResourcePackStatusEvent.Status.DECLINED
+import org.bukkit.event.player.PlayerResourcePackStatusEvent.Status.FAILED_DOWNLOAD
 import java.math.BigInteger
 import java.nio.file.Path
 import java.security.MessageDigest
@@ -37,7 +42,7 @@ class ApiServer(
                 get(details.hostPath) {
                     call.respondFile(packPath.toFile())
                 }
-                get("/profile/{target}/update") {
+                get("/profile/{target}/update") { // todo make this a post request
                     updateProfile(call.parameters["target"] ?: return@get)
                 }
             }
@@ -86,14 +91,16 @@ class ApiServer(
         this.server.stop()
     }
 
-    private fun updateProfile(target: String) {
-        if (target.isUniqueId()) {
-            val uniqueId = UUID.fromString(target)
-            this.nautilus.scheduler.launch { nautilus.profiles.profileIfCached(uniqueId)?.update() }
-            return
-        }
+    private suspend fun updateProfile(target: String) {
+        this.nautilus.logger.info("Received profile update request (target: $target)")
 
-        this.nautilus.scheduler.launch { nautilus.profiles.profileIfCached(target)?.update() }
+        val profile =
+            if (target.isUniqueId()) {
+                val uniqueId = UUID.fromString(target)
+                this.nautilus.profiles.profileIfCached(uniqueId)
+            } else this.nautilus.profiles.profileIfCached(target)
+
+        profile?.update() ?: this.nautilus.logger.info("No cached profile found for '$target'")
     }
 
     // todo move this somewhere else
@@ -111,6 +118,22 @@ class ApiServer(
                 return
             }
             player.setResourcePack("http://$hostname:${details.hostPort}${details.hostPath}", hash, true)
+        }
+
+        @EventHandler
+        fun on(event: PlayerResourcePackStatusEvent) {
+            val player = event.player
+
+            when (event.status) {
+                DECLINED -> player.kick(text("You must accept the resource pack in order to play!", RED))
+                FAILED_DOWNLOAD -> player.sendMessage(
+                    text("Your resource pack download failed, " +
+                        "so any functionality that uses custom resources might not work as expected. " +
+                        "You'll still be able to play on this server, but with limited functionality. " +
+                        "This may be different in the future as we're moving out of the alpha/beta phase.", RED)
+                )
+                else -> {}
+            }
         }
     }
 }

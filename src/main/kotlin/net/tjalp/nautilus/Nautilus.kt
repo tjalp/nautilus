@@ -13,6 +13,7 @@ import net.tjalp.nautilus.command.*
 import net.tjalp.nautilus.config.NautilusConfig
 import net.tjalp.nautilus.database.MongoManager
 import net.tjalp.nautilus.exception.UnmetDependencyException
+import net.tjalp.nautilus.item.ItemManager
 import net.tjalp.nautilus.ktor.ApiServer
 import net.tjalp.nautilus.permission.PermissionManager
 import net.tjalp.nautilus.player.Players
@@ -53,6 +54,9 @@ class Nautilus : JavaPlugin() {
     /** The Ktor Server */
     lateinit var apiServer: ApiServer; private set
 
+    /** The Item Manager */
+    lateinit var items: ItemManager; private set
+
     /** The Mongo Manager */
     lateinit var mongo: MongoManager; private set
 
@@ -90,6 +94,7 @@ class Nautilus : JavaPlugin() {
 
         this.chat = ChatManager(this)
         this.disguises = DisguiseManager(this)
+        this.items = ItemManager(this)
         this.apiServer = ApiServer(this, this.config.resourcepack)
         this.mongo = MongoManager(this.logger, this.config.mongo)
         this.perms = PermissionManager(this)
@@ -115,6 +120,7 @@ class Nautilus : JavaPlugin() {
         InspectCommand(this)
         MaskCommand(this)
         NautilusCommandImpl(this)
+        NautilusItemCommand(this)
         PermissionsCommand(this)
         ProfileCommand(this)
 

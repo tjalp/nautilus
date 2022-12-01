@@ -8,7 +8,7 @@ import net.tjalp.aquarium.registry.CUSTOM_ITEM
 import net.tjalp.aquarium.util.DistanceTest
 import net.tjalp.aquarium.util.ItemBuilder
 import net.tjalp.aquarium.util.ParticleEffect
-import net.tjalp.aquarium.util.iterator.DirectionalLineIterator
+import net.tjalp.nautilus.util.iterator.DirectionalLineIterator
 import net.tjalp.aquarium.util.mini
 import org.bukkit.Material.GOAT_HORN
 import org.bukkit.Particle.EXPLOSION_NORMAL

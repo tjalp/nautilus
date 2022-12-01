@@ -1,12 +1,11 @@
-package net.tjalp.aquarium.util.dimension
+package net.tjalp.nautilus.util.dimension
 
 
 import com.google.gson.TypeAdapter
 import com.google.gson.stream.JsonReader
 import com.google.gson.stream.JsonToken
 import com.google.gson.stream.JsonWriter
-import net.tjalp.nautilus.util.dimension.Cuboid
-import net.tjalp.nautilus.util.dimension.Position
+import net.tjalp.aquarium.util.dimension.Cuboid
 import java.util.*
 import java.util.concurrent.ThreadLocalRandom
 import javax.annotation.Nonnull

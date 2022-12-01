@@ -1,7 +1,7 @@
 package net.tjalp.aquarium.util
 
-import net.tjalp.aquarium.util.dimension.Cuboid
-import net.tjalp.aquarium.util.dimension.Position
+import net.tjalp.nautilus.util.dimension.Cuboid
+import net.tjalp.nautilus.util.dimension.Position
 import org.bukkit.Location
 
 /**

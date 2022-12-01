@@ -2,10 +2,60 @@ package net.tjalp.nautilus.util
 
 import com.destroystokyo.paper.profile.PlayerProfile
 import net.kyori.adventure.text.Component
+import net.kyori.adventure.text.Component.text
+import net.kyori.adventure.text.ComponentIteratorType.DEPTH_FIRST
+import net.kyori.adventure.text.TextComponent
+import net.kyori.adventure.text.format.TextDecoration.BOLD
 import net.kyori.adventure.text.minimessage.MiniMessage
 import net.tjalp.nautilus.Nautilus
 import org.bukkit.event.HandlerList
 import org.bukkit.event.Listener
+import org.bukkit.map.MinecraftFont
+
+const val MAX_MOTD_WIDTH = 258
+
+/**
+ * Center a component
+ *
+ * @param component The component to center
+ * @param maxWidth The max width of what to center
+ * @return The centered component
+ */
+fun centerComponent(component: Component, maxWidth: Int): Component {
+    val font = MinecraftFont.Font
+    var pixels = 0
+    val iterator = component.iterator(DEPTH_FIRST)
+
+    while (iterator.hasNext()) {
+        val itComponent = iterator.next()
+
+        if (itComponent !is TextComponent) continue
+
+        for (char in itComponent.content().toCharArray()) {
+            var width = font.getWidth(char.toString()) + 1 // Letter spacing
+
+            if (char != ' ' && itComponent.hasDecoration(BOLD)) width += 1
+
+            pixels += width
+        }
+    }
+
+    if (pixels > 0) pixels-- // Remove trailing space pixel
+
+    val halvedLength = maxWidth / 2
+    val halvedPixels = pixels / 2
+    val toCompensate = halvedLength - halvedPixels
+    val spacePixels = font.getWidth(" ") + 1 // Letter spacing of 1 pixel
+    var compensated = 0
+    val builder = StringBuilder()
+
+    while (compensated < toCompensate) {
+        builder.append(" ")
+        compensated += spacePixels
+    }
+
+    return text(builder.toString()).append(component)
+}
 
 /**
  * Utility method to register a listener

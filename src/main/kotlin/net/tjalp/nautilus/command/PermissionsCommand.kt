@@ -246,7 +246,9 @@ class PermissionsCommand(
             .append(text(" has the following permissions:"))
 
         for (perm in permissions) {
-            component.append(newline()).append(text("→ $perm"))
+            component.append(newline())
+                .append(text("→ "))
+                .append(text(perm.lowercase(), WHITE))
         }
 
         sender.sendMessage(component)
