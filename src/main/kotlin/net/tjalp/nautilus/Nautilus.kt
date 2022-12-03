@@ -18,6 +18,7 @@ import net.tjalp.nautilus.ktor.ApiServer
 import net.tjalp.nautilus.permission.PermissionManager
 import net.tjalp.nautilus.player.Players
 import net.tjalp.nautilus.player.disguise.DisguiseManager
+import net.tjalp.nautilus.player.linking.GoogleLinkProvider
 import net.tjalp.nautilus.player.mask.MaskManager
 import net.tjalp.nautilus.player.profile.ProfileManager
 import net.tjalp.nautilus.player.tag.NametagManager
@@ -47,6 +48,9 @@ class Nautilus : JavaPlugin() {
 
     /** The Disguise Manager */
     lateinit var disguises: DisguiseManager; private set
+
+    /** The Google Link Provider */
+    lateinit var googleLinkProvider: GoogleLinkProvider; private set
 
     /** The HTTP client */
     val http = HttpClient(OkHttp)
@@ -102,6 +106,8 @@ class Nautilus : JavaPlugin() {
         this.scheduler = NautilusScheduler(this)
         this.masking = MaskManager(this)
         this.nametags = NametagManager(this)
+
+        this.googleLinkProvider = GoogleLinkProvider(this)
 
         registerRanks(this)
 

@@ -21,7 +21,7 @@ import org.bukkit.event.EventHandler
 import org.bukkit.event.EventPriority
 import org.bukkit.event.Listener
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent
-import org.bukkit.event.player.PlayerJoinEvent
+import org.bukkit.event.player.PlayerLoginEvent
 import org.bukkit.event.player.PlayerQuitEvent
 import org.litote.kmongo.coroutine.toList
 import org.litote.kmongo.reactivestreams.findOneById
@@ -232,7 +232,7 @@ class ProfileManager(
         }
 
         @EventHandler(priority = EventPriority.LOW)
-        fun on(event: PlayerJoinEvent) {
+        fun on(event: PlayerLoginEvent) {
             val player = event.player
             val profile = player.profile()
             val playerProfile = player.playerProfile

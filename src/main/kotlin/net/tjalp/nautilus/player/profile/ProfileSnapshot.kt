@@ -2,7 +2,6 @@ package net.tjalp.nautilus.player.profile
 
 import com.mongodb.client.model.FindOneAndUpdateOptions
 import com.mongodb.client.model.ReturnDocument
-import com.mongodb.client.model.Updates
 import kotlinx.coroutines.reactive.awaitSingle
 import net.tjalp.nautilus.Nautilus
 import net.tjalp.nautilus.database.MongoCollections
@@ -11,11 +10,11 @@ import net.tjalp.nautilus.registry.Skins
 import net.tjalp.nautilus.util.SkinBlob
 import org.bson.codecs.pojo.annotations.BsonId
 import org.bson.conversions.Bson
+import org.bson.types.ObjectId
 import org.litote.kmongo.combine
 import org.litote.kmongo.eq
 import org.litote.kmongo.reactivestreams.findOneById
 import java.time.LocalDateTime
-import java.time.ZoneOffset
 import java.util.*
 
 /**
@@ -34,7 +33,8 @@ data class ProfileSnapshot(
     val maskRank: String? = null,
     val maskSkin: SkinBlob? = null,
     val disguise: String? = null,
-    val permissionInfo: PermissionInfo = PermissionInfo()
+    val permissionInfo: PermissionInfo = PermissionInfo(),
+    val googleUser: ObjectId? = null
 ) {
 
     private val nautilus = Nautilus.get()

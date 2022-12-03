@@ -1,6 +1,7 @@
 package net.tjalp.nautilus.database
 
 import net.tjalp.nautilus.Nautilus
+import net.tjalp.nautilus.player.linking.GoogleLinkToken
 import net.tjalp.nautilus.player.profile.ProfileSnapshot
 import org.litote.kmongo.reactivestreams.getCollectionOfName
 
@@ -14,4 +15,7 @@ object MongoCollections {
 
     /** The 'profiles' collection */
     val profiles = this.database.getCollectionOfName<ProfileSnapshot>("profiles")
+
+    /** The 'googleToken' collection */
+    val linkTokens = this.database.getCollectionOfName<GoogleLinkToken>("googleLinkTokens")
 }
