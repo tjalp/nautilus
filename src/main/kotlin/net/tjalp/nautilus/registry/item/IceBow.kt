@@ -1,8 +1,8 @@
 package net.tjalp.nautilus.registry.item
 
-import net.tjalp.nautilus.util.ParticleEffect
 import net.tjalp.nautilus.Nautilus
 import net.tjalp.nautilus.item.NautilusItem
+import net.tjalp.nautilus.util.ParticleEffect
 import net.tjalp.nautilus.util.register
 import org.bukkit.Material
 import org.bukkit.NamespacedKey
@@ -13,9 +13,9 @@ import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.entity.EntityDamageByEntityEvent
 import org.bukkit.event.entity.EntityShootBowEvent
-import org.bukkit.event.entity.ProjectileHitEvent
 import org.bukkit.persistence.PersistentDataType.INTEGER
 import java.util.function.Consumer
+import kotlin.math.roundToInt
 
 object IceBow : NautilusItem() {
 
@@ -38,10 +38,12 @@ object IceBow : NautilusItem() {
         projectile.persistentDataContainer.set(IS_ICICLE, INTEGER, 1) // set to true
 
         nautilus.server.scheduler.runTaskTimer(nautilus, Consumer {
-            if (projectile.isDead || (projectile is AbstractArrow && projectile.isInBlock)) {
+            if (!projectile.isValid) {
                 it.cancel()
                 return@Consumer
             }
+
+            if (projectile is AbstractArrow && projectile.isInBlock) return@Consumer
 
             ParticleEffect(SNOWFLAKE).play(projectile.location)
         }, 0, 1)
@@ -61,6 +63,17 @@ object IceBow : NautilusItem() {
             if (!isIcicle) return
 
             entity.freezeTicks = entity.maxFreezeTicks + (20 * 6) // 6 seconds, 120 ticks
+
+            val boundingBox = entity.boundingBox
+
+            ParticleEffect(
+                effect = SNOWFLAKE,
+                speed = 0.05f,
+                count = (boundingBox.volume.roundToInt() * 20).coerceAtMost(250),
+                offsetX = boundingBox.widthX.toFloat() / 2,
+                offsetY = boundingBox.height.toFloat() / 2,
+                offsetZ = boundingBox.widthZ.toFloat() / 2
+            ).play(boundingBox.center.toLocation(entity.world))
         }
     }
 }

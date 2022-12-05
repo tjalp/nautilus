@@ -47,10 +47,12 @@ object SupersonicBow : NautilusItem() {
         }, 12)
 
         scheduler.runTaskTimer(nautilus, Consumer Task2@ {
-            if (projectile.isDead || projectile.isInBlock) {
+            if (!projectile.isValid) {
                 it.cancel()
                 return@Task2
             }
+
+            if (projectile.isInBlock) return@Task2
 
             if (isSuperSonic) {
                 ParticleEffect(Particle.SOUL_FIRE_FLAME).play(projectile.location)

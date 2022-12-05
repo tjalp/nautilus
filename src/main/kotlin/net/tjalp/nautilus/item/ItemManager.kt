@@ -1,6 +1,7 @@
 package net.tjalp.nautilus.item
 
 import net.tjalp.nautilus.Nautilus
+import net.tjalp.nautilus.registry.item.HomingBow
 import net.tjalp.nautilus.registry.item.IceBow
 import net.tjalp.nautilus.registry.item.SupersonicBow
 import net.tjalp.nautilus.registry.item.TestWandItem
@@ -25,6 +26,7 @@ class ItemManager(private val nautilus: Nautilus) {
         ItemListener().register()
 
         // Register all items
+        registerItem(HomingBow)
         registerItem(IceBow)
         registerItem(SupersonicBow)
         registerItem(TestWandItem)

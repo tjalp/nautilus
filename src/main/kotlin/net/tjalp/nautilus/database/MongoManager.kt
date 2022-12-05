@@ -1,5 +1,6 @@
 package net.tjalp.nautilus.database
 
+import com.fasterxml.jackson.module.kotlin.KotlinFeature
 import com.mongodb.ConnectionString
 import com.mongodb.MongoClientSettings
 import com.mongodb.reactivestreams.client.MongoClient
@@ -10,6 +11,7 @@ import org.litote.kmongo.coroutine.CoroutineClient
 import org.litote.kmongo.coroutine.coroutine
 import org.litote.kmongo.reactivestreams.KMongo
 import org.litote.kmongo.util.KMongoJacksonFeature
+import org.litote.kmongo.util.KotlinModuleConfiguration
 import java.util.logging.Level
 import java.util.logging.Logger
 
@@ -35,6 +37,10 @@ class MongoManager(private val logger: Logger, private val details: MongoDetails
         mongoLogger.level = Level.WARNING
 
         System.setProperty("org.litote.mongo.mapping.service", "org.litote.kmongo.jackson.JacksonClassMappingTypeService")
+        KotlinModuleConfiguration.kotlinModuleInitializer = {
+            enable(KotlinFeature.NullIsSameAsDefault)
+            enable(KotlinFeature.SingletonSupport)
+        }
         KMongoJacksonFeature.setUUIDRepresentation(UuidRepresentation.STANDARD)
 
         val connectionString = this.details.connectionString.ifEmpty {
