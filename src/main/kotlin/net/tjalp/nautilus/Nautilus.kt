@@ -8,6 +8,7 @@ import com.comphenix.protocol.ProtocolLibrary
 import com.comphenix.protocol.ProtocolManager
 import io.ktor.client.*
 import io.ktor.client.engine.okhttp.*
+import net.tjalp.nautilus.block.BlockManager
 import net.tjalp.nautilus.chat.ChatManager
 import net.tjalp.nautilus.command.*
 import net.tjalp.nautilus.config.NautilusConfig
@@ -36,6 +37,9 @@ import java.util.function.Function
  * of this class can be obtained via [Nautilus.get]
  */
 class Nautilus : JavaPlugin() {
+
+    /** The [BlockManager] instance */
+    lateinit var blocks: BlockManager; private set
 
     /** The [ChatManager] instance */
     lateinit var chat: ChatManager; private set
@@ -90,15 +94,17 @@ class Nautilus : JavaPlugin() {
         if (!server.pluginManager.isPluginEnabled("LibsDisguises")) {
             throw UnmetDependencyException("LibsDisguises cannot be found")
         }
-        this.protocol = ProtocolLibrary.getProtocolManager() ?: throw UnmetDependencyException("ProtocolLib cannot be found")
+        this.protocol =
+            ProtocolLibrary.getProtocolManager() ?: throw UnmetDependencyException("ProtocolLib cannot be found")
 
         this.config = NautilusConfig.load(this)
 
         Players.initialize(this)
 
+        this.items = ItemManager(this)
+        this.blocks = BlockManager(this)
         this.chat = ChatManager(this)
         this.disguises = DisguiseManager(this)
-        this.items = ItemManager(this)
         this.apiServer = ApiServer(this, this.config.resourcepack)
         this.mongo = MongoManager(this.logger, this.config.mongo)
         this.perms = PermissionManager(this)

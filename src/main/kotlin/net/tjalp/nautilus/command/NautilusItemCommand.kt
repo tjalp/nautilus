@@ -50,7 +50,7 @@ class NautilusItemCommand(
             fixedIdentifiers += identifier
         }
 
-        val ntlItem = this.items.getItem(fixedIdentifiers.first())
+        val ntlItem = this.items.getItem(fixedIdentifiers.firstOrNull() ?: return)
         val item = ItemBuilder(material ?: ntlItem.preferredMaterial)
             .customModelData(ntlItem.customModelData)
             .data(NautilusItem.NAUTILUS_ITEM_ID_PDC, ntlItem.identifier)
