@@ -1,6 +1,7 @@
 package net.tjalp.nautilus.chat
 
 import io.papermc.paper.event.player.AsyncChatDecorateEvent
+import io.papermc.paper.event.player.AsyncChatEvent
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.Component.text
 import net.kyori.adventure.text.format.TextColor.color
@@ -80,13 +81,18 @@ class ChatManager(
     private inner class ChatListener : Listener {
 
         @EventHandler
+        fun on(event: AsyncChatEvent) {
+            event.renderer(NautilusChatRenderer)
+        }
+
+        @EventHandler
         @Suppress("UnstableApiUsage")
         fun on(event: AsyncChatDecorateEvent) {
             val player = event.player()
 
             if (player != null && player has DECORATED_CHAT) {
                 val profile = player.profile()
-                val decorated = decorateChatMessage(player, event.result(), useChatColor = false)
+                val decorated = decorateChatMessage(player, event.result())
 
                 if (event.result().compact() != decorated) {
                     event.result(
