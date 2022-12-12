@@ -51,7 +51,7 @@ class Nautilus : JavaPlugin() {
     lateinit var config: NautilusConfig; private set
 
     /** The Disguise Manager */
-    lateinit var disguises: DisguiseManager; private set
+    var disguises: DisguiseManager? = null; private set
 
     /** The Google Link Provider */
     lateinit var googleLinkProvider: GoogleLinkProvider; private set
@@ -90,10 +90,9 @@ class Nautilus : JavaPlugin() {
         instance = this
 
         val startTime = System.currentTimeMillis()
+        val useDisguises = server.pluginManager.isPluginEnabled("LibsDisguises")
 
-        if (!server.pluginManager.isPluginEnabled("LibsDisguises")) {
-            throw UnmetDependencyException("LibsDisguises cannot be found")
-        }
+        if (!useDisguises) this.logger.severe("LibsDisguises cannot be found, disguises will not work!")
         this.protocol =
             ProtocolLibrary.getProtocolManager() ?: throw UnmetDependencyException("ProtocolLib cannot be found")
 
@@ -104,7 +103,7 @@ class Nautilus : JavaPlugin() {
         this.items = ItemManager(this)
         this.blocks = BlockManager(this)
         this.chat = ChatManager(this)
-        this.disguises = DisguiseManager(this)
+        if (useDisguises) this.disguises = DisguiseManager(this)
         this.apiServer = ApiServer(this, this.config.resourcepack)
         this.mongo = MongoManager(this.logger, this.config.mongo)
         this.perms = PermissionManager(this)
@@ -123,12 +122,12 @@ class Nautilus : JavaPlugin() {
             Function.identity(),
             Function.identity()
         )
-        if (this.commands.hasCapability(BRIGADIER)) this.commands.registerBrigadier()
+//        if (this.commands.hasCapability(BRIGADIER)) this.commands.registerBrigadier() // todo update to 1.19.3
         if (this.commands.hasCapability(ASYNCHRONOUS_COMPLETION)) this.commands.registerAsynchronousCompletions()
 
         registerSuggestions(this)
 
-        DisguiseCommand(this)
+        if (useDisguises) DisguiseCommand(this)
         InspectCommand(this)
         MaskCommand(this)
         NautilusCommandImpl(this)

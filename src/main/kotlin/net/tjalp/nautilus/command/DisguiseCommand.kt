@@ -41,10 +41,10 @@ class DisguiseCommand(
 
     private suspend fun disguise(sender: Player, entityType: EntityType) {
         sender.updateCommands()
-        this.disguises.disguise(sender.profile(), entityType)
+        this.disguises?.disguise(sender.profile(), entityType)
     }
 
     private suspend fun undisguise(sender: Player) {
-        this.disguises.disguise(sender.profile(), null)
+        this.disguises?.disguise(sender.profile(), null)
     }
 }

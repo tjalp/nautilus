@@ -133,7 +133,9 @@ class BlockManager(
 
             when (event.action) {
                 RIGHT_CLICK_BLOCK -> {
-                    if (!player.isSneaking || player.inventory.itemInMainHand.type == Material.AIR) event.setUseInteractedBlock(Event.Result.DENY) // todo allow placing of blocks against it
+                    if (player.isSneaking && player.inventory.itemInMainHand.type != Material.AIR) return
+
+                    event.setUseInteractedBlock(Event.Result.DENY)
                     ntlBlock?.onRightClick(event)
                 }
                 LEFT_CLICK_BLOCK -> if (player.gameMode != CREATIVE) ntlBlock?.onLeftClick(event)
@@ -194,6 +196,7 @@ class BlockManager(
 
                     if (newBlock.blockData !is NoteBlock) return@Runnable
 
+                    // NOT THIS :(((((
                     newBlock.setBlockData(data, false)
                 })
             } // todo fix this??? idk

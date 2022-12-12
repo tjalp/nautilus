@@ -69,7 +69,7 @@ object Players {
             if (masking.username(profile) != null) joiner.add("Username")
             if (masking.rank(profile) != null) joiner.add("Rank")
             if (masking.skin(profile) != null) joiner.add("Skin")
-            if (disguises.disguise(profile) != null) joiner.add("Disguise")
+            if (disguises?.disguise(profile) != null) joiner.add("Disguise")
 
             if (joiner.size() > 0) {
                 actionBar(player, text("Visibility Modifiers: ", GRAY)
@@ -108,7 +108,7 @@ object Players {
             if (masking.username(profile) != masking.username(prev)
                 || masking.skin(profile) != masking.skin(prev)
                 || masking.rank(profile) != masking.rank(prev)
-                || disguises.disguise(profile) != disguises.disguise(prev)
+                || disguises?.disguise(profile) != disguises?.disguise(prev)
             ) {
                 updateActionBar(event.onlinePlayer)
             }

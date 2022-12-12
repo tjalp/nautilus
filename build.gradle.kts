@@ -35,7 +35,7 @@ dependencies {
     implementation("io.ktor:ktor-server-core-jvm:2.2.1")
     implementation("io.ktor:ktor-server-netty-jvm:2.2.1")
     implementation("io.ktor:ktor-client-core-jvm:2.2.1")
-    paperDevBundle("1.19.2-R0.1-SNAPSHOT")
+    paperDevBundle("1.19.3-R0.1-SNAPSHOT")
     implementation("cloud.commandframework:cloud-annotations:1.7.1")
     implementation("cloud.commandframework:cloud-paper:1.7.1")
     implementation("org.litote.kmongo:kmongo-async:4.8.0")
@@ -44,7 +44,7 @@ dependencies {
     //implementation("com.github.twitch4j:twitch4j:1.11.0")
     compileOnly("net.luckperms:api:5.4")
     compileOnly("me.neznamy:tab-api:3.1.5")
-    compileOnly("com.comphenix.protocol:ProtocolLib:4.8.0")
+    compileOnly("com.comphenix.protocol:ProtocolLib:5.0.0-SNAPSHOT")
     compileOnly("LibsDisguises:LibsDisguises:10.0.31") {
         exclude("org.spigotmc")
     }
@@ -84,7 +84,7 @@ tasks {
     }
 
     runServer {
-        minecraftVersion("1.19.2")
+        minecraftVersion("1.19.3")
     }
 
     shadowJar {

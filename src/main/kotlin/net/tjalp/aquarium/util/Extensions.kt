@@ -8,7 +8,7 @@ import net.tjalp.aquarium.command.DisguiseCommand
 import net.tjalp.aquarium.item.CustomItem
 import net.tjalp.aquarium.registry.CUSTOM_ITEM
 import org.bukkit.Chunk
-import org.bukkit.craftbukkit.v1_19_R1.entity.CraftPlayer
+import org.bukkit.craftbukkit.v1_19_R2.entity.CraftPlayer
 import org.bukkit.entity.Player
 import org.bukkit.event.Listener
 import org.bukkit.inventory.ItemStack

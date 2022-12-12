@@ -23,7 +23,7 @@ import net.tjalp.nautilus.permission.PermissionRank
 import net.tjalp.nautilus.player.profile.ProfileSnapshot
 import net.tjalp.nautilus.util.*
 import org.bson.conversions.Bson
-import org.bukkit.craftbukkit.v1_19_R1.entity.CraftPlayer
+import org.bukkit.craftbukkit.v1_19_R2.entity.CraftPlayer
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
@@ -183,22 +183,22 @@ class MaskManager(
 
         override fun onPacketSending(event: PacketEvent) {
             when (event.packetType) {
-                CHAT -> onChat(event)
+//                CHAT -> onChat(event)
                 PLAYER_INFO -> onPlayerInfo(event)
             }
         }
 
         private fun onChat(event: PacketEvent) {
-            val packet = event.packet
-            val player = event.player
-            val handle = packet.handle as ClientboundPlayerChatPacket
-            val message = handle.message
-            val uniqueId = message.signedHeader.sender
-            val sender = nautilus.server.getPlayer(uniqueId) ?: return
-            val chat = text(message.signedContent().plain)
-
-            event.isCancelled = true
-            player.sendMessage(nautilus.chat.formatChatMessage(sender, nautilus.chat.decorateChatMessage(sender, chat)))
+//            val packet = event.packet
+//            val player = event.player
+//            val handle = packet.handle as ClientboundPlayerChatPacket
+//            val message = handle.message
+//            val uniqueId = message.signedHeader.sender
+//            val sender = nautilus.server.getPlayer(uniqueId) ?: return
+//            val chat = text(message.signedContent().plain)
+//
+//            event.isCancelled = true
+//            player.sendMessage(nautilus.chat.formatChatMessage(sender, nautilus.chat.decorateChatMessage(sender, chat)))
         }
 
         private fun onPlayerInfo(event: PacketEvent) {
