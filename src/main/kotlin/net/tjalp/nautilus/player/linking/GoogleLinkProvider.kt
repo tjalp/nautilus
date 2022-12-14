@@ -53,12 +53,13 @@ class GoogleLinkProvider(private val nautilus: Nautilus) : LinkProvider<ObjectId
             val player = event.player
             val uniqueId = player.uniqueId
             val profile = player.profile()
+            val isBedrock = nautilus.floodgate.isFloodgateId(uniqueId)
 
             if (event.result != PlayerLoginEvent.Result.ALLOWED || isLinked(profile)) return
 
             val randomToken = uniqueIdCache[uniqueId] ?: UUID.randomUUID().toString().take(6)
 
-            event.disallow(PlayerLoginEvent.Result.KICK_OTHER, generateNotLinkedMessage(randomToken))
+            event.disallow(PlayerLoginEvent.Result.KICK_OTHER, generateNotLinkedMessage(randomToken, isBedrock))
 
             this@GoogleLinkProvider.nautilus.scheduler.launch {
                 if (uniqueId in uniqueIdCache) return@launch
@@ -76,9 +77,20 @@ class GoogleLinkProvider(private val nautilus: Nautilus) : LinkProvider<ObjectId
             }
         }
 
-        private fun generateNotLinkedMessage(token: String): Component {
+        private fun generateNotLinkedMessage(token: String, isBedrock: Boolean = false): Component {
             val builder = text().color(GRAY)
-                .append(text("You do not have a Google Account linked to your Minecraft account!", RED, BOLD))
+
+            if (isBedrock) {
+                builder.append(text("You do not have a Google Account linked to your Minecraft account!", RED, BOLD))
+                    .append(newline()).append(text("Navigate to ")
+                        .append(text("https://example.com/", AQUA, UNDERLINED)
+                            .clickEvent(openUrl("https://example.com/")))
+                        .append(text(" and enter the following code:")))
+                    .append(newline()).append(text("→ ", WHITE).append(text(token, GOLD, BOLD)).append(text(" ←")))
+                return builder.build()
+            }
+
+            builder.append(text("You do not have a Google Account linked to your Minecraft account!", RED, BOLD))
                 .append(newline()).append(text("We need to know your identity so we can know that you are"))
                 .append(newline()).append(text("actually a student from a verified school and not an imposter."))
                 .append(newline())

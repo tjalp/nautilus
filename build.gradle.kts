@@ -26,6 +26,7 @@ repositories {
     maven("https://repo.kryptonmc.org/releases/")
     maven("https://repo.dmulloy2.net/repository/public/")
     maven("https://repo.md-5.net/content/groups/public/")
+    maven("https://repo.opencollab.dev/maven-snapshots/")
 }
 
 dependencies {
@@ -45,6 +46,7 @@ dependencies {
     compileOnly("net.luckperms:api:5.4")
     compileOnly("me.neznamy:tab-api:3.1.5")
     compileOnly("com.comphenix.protocol:ProtocolLib:5.0.0-SNAPSHOT")
+    compileOnly("org.geysermc.floodgate:api:2.2.0-SNAPSHOT")
     compileOnly("LibsDisguises:LibsDisguises:10.0.31") {
         exclude("org.spigotmc")
     }
@@ -116,5 +118,5 @@ bukkit {
     main = "net.tjalp.nautilus.Nautilus"
     version = project.version.toString()
     name = "Nautilus"
-    softDepend = listOf("LibsDisguises", "TAB", "ProtocolLib")
+    softDepend = listOf("LibsDisguises", "TAB", "ProtocolLib", "floodgate")
 }

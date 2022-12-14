@@ -28,6 +28,7 @@ import net.tjalp.nautilus.registry.registerSuggestions
 import net.tjalp.nautilus.scheduler.NautilusScheduler
 import org.bukkit.command.CommandSender
 import org.bukkit.plugin.java.JavaPlugin
+import org.geysermc.floodgate.api.FloodgateApi
 import org.ocpsoft.prettytime.PrettyTime
 import java.util.function.Function
 
@@ -55,6 +56,9 @@ class Nautilus : JavaPlugin() {
 
     /** The Google Link Provider */
     lateinit var googleLinkProvider: GoogleLinkProvider; private set
+
+    /** The floodgate API */
+    val floodgate: FloodgateApi; get() = FloodgateApi.getInstance()
 
     /** The HTTP client */
     val http = HttpClient(OkHttp)
