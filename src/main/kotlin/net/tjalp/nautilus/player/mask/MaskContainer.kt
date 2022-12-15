@@ -12,6 +12,7 @@ import net.tjalp.nautilus.container.Container
 import net.tjalp.nautilus.container.ContainerSlot
 import net.tjalp.nautilus.container.PageableContainer
 import net.tjalp.nautilus.permission.PermissionRank
+import net.tjalp.nautilus.player.profile.ProfileSnapshot
 import net.tjalp.nautilus.util.ItemGenerator.clickable
 import net.tjalp.nautilus.util.TextInput
 import net.tjalp.nautilus.util.profile
@@ -19,6 +20,7 @@ import org.bukkit.Material.*
 import org.bukkit.Sound.UI_BUTTON_CLICK
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemFlag
+import org.litote.kmongo.setValue
 
 class MaskContainer : Container(
     title = text("Mask"),
@@ -114,10 +116,30 @@ class MaskContainer : Container(
             }
         }
 
+        val disable = ContainerSlot(
+            clickable(
+                material = TNT_MINECART,
+                name = text("Disable"),
+                description = text("Disable your mask all together"),
+                clickTo = text("Disable")
+            ).build()
+        ) {
+            this.close()
+
+            this.nautilus.scheduler.launch {
+                it.player.profile().update(
+                    setValue(ProfileSnapshot::maskName, null),
+                    setValue(ProfileSnapshot::maskRank, null),
+                    setValue(ProfileSnapshot::maskSkin, null)
+                )
+            }
+        }
+
         blueprint
             .slot(11).set(name).clickSound()
             .slot(13).set(skin).clickSound()
             .slot(15).set(rank).clickSound()
+            .slot(30).set(disable).clickSound()
             .slot(31).set(apply).clickSound()
     }
 
@@ -133,6 +155,23 @@ class MaskContainer : Container(
                 .map { generateItem(it) }
 
             slots(slots, false)
+        }
+
+        override fun render(player: Player, blueprint: Blueprint) {
+            super.render(player, blueprint)
+
+            val back = ContainerSlot(
+                clickable(
+                    material = ARROW,
+                    name = text("Return"),
+                    description = text("Return to the previous menu"),
+                    clickTo = text("Return")
+                ).build()
+            ) {
+                this@MaskContainer.open(this.player)
+            }
+
+            blueprint.slot(bottomLeftSlot).set(back).clickSound()
         }
 
         private fun generateItem(rank: PermissionRank): ContainerSlot {
