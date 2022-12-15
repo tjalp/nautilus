@@ -8,6 +8,7 @@ import com.comphenix.protocol.wrappers.PlayerInfoData
 import com.comphenix.protocol.wrappers.WrappedGameProfile
 import com.comphenix.protocol.wrappers.WrappedSignedProperty
 import com.destroystokyo.paper.profile.PlayerProfile
+import io.papermc.paper.adventure.PaperAdventure
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import net.kyori.adventure.text.Component
@@ -16,6 +17,7 @@ import net.kyori.adventure.text.TranslatableComponent
 import net.kyori.adventure.text.format.NamedTextColor.GRAY
 import net.kyori.adventure.text.format.NamedTextColor.YELLOW
 import net.kyori.adventure.text.format.TextColor.color
+import net.minecraft.network.protocol.game.ClientboundPlayerChatPacket
 import net.tjalp.nautilus.Nautilus
 import net.tjalp.nautilus.event.ProfileUpdateEvent
 import net.tjalp.nautilus.permission.PermissionRank
@@ -182,27 +184,25 @@ class MaskManager(
 
         override fun onPacketSending(event: PacketEvent) {
             when (event.packetType) {
-//                CHAT -> onChat(event)
+                CHAT -> onChat(event)
                 PLAYER_INFO -> onPlayerInfo(event)
             }
         }
 
         private fun onChat(event: PacketEvent) {
-//            val packet = event.packet
-//            val player = event.player
-//            val handle = packet.handle as ClientboundPlayerChatPacket
-//            val message = handle.message
-//            val uniqueId = message.signedHeader.sender
-//            val sender = nautilus.server.getPlayer(uniqueId) ?: return
-//            val chat = text(message.signedContent().plain)
-//
-//            event.isCancelled = true
-//            player.sendMessage(nautilus.chat.formatChatMessage(sender, nautilus.chat.decorateChatMessage(sender, chat)))
+            val packet = event.packet
+            val player = event.player
+            val handle = packet.handle as ClientboundPlayerChatPacket
+            val message = PaperAdventure.asAdventure(handle.unsignedContent) ?: text(handle.body.content)
+
+            event.isCancelled = true
+
+            player.sendMessage(message) // disable signed messages, they only cause issues.
         }
 
         private fun onPlayerInfo(event: PacketEvent) {
             val packet = event.packet
-            val playerInfoData = packet.playerInfoDataLists.read(0).map { info ->
+            val playerInfoData = packet.playerInfoDataLists.read(1).map { info ->
                 val player = nautilus.server.getPlayer(info.profile.uuid) ?: return@map info
                 val profile = player.profile()
 
@@ -220,7 +220,7 @@ class MaskManager(
                 )
             }
 
-            packet.playerInfoDataLists.write(0, playerInfoData)
+            packet.playerInfoDataLists.write(1, playerInfoData)
         }
 
         @EventHandler

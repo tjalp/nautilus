@@ -1,6 +1,7 @@
 package net.tjalp.nautilus.util
 
 import com.destroystokyo.paper.profile.PlayerProfile
+import com.destroystokyo.paper.profile.ProfileProperty
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.Component.text
 import net.kyori.adventure.text.ComponentIteratorType.DEPTH_FIRST
@@ -93,4 +94,11 @@ fun PlayerProfile.skin(): SkinBlob? {
     val value = textures.value
 
     return SkinBlob(value, signature)
+}
+
+/**
+ * Set a skin of a [PlayerProfile]
+ */
+fun PlayerProfile.skin(skin: SkinBlob) {
+    this.setProperty(ProfileProperty("textures", skin.value, skin.signature))
 }
