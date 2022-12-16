@@ -1,0 +1,18 @@
+{
+  "multipart": [
+    {
+      "apply": {
+        "model": "block/black_concrete"
+      }
+    },
+    {
+      "when": {
+        "note": 0,
+        "instrument": "harp"
+      },
+      "apply": {
+        "model": "custom/block/test_block"
+      }
+    }
+  ]
+}

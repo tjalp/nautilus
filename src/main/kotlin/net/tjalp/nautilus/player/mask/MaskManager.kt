@@ -1,7 +1,6 @@
 package net.tjalp.nautilus.player.mask
 
-import com.comphenix.protocol.PacketType.Play.Server.CHAT
-import com.comphenix.protocol.PacketType.Play.Server.PLAYER_INFO
+import com.comphenix.protocol.PacketType.Play.Server.*
 import com.comphenix.protocol.events.PacketAdapter
 import com.comphenix.protocol.events.PacketEvent
 import com.comphenix.protocol.wrappers.PlayerInfoData
@@ -180,13 +179,20 @@ class MaskManager(
      * The mask manager listener to do everything
      * that has to do with masking.
      */
-    private inner class MaskListener : Listener, PacketAdapter(nautilus, PLAYER_INFO, CHAT) {
+    private inner class MaskListener : Listener, PacketAdapter(nautilus, SERVER_DATA, PLAYER_INFO, CHAT) {
 
         override fun onPacketSending(event: PacketEvent) {
             when (event.packetType) {
+                SERVER_DATA -> onServerData(event)
                 CHAT -> onChat(event)
                 PLAYER_INFO -> onPlayerInfo(event)
             }
+        }
+
+        private fun onServerData(event: PacketEvent) {
+            val packet = event.packet
+
+            packet.booleans.write(0, true) // always show secure chat
         }
 
         private fun onChat(event: PacketEvent) {
