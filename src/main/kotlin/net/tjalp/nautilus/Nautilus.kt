@@ -29,6 +29,7 @@ import net.tjalp.nautilus.scheduler.NautilusScheduler
 import org.bukkit.command.CommandSender
 import org.bukkit.plugin.java.JavaPlugin
 import org.geysermc.floodgate.api.FloodgateApi
+import org.incendo.interfaces.paper.PaperInterfaceListeners
 import org.ocpsoft.prettytime.PrettyTime
 import java.util.function.Function
 
@@ -58,7 +59,7 @@ class Nautilus : JavaPlugin() {
     lateinit var googleLinkProvider: GoogleLinkProvider; private set
 
     /** The floodgate API */
-    val floodgate: FloodgateApi; get() = FloodgateApi.getInstance()
+    var floodgate: FloodgateApi? = null; private set
 
     /** The HTTP client */
     val http = HttpClient(OkHttp)
@@ -115,7 +116,7 @@ class Nautilus : JavaPlugin() {
         this.scheduler = NautilusScheduler(this)
         this.masking = MaskManager(this)
         this.nametags = NametagManager(this)
-
+        this.floodgate = FloodgateApi.getInstance()
         this.googleLinkProvider = GoogleLinkProvider(this)
 
         registerRanks(this)
@@ -126,7 +127,7 @@ class Nautilus : JavaPlugin() {
             Function.identity(),
             Function.identity()
         )
-//        if (this.commands.hasCapability(BRIGADIER)) this.commands.registerBrigadier() // todo update to 1.19.3
+        if (this.commands.hasCapability(BRIGADIER)) this.commands.registerBrigadier()
         if (this.commands.hasCapability(ASYNCHRONOUS_COMPLETION)) this.commands.registerAsynchronousCompletions()
 
         registerSuggestions(this)
@@ -138,6 +139,9 @@ class Nautilus : JavaPlugin() {
         NautilusItemCommand(this)
         PermissionsCommand(this)
         ProfileCommand(this)
+
+        // Register Paper interface listeners
+        PaperInterfaceListeners.install(this)
 
         // Run task on server startup
         this.server.scheduler.runTask(this, Runnable {

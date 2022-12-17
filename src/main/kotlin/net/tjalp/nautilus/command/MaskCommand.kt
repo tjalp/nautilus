@@ -3,7 +3,7 @@ package net.tjalp.nautilus.command
 import cloud.commandframework.arguments.standard.StringArgument
 import kotlinx.coroutines.launch
 import net.tjalp.nautilus.Nautilus
-import net.tjalp.nautilus.player.mask.MaskContainer
+import net.tjalp.nautilus.player.mask.MaskInterface
 import net.tjalp.nautilus.player.profile.ProfileSnapshot
 import net.tjalp.nautilus.registry.MASK_COMMAND
 import net.tjalp.nautilus.util.has
@@ -11,6 +11,7 @@ import net.tjalp.nautilus.util.mini
 import net.tjalp.nautilus.util.profile
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
+import org.incendo.interfaces.kotlin.paper.asViewer
 import org.litote.kmongo.setValue
 import kotlin.system.measureTimeMillis
 
@@ -45,7 +46,7 @@ class MaskCommand(
 
         val unmask = builder.literal("none", "clear", "reset")
             .handler { this.scheduler.launch { none(it.sender as Player) } }
-            .apply { register(this) }
+        register(unmask)
         register(unbuilder.proxies(unmask.build()))
 
         register(
@@ -99,6 +100,6 @@ class MaskCommand(
     }
 
     private fun mask(sender: Player) {
-        MaskContainer().open(sender)
+        MaskInterface().open(sender.asViewer())
     }
 }

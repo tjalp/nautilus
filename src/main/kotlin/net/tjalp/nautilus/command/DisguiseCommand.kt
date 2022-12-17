@@ -26,7 +26,9 @@ class DisguiseCommand(
 
         val undisguiseCommand = builder.literal("none", "reset", "clear").handler {
             this.nautilus.scheduler.launch { undisguise(it.sender as Player) }
-        }.apply { register(this) }
+        }
+
+        register(undisguiseCommand)
 
         register(
             builder.argument(entityTypeArg).handler {

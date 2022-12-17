@@ -53,7 +53,7 @@ class GoogleLinkProvider(private val nautilus: Nautilus) : LinkProvider<ObjectId
             val player = event.player
             val uniqueId = player.uniqueId
             val profile = player.profile()
-            val isBedrock = nautilus.floodgate.isFloodgateId(uniqueId)
+            val isBedrock = nautilus.floodgate?.isFloodgateId(uniqueId) == true
 
             if (event.result != PlayerLoginEvent.Result.ALLOWED || isLinked(profile)) return
 

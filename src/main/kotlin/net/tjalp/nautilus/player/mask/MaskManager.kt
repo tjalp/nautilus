@@ -105,7 +105,7 @@ class MaskManager(
                         .append(updatedProfile.nameComponent(showSuffix = false))
                         .append(text(" (${time}ms)"))
                 )
-            } else {
+            } else if (skin != null) {
                 profile.player()?.sendMessage(
                     mini("<gray>Your skin has been set to <white>${skinProfile?.name ?: "(unknown)"}</white> (${time}ms)")
                 )
