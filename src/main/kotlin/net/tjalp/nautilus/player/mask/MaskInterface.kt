@@ -90,8 +90,8 @@ class MaskInterface : NautilusInterface<ChestPane>() {
 
                 val applyDescription = mutableListOf(text("Apply your mask modifications"))
                 if (maskName != null) applyDescription += text("• Name ($maskName)")
-                if (maskSkin != null) applyDescription += text("• Skin: ($maskSkin)")
-                if (maskRank != null) applyDescription += text("• Name: (").append(maskRank!!.prefix).append(text(")"))
+                if (maskSkin != null) applyDescription += text("• Skin ($maskSkin)")
+                if (maskRank != null) applyDescription += text("• Rank (").append(maskRank!!.prefix).append(text(")"))
 
                 view[4, 3] = clickable(
                     material = Material.EMERALD,
