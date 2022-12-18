@@ -6,7 +6,6 @@ import io.ktor.server.netty.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import net.kyori.adventure.text.Component.text
-import net.kyori.adventure.text.format.NamedTextColor
 import net.kyori.adventure.text.format.NamedTextColor.RED
 import net.tjalp.nautilus.Nautilus
 import net.tjalp.nautilus.config.details.ResourcePackDetails
@@ -111,8 +110,6 @@ class ApiServer(
             val player = event.player
             val hostname = player.virtualHost?.hostName ?: return
 
-            nautilus.logger.info("Hostname is $hostname")
-
             if (details.overrideUrl.isNotBlank()) {
                 player.setResourcePack(details.overrideUrl, hash, true)
                 return
@@ -126,15 +123,10 @@ class ApiServer(
 
             when (event.status) {
                 DECLINED -> player.kick(text("You must accept the resource pack in order to play!", RED))
-                FAILED_DOWNLOAD -> player.sendMessage(
-                    text(
-                        "Your resource pack download failed, " +
-                                "so any functionality that uses custom resources might not work as expected. " +
-                                "You'll still be able to play on this server, but with limited functionality. " +
-                                "This may be different in the future as we're moving out of the alpha/beta phase.", RED
-                    )
-                )
-
+                FAILED_DOWNLOAD -> player.sendMessage(text("Your resource pack download failed, " +
+                        "so any functionality that uses custom resources might not work as expected. " +
+                        "You'll still be able to play on this server, but with limited functionality. " +
+                        "This may be different in the future as we're moving out of the alpha/beta phase.", RED))
                 else -> {}
             }
         }
