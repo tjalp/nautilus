@@ -47,7 +47,7 @@ dependencies {
     implementation("org.incendo.interfaces:interfaces-kotlin:1.0.0-SNAPSHOT")
     //implementation("com.github.twitch4j:twitch4j:1.11.0")
     compileOnly("net.luckperms:api:5.4")
-    compileOnly("me.neznamy:tab-api:3.1.5")
+    compileOnly("me.neznamy:tab-api:3.2.1")
     compileOnly("com.comphenix.protocol:ProtocolLib:5.0.0-SNAPSHOT")
     compileOnly("org.geysermc.floodgate:api:2.2.0-SNAPSHOT")
     compileOnly("LibsDisguises:LibsDisguises:10.0.31") {
