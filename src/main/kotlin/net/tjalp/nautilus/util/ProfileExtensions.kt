@@ -89,8 +89,7 @@ fun ProfileSnapshot.nameComponent(
     showPrefix: Boolean = true,
     showSuffix: Boolean = true,
     showHover: Boolean = true,
-    isClickable: Boolean = true,
-    viewer: ProfileSnapshot? = null
+    isClickable: Boolean = true
 ): Component {
     val player = this.player()
     val username = if (useMask) text(this.displayName()) else (player?.name() ?: text(this.lastKnownName))

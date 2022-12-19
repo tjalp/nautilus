@@ -19,6 +19,7 @@ const val DISGUISE_COMMAND = "nautilus.command.disguise"
 const val MASK_COMMAND = "nautilus.command.mask"
 const val PROFILE_COMMAND = "nautilus.command.profile"
 const val REAL_NAME_COMMAND = "nautilus.command.real_name"
+const val VIEW_REAL_NAMES = "nautilus.mask.view_real_names"
 
 /**
  * Register all ranks

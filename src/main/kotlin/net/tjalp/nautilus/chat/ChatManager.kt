@@ -3,16 +3,25 @@ package net.tjalp.nautilus.chat
 import io.papermc.paper.event.player.AsyncChatDecorateEvent
 import io.papermc.paper.event.player.AsyncChatEvent
 import net.kyori.adventure.text.Component
+import net.kyori.adventure.text.Component.empty
 import net.kyori.adventure.text.Component.text
 import net.kyori.adventure.text.format.TextColor.color
+import net.kyori.adventure.text.format.TextDecoration.ITALIC
 import net.kyori.adventure.text.minimessage.MiniMessage.miniMessage
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer.plainText
+import net.kyori.adventure.title.Title.Times.times
+import net.kyori.adventure.title.Title.title
 import net.tjalp.nautilus.Nautilus
+import net.tjalp.nautilus.event.ProfileUpdateEvent
 import net.tjalp.nautilus.registry.DECORATED_CHAT
 import net.tjalp.nautilus.util.*
+import org.bukkit.Sound.ENTITY_EXPERIENCE_ORB_PICKUP
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
+import org.bukkit.event.player.PlayerJoinEvent
+import org.bukkit.event.player.PlayerQuitEvent
+import java.time.Duration
 
 /**
  * This class manages all chat-related
@@ -82,6 +91,25 @@ class ChatManager(
 
         @EventHandler
         fun on(event: AsyncChatEvent) {
+            val message = plainText().serialize(event.originalMessage())
+
+            for (viewer in event.viewers()) {
+                if (viewer !is Player) continue
+                if (!message.lowercase().contains("@${viewer.profile().displayName().lowercase()}")) continue
+
+                val title = title(
+                    empty(),
+                    text("You have been mentioned in chat!", color(119, 221, 119), ITALIC),
+                    times(Duration.ofMillis(250), Duration.ofMillis(750), Duration.ofMillis(500))
+                )
+
+                viewer.showTitle(title)
+
+                for(i in 10..20 step 2) {
+                    viewer.playSound(viewer.location, ENTITY_EXPERIENCE_ORB_PICKUP, 1f, i / 10f)
+                }
+            }
+
             event.renderer(NautilusChatRenderer)
         }
 
@@ -101,6 +129,33 @@ class ChatManager(
                             .build()
                     )
                 }
+            }
+        }
+
+        @EventHandler
+        fun on(event: PlayerJoinEvent) {
+            event.player.addAdditionalChatCompletions(nautilus.server.onlinePlayers.map { "@" + it.profile().displayName() })
+        }
+
+        @EventHandler
+        fun on(event: PlayerQuitEvent) {
+            val profile = event.player.profile()
+
+            for (online in this@ChatManager.nautilus.server.onlinePlayers) {
+                online.removeAdditionalChatCompletions(listOf("@${profile.displayName()}"))
+            }
+        }
+
+        @EventHandler
+        fun on(event: ProfileUpdateEvent) {
+            val profile = event.profile
+            val prev = event.previous ?: return
+
+            if (profile.maskName == prev.maskName) return
+
+            for (online in this@ChatManager.nautilus.server.onlinePlayers) {
+                online.removeAdditionalChatCompletions(listOf("@${prev.displayName()}"))
+                online.addAdditionalChatCompletions(listOf("@${profile.displayName()}"))
             }
         }
     }
