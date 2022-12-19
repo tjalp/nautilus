@@ -26,6 +26,7 @@ import net.tjalp.nautilus.player.tag.NametagManager
 import net.tjalp.nautilus.registry.registerRanks
 import net.tjalp.nautilus.registry.registerSuggestions
 import net.tjalp.nautilus.scheduler.NautilusScheduler
+import net.tjalp.nautilus.world.WorldListener
 import org.bukkit.command.CommandSender
 import org.bukkit.plugin.java.JavaPlugin
 import org.geysermc.floodgate.api.FloodgateApi
@@ -143,6 +144,7 @@ class Nautilus : JavaPlugin() {
 
         // Register Paper interface listeners
         PaperInterfaceListeners.install(this)
+        WorldListener()
 
         // Run task on server startup
         this.server.scheduler.runTask(this, Runnable {
