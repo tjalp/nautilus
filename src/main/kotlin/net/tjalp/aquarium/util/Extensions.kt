@@ -15,7 +15,7 @@ import org.bukkit.inventory.ItemStack
 import org.bukkit.persistence.PersistentDataType
 import java.util.*
 
-fun Player.sendPacket(packet: Packet<*>) = (this as CraftPlayer).handle.networkManager.send(packet)
+fun Player.sendPacket(packet: Packet<*>) = (this as CraftPlayer).handle.connection.send(packet)
 fun Listener.register() = Aquarium.loader.server.pluginManager.registerEvents(this, Aquarium.loader)
 
 fun Player.getPrefix(): String? {

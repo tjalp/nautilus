@@ -32,7 +32,7 @@ class ProfileCommand(
         val builder = builder("profile")
             .permission { sender -> if (sender is Player) sender has PROFILE_COMMAND else true }
         val usernameArg = StringArgument.quoted<CommandSender>("username")
-        val dataArg = StringArgument.newBuilder<CommandSender>("data").greedy().build()
+        val dataArg = StringArgument.builder<CommandSender>("data").greedy().build()
 
         register(
             builder.argument(usernameArg.copy()).argument(dataArg).handler {

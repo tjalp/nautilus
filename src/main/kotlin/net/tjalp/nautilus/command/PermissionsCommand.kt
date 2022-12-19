@@ -33,7 +33,10 @@ class PermissionsCommand(
         val builder = builder("permissions", "perms")
             .permission { sender -> if (sender is Player) sender has OPERATOR else true }
         val usernameArg = StringArgument.quoted<CommandSender>("username")
-        val rankArg = StringArgument.newBuilder<CommandSender>("rank").quoted().withSuggestionsProvider(RANK_SUGGESTIONS).build()
+        val rankArg = StringArgument.builder<CommandSender>("rank")
+            .quoted()
+            .withSuggestionsProvider(RANK_SUGGESTIONS)
+            .build()
         val permissionArg = StringArgument.quoted<CommandSender>("permission")
 
         register(

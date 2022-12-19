@@ -1,7 +1,8 @@
 package net.tjalp.nautilus.util
 
 import net.kyori.adventure.text.Component
-import net.kyori.adventure.text.Component.*
+import net.kyori.adventure.text.Component.space
+import net.kyori.adventure.text.Component.text
 import net.kyori.adventure.text.event.ClickEvent.runCommand
 import net.kyori.adventure.text.event.HoverEvent.showText
 import net.kyori.adventure.text.format.NamedTextColor
@@ -88,7 +89,8 @@ fun ProfileSnapshot.nameComponent(
     showPrefix: Boolean = true,
     showSuffix: Boolean = true,
     showHover: Boolean = true,
-    isClickable: Boolean = true
+    isClickable: Boolean = true,
+    viewer: ProfileSnapshot? = null
 ): Component {
     val player = this.player()
     val username = if (useMask) text(this.displayName()) else (player?.name() ?: text(this.lastKnownName))
@@ -102,10 +104,10 @@ fun ProfileSnapshot.nameComponent(
     if (showHover) {
         component.hoverEvent(showText {
             val hoverComponent = text().color(GRAY)
-                .append(rank.prefix).append(space()).append(username.color(rank.nameColor))
+                .append(rank.prefix).appendSpace().append(username.color(rank.nameColor))
 
             if (isClickable) {
-                hoverComponent.append(newline()).append(newline())
+                hoverComponent.appendNewline().appendNewline()
                     .append(text().color(color(233, 210, 130))
                         .append(text("\u2620"))
                         .append(text(" \u2192 ", NamedTextColor.DARK_GRAY))
