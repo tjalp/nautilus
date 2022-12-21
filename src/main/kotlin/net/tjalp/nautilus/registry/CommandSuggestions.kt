@@ -1,13 +1,14 @@
 package net.tjalp.nautilus.registry
 
 import net.tjalp.nautilus.Nautilus
+import net.tjalp.nautilus.util.displayName
 import net.tjalp.nautilus.util.profile
 
 val RANK_SUGGESTIONS
     get() = Nautilus.get().commands.parserRegistry().getSuggestionProvider("ranks").get()
 
-val MASKED_NAMES_SUGGESTIONS
-    get() = Nautilus.get().commands.parserRegistry().getSuggestionProvider("masked_names").get()
+val DISPLAY_NAME_SUGGESTIONS
+    get() = Nautilus.get().commands.parserRegistry().getSuggestionProvider("display_names").get()
 
 /**
  * Register all global command suggestions
@@ -21,9 +22,9 @@ fun registerSuggestions(nautilus: Nautilus) {
             .map { it.id }
     }
 
-    registry.registerSuggestionProvider("masked_names") { _, input ->
+    registry.registerSuggestionProvider("display_names") { _, input ->
         nautilus.server.onlinePlayers
-            .map { it.profile().maskName }
-            .filter { it?.startsWith(input, ignoreCase = true) == true }
+            .map { it.profile().displayName() }
+            .filter { it.startsWith(input, ignoreCase = true) }
     }
 }

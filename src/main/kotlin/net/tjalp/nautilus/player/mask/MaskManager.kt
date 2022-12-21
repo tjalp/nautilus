@@ -146,11 +146,11 @@ class MaskManager(
     /**
      * Gets an online player from a mask name
      *
-     * @param mask The mask name to get the player from
+     * @param display The mask name to get the player from
      * @return The online player, or null if nonexistent
      */
-    fun playerFromMaskName(mask: String): Player? {
-        return this.nautilus.server.onlinePlayers.firstOrNull { it.profile().maskName == mask }
+    fun playerFromDisplayName(display: String): Player? {
+        return this.nautilus.server.onlinePlayers.firstOrNull { it.profile().displayName().equals(display, ignoreCase = true) }
     }
 
     /**

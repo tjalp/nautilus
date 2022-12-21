@@ -1,7 +1,7 @@
 package net.tjalp.nautilus.util
 
-import net.kyori.adventure.sound.Sound.sound
 import net.kyori.adventure.sound.Sound.Source.MASTER
+import net.kyori.adventure.sound.Sound.sound
 import net.kyori.adventure.text.Component
 import net.tjalp.nautilus.Nautilus
 import net.tjalp.nautilus.player.Players

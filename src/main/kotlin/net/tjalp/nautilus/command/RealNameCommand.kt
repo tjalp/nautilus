@@ -6,8 +6,9 @@ import net.kyori.adventure.text.format.NamedTextColor.RED
 import net.kyori.adventure.text.format.TextColor.color
 import net.tjalp.nautilus.Nautilus
 import net.tjalp.nautilus.player.profile.ProfileSnapshot
-import net.tjalp.nautilus.registry.MASKED_NAMES_SUGGESTIONS
+import net.tjalp.nautilus.registry.DISPLAY_NAME_SUGGESTIONS
 import net.tjalp.nautilus.registry.REAL_NAME_COMMAND
+import net.tjalp.nautilus.util.displayName
 import net.tjalp.nautilus.util.has
 import net.tjalp.nautilus.util.nameComponent
 import net.tjalp.nautilus.util.profile
@@ -23,7 +24,7 @@ class RealNameCommand(
             .permission { sender -> if (sender is Player) sender has REAL_NAME_COMMAND else true }
         val targetArg = StringArgument.builder<CommandSender>("target")
             .greedy()
-            .withSuggestionsProvider(MASKED_NAMES_SUGGESTIONS)
+            .withSuggestionsProvider(DISPLAY_NAME_SUGGESTIONS)
             .build()
 
         register(builder.argument(targetArg).handler {
@@ -35,7 +36,7 @@ class RealNameCommand(
         val profiles = mutableListOf<ProfileSnapshot>()
 
         for (profile in this.nautilus.server.onlinePlayers.map { it.profile() }) {
-            if (profile.maskName?.equals(target, ignoreCase = true) == true) profiles += profile
+            if (profile.displayName().equals(target, ignoreCase = true)) profiles += profile
         }
 
         if (profiles.isEmpty()) {

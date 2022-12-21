@@ -141,6 +141,7 @@ class Nautilus : JavaPlugin() {
         PermissionsCommand(this)
         ProfileCommand(this)
         RealNameCommand(this)
+        TeleportRequestCommand(this)
 
         // Register Paper interface listeners
         PaperInterfaceListeners.install(this)
