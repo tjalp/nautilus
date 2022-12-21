@@ -8,19 +8,25 @@ import kotlinx.coroutines.reactive.awaitFirstOrNull
 import kotlinx.coroutines.reactive.awaitSingle
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
+import net.kyori.adventure.text.Component.empty
+import net.kyori.adventure.text.Component.text
+import net.kyori.adventure.text.format.TextColor.color
+import net.kyori.adventure.text.format.TextDecoration.ITALIC
+import net.kyori.adventure.title.Title.Times.times
+import net.kyori.adventure.title.Title.title
 import net.tjalp.nautilus.Nautilus
 import net.tjalp.nautilus.database.MongoCollections
 import net.tjalp.nautilus.event.ProfileUpdateEvent
-import net.tjalp.nautilus.util.player
-import net.tjalp.nautilus.util.profile
-import net.tjalp.nautilus.util.register
-import net.tjalp.nautilus.util.skin
+import net.tjalp.nautilus.util.*
 import org.bukkit.Bukkit
+import org.bukkit.Material
+import org.bukkit.Sound
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.EventPriority
 import org.bukkit.event.Listener
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent
+import org.bukkit.event.player.PlayerInteractAtEntityEvent
 import org.bukkit.event.player.PlayerLoginEvent
 import org.bukkit.event.player.PlayerQuitEvent
 import org.litote.kmongo.coroutine.toList
@@ -28,6 +34,7 @@ import org.litote.kmongo.reactivestreams.findOneById
 import org.litote.kmongo.reactivestreams.save
 import org.litote.kmongo.regex
 import org.litote.kmongo.setValue
+import java.time.Duration
 import java.time.LocalDateTime
 import java.util.*
 
@@ -255,6 +262,33 @@ class ProfileManager(
             nautilus.scheduler.launch {
                 profile.update(setValue(ProfileSnapshot::lastOnline, LocalDateTime.now()))
             }
+        }
+
+        @EventHandler
+        fun on(event: PlayerInteractAtEntityEvent) {
+            val player = event.player
+            val target = event.rightClicked as? Player ?: return
+            val targetProfile = target.profile()
+
+            // Don't block shields from activating when accidentally clicking a player
+            if (player.inventory.itemInMainHand.type == Material.SHIELD
+                || player.inventory.itemInOffHand.type == Material.SHIELD) return
+
+            if (targetProfile.maskName != null) {
+                player.showTitle(title(
+                    empty(),
+                    text().color(color(255,105,97)).decorate(ITALIC)
+                        .append(targetProfile.nameComponent(showPrefix = false, showSuffix = false, showHover = false, isClickable = false))
+                        .appendSpace().append(text("has requested to hide their profile"))
+                        .build(),
+                    times(Duration.ofMillis(100), Duration.ofMillis(500), Duration.ofMillis(400))
+                ))
+                player.playSound(player.location, Sound.ENTITY_ITEM_BREAK, 10f, 2f)
+                return
+            }
+
+            ProfileContainer(targetProfile).open(player)
+            player.playSound(player.location, Sound.UI_LOOM_SELECT_PATTERN, 10f, 2f)
         }
     }
 }
