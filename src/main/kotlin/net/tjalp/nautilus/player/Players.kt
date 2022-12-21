@@ -1,5 +1,6 @@
 package net.tjalp.nautilus.player
 
+import com.destroystokyo.paper.event.player.PlayerElytraBoostEvent
 import com.destroystokyo.paper.event.server.PaperServerListPingEvent
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.Component.*
@@ -12,6 +13,7 @@ import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.event.player.PlayerQuitEvent
+import org.bukkit.inventory.meta.FireworkMeta
 
 /**
  * A general utility class for players
@@ -140,6 +142,23 @@ object Players {
                 .build()
 
             event.motd(motd)
+        }
+
+        @EventHandler
+        fun on(event: PlayerElytraBoostEvent) {
+            val player = event.player
+            val item = event.itemStack
+            val meta = item.itemMeta
+            var seconds = 20
+
+            if (meta is FireworkMeta) {
+                // The higher the power, the longer the cooldown
+                // Each level adds an extra 5 seconds to the cooldown
+                // - 5 because the first power level doesn't count
+                seconds += (meta.power * 5 - 5).coerceAtLeast(0)
+            }
+
+            player.setCooldown(item.type, seconds * 20) // Times 20 to convert it to ticks
         }
     }
 }
