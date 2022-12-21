@@ -23,7 +23,7 @@ class PlayerTeleportRequest(val source: Player, val target: Player) : TeleportRe
     override fun request() {
         if (source == target) {
             this.source.sendMessage(text("You cannot send a request to yourself, silly!", RED))
-//            return
+            return
         }
         if (requests.any { it.target == target && it.source == source }) {
             this.source.sendMessage(text("You already have an active teleport request to", RED)
