@@ -97,7 +97,7 @@ class MaskInterface : NautilusInterface<ChestPane>() {
                     material = Material.EMERALD,
                     name = text("Apply"),
                     description = applyDescription.toTypedArray(),
-                    clickTo = text("Apply")
+                    clickTo = text("apply")
                 ).build().asElement { click ->
                     click.viewer().close()
                     click.viewer().player().playClickSound()

@@ -8,5 +8,5 @@ abstract class NautilusInterface<T : Pane> {
 
     abstract fun `interface`(): Interface<T, PlayerViewer>
 
-    fun open(viewer: PlayerViewer) = `interface`().open(viewer)
+    open fun open(viewer: PlayerViewer) = `interface`().open(viewer)
 }

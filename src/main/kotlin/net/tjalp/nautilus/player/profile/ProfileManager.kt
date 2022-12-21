@@ -29,6 +29,7 @@ import org.bukkit.event.player.AsyncPlayerPreLoginEvent
 import org.bukkit.event.player.PlayerInteractAtEntityEvent
 import org.bukkit.event.player.PlayerLoginEvent
 import org.bukkit.event.player.PlayerQuitEvent
+import org.incendo.interfaces.kotlin.paper.asViewer
 import org.litote.kmongo.coroutine.toList
 import org.litote.kmongo.reactivestreams.findOneById
 import org.litote.kmongo.reactivestreams.save
@@ -118,7 +119,7 @@ class ProfileManager(
      * @return The associated & cached [ProfileSnapshot] of the specified username
      */
     suspend fun profile(username: String): ProfileSnapshot? {
-        val player = this.nautilus.server.getPlayer(username)
+        val player = this.nautilus.server.getPlayerExact(username)
 
         if (player != null) return this.profile(player)
 
@@ -287,8 +288,7 @@ class ProfileManager(
                 return
             }
 
-            ProfileContainer(targetProfile).open(player)
-            player.playSound(player.location, Sound.UI_LOOM_SELECT_PATTERN, 10f, 2f)
+            ProfileInterface(targetProfile).open(player.asViewer())
         }
     }
 }
