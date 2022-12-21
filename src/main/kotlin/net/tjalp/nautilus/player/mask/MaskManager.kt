@@ -144,6 +144,16 @@ class MaskManager(
     fun username(profile: ProfileSnapshot): String? = profile.maskName
 
     /**
+     * Gets an online player from a mask name
+     *
+     * @param mask The mask name to get the player from
+     * @return The online player, or null if nonexistent
+     */
+    fun playerFromMaskName(mask: String): Player? {
+        return this.nautilus.server.onlinePlayers.firstOrNull { it.profile().maskName == mask }
+    }
+
+    /**
      * Generate a [WrappedGameProfile] of a player
      *
      * @param profile The profile to get the values from
