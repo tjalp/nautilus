@@ -26,10 +26,10 @@ import org.bukkit.event.EventHandler
 import org.bukkit.event.EventPriority
 import org.bukkit.event.Listener
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent
-import org.bukkit.event.player.PlayerInteractAtEntityEvent
+import org.bukkit.event.player.PlayerInteractEntityEvent
 import org.bukkit.event.player.PlayerLoginEvent
 import org.bukkit.event.player.PlayerQuitEvent
-import org.incendo.interfaces.kotlin.paper.asViewer
+import org.bukkit.inventory.EquipmentSlot
 import org.litote.kmongo.coroutine.toList
 import org.litote.kmongo.reactivestreams.findOneById
 import org.litote.kmongo.reactivestreams.save
@@ -266,10 +266,12 @@ class ProfileManager(
         }
 
         @EventHandler
-        fun on(event: PlayerInteractAtEntityEvent) {
+        fun on(event: PlayerInteractEntityEvent) {
             val player = event.player
             val target = event.rightClicked as? Player ?: return
             val targetProfile = target.profile()
+
+            if (event.hand != EquipmentSlot.HAND) return
 
             // Don't block shields from activating when accidentally clicking a player
             if (player.inventory.itemInMainHand.type == Material.SHIELD
@@ -288,7 +290,7 @@ class ProfileManager(
                 return
             }
 
-            ProfileInterface(targetProfile).open(player.asViewer())
+            ProfileInterface(targetProfile).open(player)
         }
     }
 }

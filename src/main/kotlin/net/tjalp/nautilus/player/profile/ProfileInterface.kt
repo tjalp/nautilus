@@ -6,11 +6,15 @@ import net.tjalp.nautilus.Nautilus
 import net.tjalp.nautilus.interfaces.NautilusInterface
 import net.tjalp.nautilus.player.teleport.PlayerTeleportRequest
 import net.tjalp.nautilus.util.ItemGenerator.clickable
+import net.tjalp.nautilus.util.displayName
 import net.tjalp.nautilus.util.nameComponent
 import net.tjalp.nautilus.util.playClickSound
 import net.tjalp.nautilus.util.player
 import org.bukkit.Material
 import org.bukkit.Sound
+import org.bukkit.entity.Player
+import org.geysermc.cumulus.form.Form
+import org.geysermc.cumulus.form.SimpleForm
 import org.incendo.interfaces.core.Interface
 import org.incendo.interfaces.core.view.InterfaceView
 import org.incendo.interfaces.kotlin.paper.asElement
@@ -67,6 +71,31 @@ class ProfileInterface(
                 }
             }
         }
+    }
+
+    override fun form(viewer: Player): Form {
+        return SimpleForm.builder()
+            .title("${profile.displayName()}'s profile")
+            .button("Send teleport request") // id 0
+            .validResultHandler { response ->
+                when (response.clickedButtonId()) {
+                    0 -> {
+                        val target = this@ProfileInterface.profile.player()
+
+                        if (target == null || profile.maskName != null) {
+                            viewer.sendMessage(
+                                text().color(RED)
+                                    .append(profile.nameComponent(useMask = false, showPrefix = false, showSuffix = false))
+                                    .appendSpace().append(text("is not online at the moment"))
+                            )
+                            return@validResultHandler
+                        }
+
+                        PlayerTeleportRequest(viewer, target).request()
+                    }
+                }
+            }
+            .build()
     }
 
     override fun open(viewer: PlayerViewer): InterfaceView<ChestPane, PlayerViewer> {

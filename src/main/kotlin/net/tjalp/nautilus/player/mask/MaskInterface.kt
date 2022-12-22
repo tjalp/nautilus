@@ -12,7 +12,11 @@ import net.tjalp.nautilus.util.TextInput
 import net.tjalp.nautilus.util.playClickSound
 import net.tjalp.nautilus.util.profile
 import org.bukkit.Material
+import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemFlag
+import org.geysermc.cumulus.component.DropdownComponent
+import org.geysermc.cumulus.form.CustomForm
+import org.geysermc.cumulus.form.Form
 import org.incendo.interfaces.core.Interface
 import org.incendo.interfaces.core.transform.types.PaginatedTransform
 import org.incendo.interfaces.core.util.Vector2
@@ -114,6 +118,42 @@ class MaskInterface : NautilusInterface<ChestPane>() {
                 }
             }
         }
+    }
+
+    override fun form(viewer: Player): Form {
+        val dropdown = DropdownComponent.builder()
+            .text("Rank")
+        val ranks = nautilus.perms.ranks
+            .sortedByDescending { it.weight }
+
+        dropdown.option("No rank mask", true)
+        for (rank in ranks) dropdown.option(rank.name, false)
+
+        return CustomForm.builder()
+            .title("Mask")
+            .input("Username", "Enter your desired username...") // id 0
+            .input("Skin", "Enter your desired skin...") // id 1
+            .dropdown(dropdown) // id 2
+            .validResultHandler { response ->
+                var username = response.asInput(0)
+                var skin = response.asInput(1)
+                val rank = response.asDropdown(2)
+                val permissionRank = if (rank != 0) ranks[rank - 1] else null
+
+                if (username?.isBlank() == true) username = null
+                if (skin?.isBlank() == true) skin = null
+
+                nautilus.scheduler.launch {
+                    nautilus.masking.mask(
+                        profile = viewer.profile(),
+                        username = username,
+                        skin = skin,
+                        rank = permissionRank,
+                        message = true
+                    )
+                }
+            }
+            .build()
     }
 
     private inner class RankInterface : NautilusInterface<ChestPane>() {

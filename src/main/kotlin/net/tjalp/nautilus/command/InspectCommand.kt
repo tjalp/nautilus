@@ -47,6 +47,6 @@ class InspectCommand(
             return
         }
 
-        ProfileInterface(profile).open(sender.asViewer())
+        ProfileInterface(profile).open(sender)
     }
 }
