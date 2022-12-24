@@ -51,7 +51,7 @@ dependencies {
     compileOnly("net.luckperms:api:5.4")
     compileOnly("me.neznamy:tab-api:3.2.1")
     compileOnly("com.comphenix.protocol:ProtocolLib:5.0.0-SNAPSHOT")
-    compileOnly("org.geysermc.floodgate:api:2.2.0-SNAPSHOT")
+    compileOnly("org.geysermc.floodgate:api:2.2.1-SNAPSHOT")
     compileOnly("LibsDisguises:LibsDisguises:10.0.31") {
         exclude("org.spigotmc")
     }
