@@ -45,6 +45,11 @@ class WhisperCommand(
             return
         }
 
+        if (target == sender) {
+            sender.sendMessage(text("You can't send a private message to yourself!", RED))
+            return
+        }
+
         target.sendMessage(text().color(color(167, 199, 231))
             .append(text("From").color(color(248, 200, 220)))
             .appendSpace().append(senderComponent)
