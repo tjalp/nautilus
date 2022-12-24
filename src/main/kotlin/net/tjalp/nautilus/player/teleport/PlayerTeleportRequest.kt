@@ -77,6 +77,7 @@ class PlayerTeleportRequest(val source: Player, val target: Player) : TeleportRe
             .appendSpace().append(this.target.profile().nameComponent(showPrefix = false, showSuffix = false)))
 
         this.source.teleport(this.target.location, PLUGIN, false, true, YAW, PITCH)
+        this.target.world.playSound(this.target.location, Sound.ITEM_CHORUS_FRUIT_TELEPORT, 1.5f, 1f)
     }
 
     override fun deny() {

@@ -1,5 +1,6 @@
 package net.tjalp.nautilus.util
 
+import com.jeff_media.morepersistentdatatypes.DataType
 import net.kyori.adventure.sound.Sound.Source.MASTER
 import net.kyori.adventure.sound.Sound.sound
 import net.kyori.adventure.text.Component
@@ -7,6 +8,8 @@ import net.tjalp.nautilus.Nautilus
 import net.tjalp.nautilus.player.Players
 import net.tjalp.nautilus.player.profile.ProfileManager
 import net.tjalp.nautilus.player.profile.ProfileSnapshot
+import org.bukkit.Location
+import org.bukkit.NamespacedKey
 import org.bukkit.Sound.UI_BUTTON_CLICK
 import org.bukkit.entity.Player
 
@@ -44,4 +47,22 @@ fun Player.actionBar() = Players.actionBar(this)
  */
 fun Player.playClickSound() {
     this.playSound(sound(UI_BUTTON_CLICK.key(), MASTER, 1f, 1f))
+}
+
+/**
+ * Gets the home location of the player
+ */
+fun Player.home(): Location? {
+    val pdc = this.persistentDataContainer
+
+    return pdc.get(NamespacedKey(Nautilus.get(), "home"), DataType.LOCATION)
+}
+
+/**
+ * Sets the home location of a player
+ */
+fun Player.home(location: Location) {
+    val pdc = this.persistentDataContainer
+
+    pdc.set(NamespacedKey(Nautilus.get(), "home"), DataType.LOCATION, location)
 }
