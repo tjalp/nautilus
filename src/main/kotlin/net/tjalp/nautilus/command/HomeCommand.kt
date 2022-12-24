@@ -35,7 +35,7 @@ class HomeCommand(
             return
         }
 
-        sender.teleportAsync(home, PlayerTeleportEvent.TeleportCause.COMMAND).whenComplete { complete, _ ->
+        sender.teleportAsync(home, PlayerTeleportEvent.TeleportCause.COMMAND).thenAccept { complete ->
             if (complete) {
                 sender.sendMessage(text("Teleported to your home!", GREEN))
                 sender.world.playSound(sender.location, Sound.ITEM_CHORUS_FRUIT_TELEPORT, 1.5f, 1f)
