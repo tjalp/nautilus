@@ -4,6 +4,7 @@ import com.destroystokyo.paper.event.entity.EnderDragonFireballHitEvent
 import io.papermc.paper.event.player.PlayerBedFailEnterEvent
 import net.tjalp.nautilus.util.register
 import org.bukkit.Particle
+import org.bukkit.World
 import org.bukkit.attribute.Attribute.GENERIC_MAX_HEALTH
 import org.bukkit.entity.EnderDragon
 import org.bukkit.event.EventHandler
@@ -27,7 +28,7 @@ class WorldListener : Listener {
     fun on(event: PlayerBedFailEnterEvent) {
         val bed = event.bed
 
-        if (!bed.world.isBedWorks) event.isCancelled = true
+        if (!bed.world.isBedWorks && bed.world.environment == World.Environment.THE_END) event.isCancelled = true
     }
 
     @EventHandler
