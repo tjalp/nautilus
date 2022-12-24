@@ -1,5 +1,6 @@
 package net.tjalp.nautilus.registry.item
 
+import com.jeff_media.morepersistentdatatypes.DataType.BOOLEAN
 import net.tjalp.nautilus.Nautilus
 import net.tjalp.nautilus.item.NautilusItem
 import net.tjalp.nautilus.util.ParticleEffect
@@ -13,7 +14,6 @@ import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.entity.EntityDamageByEntityEvent
 import org.bukkit.event.entity.EntityShootBowEvent
-import org.bukkit.persistence.PersistentDataType.INTEGER
 import java.util.function.Consumer
 import kotlin.math.roundToInt
 
@@ -35,7 +35,7 @@ object IceBow : NautilusItem() {
 
         val projectile = event.projectile
 
-        projectile.persistentDataContainer.set(IS_ICICLE, INTEGER, 1) // set to true
+        projectile.persistentDataContainer.set(IS_ICICLE, BOOLEAN, true)
 
         nautilus.server.scheduler.runTaskTimer(nautilus, Consumer {
             if (!projectile.isValid) {
@@ -58,7 +58,7 @@ object IceBow : NautilusItem() {
             if (projectile !is Projectile) return
 
             val entity = event.entity
-            val isIcicle = projectile.persistentDataContainer.getOrDefault(IS_ICICLE, INTEGER, 0) == 1
+            val isIcicle = projectile.persistentDataContainer.getOrDefault(IS_ICICLE, BOOLEAN, false)
 
             if (!isIcicle) return
 

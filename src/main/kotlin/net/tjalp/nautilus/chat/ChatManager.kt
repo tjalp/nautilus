@@ -99,7 +99,7 @@ class ChatManager(
 
                 val title = title(
                     empty(),
-                    text("You have been mentioned in chat!", color(119, 221, 119), ITALIC),
+                    text("You've been mentioned in chat!", color(119, 221, 119), ITALIC),
                     times(Duration.ofMillis(250), Duration.ofMillis(750), Duration.ofMillis(500))
                 )
 
