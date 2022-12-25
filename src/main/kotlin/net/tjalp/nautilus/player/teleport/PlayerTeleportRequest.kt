@@ -23,7 +23,7 @@ class PlayerTeleportRequest(val source: Player, val target: Player) : TeleportRe
     override fun request() {
         if (source == target) {
             this.source.sendMessage(text("You cannot send a request to yourself, silly!", RED))
-            return
+//            return
         }
         if (requests.any { it.target == target && it.source == source }) {
             this.source.sendMessage(text("You already have an active teleport request to", RED)
@@ -34,7 +34,12 @@ class PlayerTeleportRequest(val source: Player, val target: Player) : TeleportRe
         requests += this
 
         this.source.sendMessage(
-            text("You sent a teleport request to ", GRAY).append(this.target.profile().nameComponent(showPrefix = false, showSuffix = false))
+            text("You sent a teleport request to ", GRAY)
+                .append(this.target.profile().nameComponent(showPrefix = false, showSuffix = false))
+                .appendSpace().append(
+                    text("CANCEL", RED, BOLD)
+                        .clickEvent(runCommand("/teleportrequest cancel \"${this.target.profile().displayName()}\""))
+                )
         )
         this.target.sendMessage(
             text().color(GRAY)
@@ -89,6 +94,17 @@ class PlayerTeleportRequest(val source: Player, val target: Player) : TeleportRe
             .append(text("'s teleport request"))
         )
         this.source.sendMessage(text("Your teleport request has been denied by", RED)
+            .appendSpace().append(this.target.profile().nameComponent(showPrefix = false, showSuffix = false)))
+    }
+
+    override fun cancel() {
+        requests -= this
+        this.expireTask?.cancel()
+
+        this.target.sendMessage(text().color(GRAY)
+            .append(this.source.profile().nameComponent(showPrefix = false, showSuffix = false))
+            .appendSpace().append(text("has cancelled their teleport request")))
+        this.source.sendMessage(text("You've cancelled your teleport request to", GRAY)
             .appendSpace().append(this.target.profile().nameComponent(showPrefix = false, showSuffix = false)))
     }
 

@@ -7,4 +7,6 @@ interface TeleportRequest {
     fun accept()
 
     fun deny()
+
+    fun cancel()
 }

@@ -34,6 +34,10 @@ class TeleportRequestCommand(
         register(builder.literal("deny").argument(targetArg.copy()).handler {
             this.deny(it.sender as Player, it.get(targetArg))
         })
+
+        register(builder.literal("cancel").argument(targetArg.copy()).handler {
+            this.cancel(it.sender as Player, it.get(targetArg))
+        })
     }
 
     private fun send(sender: Player, targetArg: String) {
@@ -53,6 +57,25 @@ class TeleportRequestCommand(
 
     private fun deny(sender: Player, targetArg: String) {
         handleTeleportRequest(sender, targetArg)?.deny()
+    }
+
+    private fun cancel(sender: Player, targetArg: String) {
+        val target = this.nautilus.masking.playerFromDisplayName(targetArg)
+
+        if (target == null) {
+            sender.sendMessage(text("No targets found", RED))
+            return
+        }
+
+        val request = PlayerTeleportRequest.requests().firstOrNull { it.source == sender && it.target == target }
+
+        if (request == null) {
+            sender.sendMessage(text("You have no active teleport request to", RED).appendSpace()
+                .append(target.profile().nameComponent(showPrefix = false, showSuffix = false)))
+            return
+        }
+
+        request.cancel()
     }
 
     private fun handleTeleportRequest(source: Player, targetArg: String): PlayerTeleportRequest? {
