@@ -17,7 +17,6 @@ import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.event.player.PlayerResourcePackStatusEvent
 import org.bukkit.event.player.PlayerResourcePackStatusEvent.Status.DECLINED
 import org.bukkit.event.player.PlayerResourcePackStatusEvent.Status.FAILED_DOWNLOAD
-import java.math.BigInteger
 import java.nio.file.Path
 import java.security.MessageDigest
 import java.util.*
@@ -64,8 +63,9 @@ class ApiServer(
         this.packPath = pack
 
         // I have absolutely no idea what's going on here, but it works??
+        // UPDATE: I've figured out what's going on
         val digest = MessageDigest.getInstance("SHA-1").digest(pack.readBytes())
-        this.hash = BigInteger(1, digest).toString(16).padStart(32, '0')
+        this.hash = HexFormat.of().formatHex(digest)
 
         ResourcePackListener().register()
     }
