@@ -142,6 +142,7 @@ class Nautilus : JavaPlugin() {
         PermissionsCommand(this)
         ProfileCommand(this)
         RealNameCommand(this)
+        SpawnCommand(this)
         TeleportRequestCommand(this)
         WhisperCommand(this)
 
