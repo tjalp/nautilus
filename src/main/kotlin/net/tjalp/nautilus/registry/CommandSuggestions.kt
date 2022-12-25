@@ -10,6 +10,9 @@ val RANK_SUGGESTIONS
 val DISPLAY_NAME_SUGGESTIONS
     get() = Nautilus.get().commands.parserRegistry().getSuggestionProvider("display_names").get()
 
+val REAL_NAME_SUGGESTIONS
+    get() = Nautilus.get().commands.parserRegistry().getSuggestionProvider("real_names").get()
+
 /**
  * Register all global command suggestions
  */
@@ -25,6 +28,12 @@ fun registerSuggestions(nautilus: Nautilus) {
     registry.registerSuggestionProvider("display_names") { _, input ->
         nautilus.server.onlinePlayers
             .map { it.profile().displayName() }
+            .filter { it.startsWith(input, ignoreCase = true) }
+    }
+
+    registry.registerSuggestionProvider("real_names") { _, input ->
+        nautilus.server.onlinePlayers
+            .map { it.name }
             .filter { it.startsWith(input, ignoreCase = true) }
     }
 }

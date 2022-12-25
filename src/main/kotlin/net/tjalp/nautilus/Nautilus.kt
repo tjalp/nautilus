@@ -135,6 +135,7 @@ class Nautilus : JavaPlugin() {
 
         if (useDisguises) DisguiseCommand(this)
         HomeCommand(this)
+        IdentityCommand(this)
         InspectCommand(this)
         MaskCommand(this)
         NautilusCommandImpl(this)
