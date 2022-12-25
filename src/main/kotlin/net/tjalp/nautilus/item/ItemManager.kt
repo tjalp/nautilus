@@ -42,6 +42,8 @@ class ItemManager(private val nautilus: Nautilus) {
 
         this.registeredItems += item
         this.itemsById[item.identifier] = item
+
+        if (item is CraftableItem) this.nautilus.server.addRecipe(item.recipe())
     }
 
     /**
