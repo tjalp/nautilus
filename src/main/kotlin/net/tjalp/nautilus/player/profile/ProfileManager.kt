@@ -291,6 +291,7 @@ class ProfileManager(
             }
 
             ProfileInterface(targetProfile).open(player)
+            event.isCancelled = true
         }
     }
 }
