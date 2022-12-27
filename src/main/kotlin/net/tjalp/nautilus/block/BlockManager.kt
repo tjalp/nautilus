@@ -1,5 +1,11 @@
 package net.tjalp.nautilus.block
 
+import com.comphenix.protocol.PacketType.Play.Server.*
+import com.comphenix.protocol.events.PacketAdapter
+import com.comphenix.protocol.events.PacketEvent
+import com.comphenix.protocol.wrappers.WrappedBlockData
+import com.jeff_media.customblockdata.CustomBlockData
+import net.minecraft.network.protocol.game.ClientboundLevelChunkPacketData
 import net.tjalp.nautilus.Nautilus
 import net.tjalp.nautilus.item.NautilusItem
 import net.tjalp.nautilus.registry.block.SecondTestBlock
@@ -8,8 +14,10 @@ import net.tjalp.nautilus.registry.item.BlockItem
 import net.tjalp.nautilus.util.ItemBuilder
 import net.tjalp.nautilus.util.register
 import org.bukkit.GameMode.CREATIVE
+import org.bukkit.Location
 import org.bukkit.Material
 import org.bukkit.Material.NOTE_BLOCK
+import org.bukkit.block.Block
 import org.bukkit.block.data.BlockData
 import org.bukkit.block.data.type.NoteBlock
 import org.bukkit.event.Event
@@ -20,6 +28,7 @@ import org.bukkit.event.block.Action.LEFT_CLICK_BLOCK
 import org.bukkit.event.block.Action.RIGHT_CLICK_BLOCK
 import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.inventory.ItemStack
+import org.bukkit.persistence.PersistentDataType.STRING
 
 class BlockManager(
     private val nautilus: Nautilus
@@ -69,10 +78,21 @@ class BlockManager(
     }
 
     /**
-     * Get a [NautilusBlock] by the item.
+     * Get a [NautilusBlock] by the block.
      *
-     * @param block The item to check.
+     * @param block The block to check.
      * @return The [NautilusBlock], or null if nonexistent.
+     */
+    fun getBlock(block: Block): NautilusBlock? {
+        return this.getBlock(this.identifier(block) ?: return null)
+    }
+
+    /**
+     * Get a [NautilusBlock] by the block data.
+     *
+     * @param block The block to check.
+     * @return The [NautilusBlock], or null if nonexistent.
+     * @deprecated Use [BlockManager.getBlock(Block)]
      */
     fun getBlock(block: BlockData): NautilusBlock? {
         return this.getBlock(this.identifier(block) ?: return null)
@@ -96,8 +116,14 @@ class BlockManager(
      * @param block The [ItemStack] to check
      * @return Whether it is this nautilus item
      */
-    fun isBlock(block: BlockData, nautilusBlock: NautilusBlock): Boolean {
+    fun isBlock(block: Block, nautilusBlock: NautilusBlock): Boolean {
         return this.identifier(block)?.contains(nautilusBlock.identifier) ?: false
+    }
+
+    fun identifier(block: Block): String?  {
+        val data = CustomBlockData(block, this.nautilus)
+
+        return data.get(NautilusBlock.NAUTILUS_BLOCK_ID_PDC, STRING)
     }
 
     /**
@@ -120,14 +146,70 @@ class BlockManager(
      */
     fun blocks(): Set<NautilusBlock> = this.registeredBlocks.toSet()
 
-    private inner class BlockListener : Listener {
+    private inner class BlockListener : PacketAdapter(this.nautilus, MAP_CHUNK, BLOCK_CHANGE, MULTI_BLOCK_CHANGE), Listener {
+
+        override fun onPacketSending(event: PacketEvent) {
+            when (event.packetType) {
+                MAP_CHUNK -> this.onMapChunk(event)
+                BLOCK_CHANGE -> this.onBlockChange(event)
+                MULTI_BLOCK_CHANGE -> this.onMultiBlockChange(event)
+            }
+        }
+
+        private fun onMapChunk(event: PacketEvent) {
+//            val packet = event.packet
+//            val chunkData = packet.levelChunkData.read(0)
+//            val handle = chunkData.handle as ClientboundLevelChunkPacketData
+//
+//            for (info in chunkData.blockEntityInfo) {
+//                val x = info.sectionX.toDouble()
+//                val y = info.y.toDouble()
+//                val z = info.sectionZ.toDouble()
+//                val location = Location(event.player.world, x, y, z)
+//
+//                if (location.block.blockData !is NoteBlock) continue
+//
+//                event.player.sendMessage("$x, $y, $z")
+//            }
+        }
+
+        private fun onBlockChange(event: PacketEvent) {
+            val packet = event.packet
+            val block = packet.blockPositionModifier.read(0).toLocation(event.player.world).block
+            val blockData = block.blockData
+
+            if (blockData !is NoteBlock) return
+            val ntlBlock = this@BlockManager.getBlock(block) ?: return
+
+            blockData.note = ntlBlock.note
+            blockData.instrument = ntlBlock.instrument
+
+            packet.blockData.write(0, WrappedBlockData.createData(blockData))
+        }
+
+        private fun onMultiBlockChange(event: PacketEvent) {
+            val packet = event.packet
+
+            for (info in packet.multiBlockChangeInfoArrays.read(0)) {
+                val block = info.getLocation(event.player.world).block
+                val blockData = block.blockData
+
+                if (blockData !is NoteBlock) return
+                val ntlBlock = this@BlockManager.getBlock(block) ?: return
+
+                blockData.note = ntlBlock.note
+                blockData.instrument = ntlBlock.instrument
+
+                info.data = WrappedBlockData.createData(blockData)
+            }
+        }
 
         @EventHandler
         fun on(event: PlayerInteractEvent) {
             val player = event.player
             val block = event.clickedBlock ?: return
             val data = block.blockData
-            val ntlBlock = getBlock(data)
+            val ntlBlock = getBlock(block)
 
             if (data !is NoteBlock) return
 
@@ -145,7 +227,7 @@ class BlockManager(
 
         @EventHandler
         fun on(event: BlockDropItemEvent) {
-            val ntlBlock = getBlock(event.blockState.blockData) ?: return
+            val ntlBlock = getBlock(event.block) ?: return
             val ntlItem = nautilus.items.getItem(ntlBlock.identifier)
 
             for (item in event.items.filter { it.itemStack.type == NOTE_BLOCK }) {
@@ -158,7 +240,7 @@ class BlockManager(
 
         @EventHandler
         fun on(event: BlockBreakEvent) {
-            getBlock(event.block.blockData)?.onBreak(event)
+            getBlock(event.block)?.onBreak(event)
         }
 
         @EventHandler
@@ -169,12 +251,14 @@ class BlockManager(
 
             val ntlBlock = getBlock(ntlItem.identifier)
             val data = event.blockPlaced.blockData
+            val pdc = CustomBlockData(event.blockPlaced, nautilus)
 
             if (data !is NoteBlock) return
 
             data.note = ntlBlock.note
             data.instrument = ntlBlock.instrument
             event.blockPlaced.blockData = data
+            pdc.set(NautilusBlock.NAUTILUS_BLOCK_ID_PDC, STRING, ntlBlock.identifier)
             ntlBlock.onPlace(event)
         }
 

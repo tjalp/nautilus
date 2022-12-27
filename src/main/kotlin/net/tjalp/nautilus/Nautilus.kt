@@ -6,6 +6,7 @@ import cloud.commandframework.execution.CommandExecutionCoordinator
 import cloud.commandframework.paper.PaperCommandManager
 import com.comphenix.protocol.ProtocolLibrary
 import com.comphenix.protocol.ProtocolManager
+import com.jeff_media.customblockdata.CustomBlockData
 import io.ktor.client.*
 import io.ktor.client.engine.okhttp.*
 import net.tjalp.nautilus.block.BlockManager
@@ -150,6 +151,8 @@ class Nautilus : JavaPlugin() {
         // Register Paper interface listeners
         PaperInterfaceListeners.install(this)
         WorldListener()
+        // Register block data listener
+        CustomBlockData.registerListener(this)
 
         // Run task on server startup
         this.server.scheduler.runTask(this, Runnable {

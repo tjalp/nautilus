@@ -47,6 +47,7 @@ dependencies {
     implementation("org.incendo.interfaces:interfaces-paper:1.0.0-SNAPSHOT")
     implementation("org.incendo.interfaces:interfaces-kotlin:1.0.0-SNAPSHOT")
     implementation("com.jeff_media:MorePersistentDataTypes:2.3.1")
+    implementation("com.jeff_media:CustomBlockData:2.1.0")
     //implementation("com.github.twitch4j:twitch4j:1.11.0")
     compileOnly("net.luckperms:api:5.4")
     compileOnly("me.neznamy:tab-api:3.2.1")
@@ -97,6 +98,9 @@ tasks {
     shadowJar {
         relocate("cloud.commandframework", "net.tjalp.nautilus.lib.cloud")
         relocate("com.github.twitch4j", "net.tjalp.nautilus.lib.twitch4j")
+        relocate("com.jeff_media.morepersistentdatatypes", "net.tjalp.nautilus.lib.persistentdatatypes")
+        relocate("com.jeff_media.customblockdata", "net.tjalp.nautilus.lib.customblockdata")
+        relocate("org.incendo.interfaces", "net.tjalp.nautilus.lib.interfaces")
         //relocate("kotlin", "net.tjalp.aquarium.lib.kotlin")
     }
 

@@ -1,6 +1,7 @@
 package net.tjalp.nautilus.block
 
 import org.bukkit.Instrument
+import org.bukkit.NamespacedKey
 import org.bukkit.Note
 import org.bukkit.event.block.BlockBreakEvent
 import org.bukkit.event.block.BlockPlaceEvent
@@ -23,4 +24,9 @@ abstract class NautilusBlock {
     open fun onBreak(event: BlockBreakEvent) {}
 
     open fun onPlace(event: BlockPlaceEvent) {}
+
+    companion object {
+
+        val NAUTILUS_BLOCK_ID_PDC = NamespacedKey("nautilus", "custom_block")
+    }
 }
