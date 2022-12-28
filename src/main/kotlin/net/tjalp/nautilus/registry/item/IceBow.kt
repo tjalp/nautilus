@@ -13,6 +13,7 @@ import org.bukkit.NamespacedKey
 import org.bukkit.Particle.SNOWFLAKE
 import org.bukkit.Sound
 import org.bukkit.entity.AbstractArrow
+import org.bukkit.entity.LivingEntity
 import org.bukkit.entity.Projectile
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
@@ -21,6 +22,8 @@ import org.bukkit.event.entity.EntityShootBowEvent
 import org.bukkit.inventory.Recipe
 import org.bukkit.inventory.ShapedRecipe
 import org.bukkit.inventory.recipe.CraftingBookCategory.EQUIPMENT
+import org.bukkit.potion.PotionEffect
+import org.bukkit.potion.PotionEffectType.BLINDNESS
 import java.util.function.Consumer
 import kotlin.math.roundToInt
 
@@ -71,6 +74,7 @@ object IceBow : NautilusItem(), CraftableItem {
 
             entity.freezeTicks = entity.maxFreezeTicks + (20 * 6) // 6 seconds, 120 ticks
             entity.world.playSound(entity.location, Sound.ENTITY_ZOMBIE_VILLAGER_CURE, 1f, 1f)
+            if (entity is LivingEntity) entity.addPotionEffect(PotionEffect(BLINDNESS, 10, 255, false, false, false))
 
             val boundingBox = entity.boundingBox
 
