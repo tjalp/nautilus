@@ -41,7 +41,7 @@ dependencies {
     paperDevBundle("1.19.3-R0.1-SNAPSHOT")
     implementation("cloud.commandframework:cloud-annotations:1.8.0")
     implementation("cloud.commandframework:cloud-paper:1.8.0")
-    implementation("org.litote.kmongo:kmongo-async:4.8.0")
+//    implementation("org.litote.kmongo:kmongo-async:4.8.0")
     implementation("org.litote.kmongo:kmongo-coroutine:4.8.0")
     implementation("org.ocpsoft.prettytime:prettytime:5.0.6.Final")
     implementation("org.incendo.interfaces:interfaces-paper:1.0.0-SNAPSHOT")

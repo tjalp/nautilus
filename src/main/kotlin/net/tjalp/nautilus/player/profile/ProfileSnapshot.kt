@@ -2,7 +2,6 @@ package net.tjalp.nautilus.player.profile
 
 import com.mongodb.client.model.FindOneAndUpdateOptions
 import com.mongodb.client.model.ReturnDocument
-import kotlinx.coroutines.reactive.awaitSingle
 import net.tjalp.nautilus.Nautilus
 import net.tjalp.nautilus.database.MongoCollections
 import net.tjalp.nautilus.player.profile.data.PermissionInfo
@@ -13,7 +12,6 @@ import org.bson.conversions.Bson
 import org.bson.types.ObjectId
 import org.litote.kmongo.combine
 import org.litote.kmongo.eq
-import org.litote.kmongo.reactivestreams.findOneById
 import java.time.LocalDateTime
 import java.util.*
 
@@ -34,7 +32,8 @@ data class ProfileSnapshot(
     val maskSkin: SkinBlob? = null,
     val disguise: String? = null,
     val permissionInfo: PermissionInfo = PermissionInfo(),
-    val googleUser: ObjectId? = null
+    val googleUser: ObjectId? = null,
+    val clanId: ObjectId? = null
 ) {
 
     private val nautilus = Nautilus.get()
@@ -81,16 +80,15 @@ data class ProfileSnapshot(
      * @return The updated profile
      */
     suspend fun update(vararg bson: Bson): ProfileSnapshot {
-
         val updatedProfile =
             if (bson.isEmpty()) {
-                this.profiles.findOneById(this.uniqueId).awaitSingle()
+                this.profiles.findOneById(this.uniqueId) ?: this
             } else {
                 this.profiles.findOneAndUpdate(
                     ::uniqueId eq this.uniqueId,
                     combine(*bson),
                     FindOneAndUpdateOptions().returnDocument(ReturnDocument.AFTER)
-                ).awaitSingle()
+                ) ?: this
             }
 
         this.nautilus.profiles.onProfileUpdate(updatedProfile)

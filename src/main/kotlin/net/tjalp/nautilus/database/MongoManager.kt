@@ -3,11 +3,10 @@ package net.tjalp.nautilus.database
 import com.fasterxml.jackson.module.kotlin.KotlinFeature
 import com.mongodb.ConnectionString
 import com.mongodb.MongoClientSettings
-import com.mongodb.reactivestreams.client.MongoClient
-import com.mongodb.reactivestreams.client.MongoDatabase
 import net.tjalp.nautilus.config.details.MongoDetails
 import org.bson.UuidRepresentation
 import org.litote.kmongo.coroutine.CoroutineClient
+import org.litote.kmongo.coroutine.CoroutineDatabase
 import org.litote.kmongo.coroutine.coroutine
 import org.litote.kmongo.reactivestreams.KMongo
 import org.litote.kmongo.util.KMongoJacksonFeature
@@ -22,14 +21,11 @@ import java.util.logging.Logger
  */
 class MongoManager(private val logger: Logger, private val details: MongoDetails) {
 
-    /** The MongoDB database client */
-    val mongoClient: MongoClient
-
     /** The MongoDB database client using coroutines */
     val mongoCoroutine: CoroutineClient
 
     /** The database that Nautilus should use */
-    val mongoDatabase: MongoDatabase
+    val mongoDatabase: CoroutineDatabase
 
     init {
         // Disable Mongo logging
@@ -51,21 +47,20 @@ class MongoManager(private val logger: Logger, private val details: MongoDetails
         this.logger.info("MongoDB -> Using connection '$connectionString'")
         this.logger.info("MongoDB -> Using database '$database'")
 
-        this.mongoClient = KMongo.createClient(
+        this.mongoCoroutine = KMongo.createClient(
             MongoClientSettings
                 .builder()
                 .uuidRepresentation(UuidRepresentation.STANDARD)
                 .applyConnectionString(ConnectionString(connectionString))
                 .build()
-        )
-        this.mongoCoroutine = this.mongoClient.coroutine
-        this.mongoDatabase = this.mongoClient.getDatabase(database)
+        ).coroutine
+        this.mongoDatabase = this.mongoCoroutine.getDatabase(database)
     }
 
     /**
      * Dispose the mongo client
      */
     fun dispose() {
-        this.mongoClient.close()
+        this.mongoCoroutine.close()
     }
 }

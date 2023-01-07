@@ -3,7 +3,6 @@ package net.tjalp.nautilus.command
 import cloud.commandframework.arguments.standard.StringArgument
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.reactive.awaitSingle
 import kotlinx.coroutines.withContext
 import net.kyori.adventure.text.Component.text
 import net.kyori.adventure.text.format.NamedTextColor.*
@@ -16,7 +15,6 @@ import net.tjalp.nautilus.util.mini
 import net.tjalp.nautilus.util.nameComponent
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
-import org.litote.kmongo.reactivestreams.deleteOneById
 import org.litote.kmongo.setValue
 import java.util.*
 import kotlin.system.measureTimeMillis
@@ -80,7 +78,7 @@ class ProfileCommand(
             val uniqueId = withContext(Dispatchers.IO) {
                 nautilus.server.getPlayerUniqueId(username) ?: UUID.nameUUIDFromBytes(username.toByteArray())
             }
-            MongoCollections.profiles.deleteOneById(uniqueId).awaitSingle()
+            MongoCollections.profiles.deleteOneById(uniqueId)
         }
 
         sender.sendMessage(mini("<gray>Deleted profile of <white>$username</white> (${time}ms)"))

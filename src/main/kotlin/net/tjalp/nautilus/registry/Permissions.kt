@@ -20,6 +20,7 @@ const val IDENTITY_COMMAND = "nautilus.command.identity"
 const val MASK_COMMAND = "nautilus.command.mask"
 const val PROFILE_COMMAND = "nautilus.command.profile"
 const val REAL_NAME_COMMAND = "nautilus.command.real_name"
+const val NAUTILUS_ITEM_COMMAND = "nautilus.command.nautilus_item"
 const val VIEW_REAL_NAMES = "nautilus.mask.view_real_names"
 
 /**

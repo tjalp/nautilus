@@ -4,8 +4,6 @@ import com.destroystokyo.paper.event.player.PlayerConnectionCloseEvent
 import io.ktor.http.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.reactive.awaitFirstOrNull
-import kotlinx.coroutines.reactive.awaitSingle
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import net.kyori.adventure.text.Component.empty
@@ -16,6 +14,8 @@ import net.kyori.adventure.title.Title.Times.times
 import net.kyori.adventure.title.Title.title
 import net.tjalp.nautilus.Nautilus
 import net.tjalp.nautilus.database.MongoCollections
+import net.tjalp.nautilus.event.ProfileLoadEvent
+import net.tjalp.nautilus.event.ProfileUnloadEvent
 import net.tjalp.nautilus.event.ProfileUpdateEvent
 import net.tjalp.nautilus.util.*
 import org.bukkit.Bukkit
@@ -30,9 +30,8 @@ import org.bukkit.event.player.PlayerInteractEntityEvent
 import org.bukkit.event.player.PlayerLoginEvent
 import org.bukkit.event.player.PlayerQuitEvent
 import org.bukkit.inventory.EquipmentSlot
-import org.litote.kmongo.coroutine.toList
-import org.litote.kmongo.reactivestreams.findOneById
-import org.litote.kmongo.reactivestreams.save
+import org.litote.kmongo.eq
+import org.litote.kmongo.`in`
 import org.litote.kmongo.regex
 import org.litote.kmongo.setValue
 import java.time.Duration
@@ -94,6 +93,22 @@ class ProfileManager(
         return this.profileIfCached(player.uniqueId)
     }
 
+    suspend fun profiles(vararg uniqueIds: UUID): Array<ProfileSnapshot> {
+        val uniqueIdList = uniqueIds.toMutableList()
+        val profiles = mutableListOf<ProfileSnapshot>()
+
+        for (id in uniqueIds) {
+            val profile = profileIfCached(id) ?: continue
+
+            uniqueIdList -= id
+            profiles += profile
+        }
+
+        profiles += this.profiles.find(ProfileSnapshot::uniqueId `in` uniqueIdList).toList()
+
+        return profiles.toTypedArray()
+    }
+
     /**
      * Retrieve the latest [ProfileSnapshot] of an
      * (offline) user from their unique id.
@@ -107,7 +122,7 @@ class ProfileManager(
 
         if (player != null) return this.profile(player)
 
-        return this.profiles.findOneById(uniqueId).awaitFirstOrNull()
+        return this.profiles.findOne(ProfileSnapshot::uniqueId eq uniqueId)
     }
 
     /**
@@ -168,10 +183,10 @@ class ProfileManager(
                 if (skin != null) profile = profile.copy(lastKnownSkin = skin)
             }
 
-            this.profiles.save(profile).awaitSingle()
+            this.profiles.save(profile)
         } else {
             this.nautilus.scheduler.launch {
-                profiles.save(profile).awaitSingle()
+                profiles.save(profile)
             }
         }
 
@@ -212,7 +227,7 @@ class ProfileManager(
      * @return The previous profile if exists, otherwise null
      */
     private fun cacheProfile(profile: ProfileSnapshot): ProfileSnapshot? {
-        nautilus.logger.info("Caching the profile of ${profile.player()?.name} (${profile.uniqueId})")
+        nautilus.logger.info("Caching the profile of ${profile.player()?.name ?: profile.lastKnownName} (${profile.uniqueId})")
         return this.profileCache.put(profile.uniqueId, profile)
     }
 
@@ -226,7 +241,9 @@ class ProfileManager(
         fun on(event: AsyncPlayerPreLoginEvent) {
             synchronized(this) {
                 runBlocking {
-                    cacheProfile(createProfileIfNonexistent(event.uniqueId, fill = false))
+                    val profile = createProfileIfNonexistent(event.uniqueId, fill = false)
+                    cacheProfile(profile)
+                    ProfileLoadEvent(profile).callEvent()
                 }
             }
         }
@@ -234,6 +251,7 @@ class ProfileManager(
         @EventHandler
         fun on(event: PlayerConnectionCloseEvent) {
             synchronized(this) {
+                profileIfCached(event.playerUniqueId)?.let { ProfileUnloadEvent(it).callEvent() }
                 nautilus.logger.info("Removing the cached profile of ${event.playerName} (${event.playerUniqueId})")
                 profileCache -= event.playerUniqueId
             }

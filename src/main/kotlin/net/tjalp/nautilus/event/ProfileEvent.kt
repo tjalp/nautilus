@@ -9,8 +9,9 @@ import org.bukkit.event.Event
  * Represents a profile related event
  */
 abstract class ProfileEvent(
-    val profile: ProfileSnapshot
-) : Event() {
+    val profile: ProfileSnapshot,
+    async: Boolean = false
+) : Event(async) {
 
     /**
      * Get the **online** player of this event.

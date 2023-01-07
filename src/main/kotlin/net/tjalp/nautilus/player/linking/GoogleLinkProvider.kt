@@ -2,13 +2,10 @@ package net.tjalp.nautilus.player.linking
 
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.reactive.awaitSingle
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.Component.newline
 import net.kyori.adventure.text.Component.text
-import net.kyori.adventure.text.event.ClickEvent
 import net.kyori.adventure.text.event.ClickEvent.openUrl
-import net.kyori.adventure.text.format.NamedTextColor
 import net.kyori.adventure.text.format.NamedTextColor.*
 import net.kyori.adventure.text.format.TextDecoration.BOLD
 import net.kyori.adventure.text.format.TextDecoration.UNDERLINED
@@ -21,7 +18,6 @@ import org.bson.types.ObjectId
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.player.PlayerLoginEvent
-import org.litote.kmongo.reactivestreams.save
 import org.litote.kmongo.setValue
 import java.util.*
 
@@ -73,7 +69,7 @@ class GoogleLinkProvider(private val nautilus: Nautilus) : LinkProvider<ObjectId
                     uniqueIdCache -= uniqueId
                 }
 
-                MongoCollections.linkTokens.save(googleLinkToken).awaitSingle()
+                MongoCollections.linkTokens.save(googleLinkToken)
             }
         }
 

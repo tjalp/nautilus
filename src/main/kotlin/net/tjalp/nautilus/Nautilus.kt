@@ -1,7 +1,7 @@
 package net.tjalp.nautilus
 
-import cloud.commandframework.bukkit.CloudBukkitCapabilities.BRIGADIER
 import cloud.commandframework.bukkit.CloudBukkitCapabilities.ASYNCHRONOUS_COMPLETION
+import cloud.commandframework.bukkit.CloudBukkitCapabilities.BRIGADIER
 import cloud.commandframework.execution.CommandExecutionCoordinator
 import cloud.commandframework.paper.PaperCommandManager
 import com.comphenix.protocol.ProtocolLibrary
@@ -11,6 +11,7 @@ import io.ktor.client.*
 import io.ktor.client.engine.okhttp.*
 import net.tjalp.nautilus.block.BlockManager
 import net.tjalp.nautilus.chat.ChatManager
+import net.tjalp.nautilus.clan.ClanManager
 import net.tjalp.nautilus.command.*
 import net.tjalp.nautilus.config.NautilusConfig
 import net.tjalp.nautilus.database.MongoManager
@@ -28,6 +29,7 @@ import net.tjalp.nautilus.registry.registerRanks
 import net.tjalp.nautilus.registry.registerSuggestions
 import net.tjalp.nautilus.scheduler.NautilusScheduler
 import net.tjalp.nautilus.world.WorldListener
+import net.tjalp.nautilus.world.claim.ClaimManager
 import org.bukkit.command.CommandSender
 import org.bukkit.plugin.java.JavaPlugin
 import org.geysermc.floodgate.api.FloodgateApi
@@ -47,6 +49,12 @@ class Nautilus : JavaPlugin() {
 
     /** The [ChatManager] instance */
     lateinit var chat: ChatManager; private set
+
+    /** The [ChunkManager] instance */
+    lateinit var claims: ClaimManager; private set
+
+    /** The [ClanManager] instance */
+    lateinit var clans: ClanManager; private set
 
     /** The command manager */
     lateinit var commands: PaperCommandManager<CommandSender>; private set
@@ -98,8 +106,10 @@ class Nautilus : JavaPlugin() {
 
         val startTime = System.currentTimeMillis()
         val useDisguises = server.pluginManager.isPluginEnabled("LibsDisguises")
+        val useFloodgate = server.pluginManager.isPluginEnabled("floodgate")
 
         if (!useDisguises) this.logger.severe("LibsDisguises cannot be found, disguises will not work!")
+        if (!useFloodgate) this.logger.severe("Floodgate cannot be found, Bedrock players will not get other inventories/forms")
         this.protocol =
             ProtocolLibrary.getProtocolManager() ?: throw UnmetDependencyException("ProtocolLib cannot be found")
 
@@ -107,18 +117,20 @@ class Nautilus : JavaPlugin() {
 
         Players.initialize(this)
 
+        this.mongo = MongoManager(this.logger, this.config.mongo)
         this.items = ItemManager(this)
         this.blocks = BlockManager(this)
         this.chat = ChatManager(this)
+        this.claims = ClaimManager(this)
+        this.clans = ClanManager(this)
         if (useDisguises) this.disguises = DisguiseManager(this)
         this.apiServer = ApiServer(this, this.config.resourcepack)
-        this.mongo = MongoManager(this.logger, this.config.mongo)
         this.perms = PermissionManager(this)
         this.profiles = ProfileManager(this)
         this.scheduler = NautilusScheduler(this)
         this.masking = MaskManager(this)
         this.nametags = NametagManager(this)
-        this.floodgate = FloodgateApi.getInstance()
+        if (useFloodgate) this.floodgate = FloodgateApi.getInstance()
         this.googleLinkProvider = GoogleLinkProvider(this)
 
         registerRanks(this)
@@ -134,6 +146,8 @@ class Nautilus : JavaPlugin() {
 
         registerSuggestions(this)
 
+        ChunkCommand(this)
+        ClanCommand(this)
         if (useDisguises) DisguiseCommand(this)
         HomeCommand(this)
         IdentityCommand(this)

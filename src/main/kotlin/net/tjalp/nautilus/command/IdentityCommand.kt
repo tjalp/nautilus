@@ -43,9 +43,9 @@ class IdentityCommand(
             return
         }
 
-        val googleUser = MongoCollections.googleUsers.find(
+        val googleUser = MongoCollections.googleUsers.findOne(
             GoogleUser::minecraftUuid eq profile.uniqueId
-        ).awaitFirstOrNull()
+        )
 
         if (googleUser == null) {
             sender.sendMessage(text().color(RED)

@@ -14,7 +14,6 @@ import net.tjalp.nautilus.player.profile.ProfileSnapshot
 import net.tjalp.nautilus.util.player
 import net.tjalp.nautilus.util.profile
 import net.tjalp.nautilus.util.register
-import org.bukkit.command.PluginCommand
 import org.bukkit.entity.EntityType
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler

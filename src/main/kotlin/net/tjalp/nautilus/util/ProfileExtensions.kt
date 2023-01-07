@@ -1,7 +1,6 @@
 package net.tjalp.nautilus.util
 
 import net.kyori.adventure.text.Component
-import net.kyori.adventure.text.Component.space
 import net.kyori.adventure.text.Component.text
 import net.kyori.adventure.text.event.ClickEvent.runCommand
 import net.kyori.adventure.text.event.HoverEvent.showText
@@ -10,6 +9,7 @@ import net.kyori.adventure.text.format.NamedTextColor.GRAY
 import net.kyori.adventure.text.format.TextColor.color
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer.plainText
 import net.tjalp.nautilus.Nautilus
+import net.tjalp.nautilus.clan.ClanSnapshot
 import net.tjalp.nautilus.permission.PermissionRank
 import net.tjalp.nautilus.player.profile.ProfileSnapshot
 import org.bukkit.entity.Player
@@ -96,9 +96,9 @@ fun ProfileSnapshot.nameComponent(
     val rank = if (useMask) this.displayRank() else this.primaryRank()
     val component = text()
 
-    if (showPrefix && rank.prefix.content().isNotEmpty()) component.append(rank.prefix).append(space())
+    if (showPrefix && rank.prefix.content().isNotEmpty()) component.append(rank.prefix).appendSpace()
     component.append(username.color(rank.nameColor)) // todo make this better
-    if (showSuffix && rank.suffix.content().isNotEmpty()) component.append(space()).append(rank.suffix)
+    if (showSuffix && rank.suffix.content().isNotEmpty()) component.appendSpace().append(rank.suffix)
 
     if (showHover) {
         component.hoverEvent(showText {
@@ -131,3 +131,10 @@ fun ProfileSnapshot.nameComponent(
 infix fun ProfileSnapshot.has(permission: String): Boolean {
     return Nautilus.get().perms.has(this, permission)
 }
+
+/**
+ * Gets the **cached** clan of a player
+ *
+ * @return The clan of the player, or null if the player isn't in a clan.
+ */
+fun ProfileSnapshot.clan(): ClanSnapshot? = this.clanId?.let { Nautilus.get().clans.clanIfCached(it) }

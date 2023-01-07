@@ -8,9 +8,12 @@ import net.kyori.adventure.text.Component.text
 import net.kyori.adventure.text.format.NamedTextColor.RED
 import net.tjalp.nautilus.Nautilus
 import net.tjalp.nautilus.item.NautilusItem
+import net.tjalp.nautilus.registry.NAUTILUS_ITEM_COMMAND
 import net.tjalp.nautilus.util.ItemBuilder
+import net.tjalp.nautilus.util.has
 import org.bukkit.Material
 import org.bukkit.command.CommandSender
+import org.bukkit.entity.Player
 import org.bukkit.inventory.InventoryHolder
 
 class NautilusItemCommand(
@@ -21,6 +24,7 @@ class NautilusItemCommand(
 
     init {
         val builder = builder("nautilusitem", "ntli", "ntlitem")
+            .permission { sender -> if (sender is Player) sender has NAUTILUS_ITEM_COMMAND else true }
         val targets = MultipleEntitySelectorArgument.of<CommandSender>("targets")
         val materialArg = MaterialArgument.of<CommandSender>("material")
         val identifierArg = StringArgument.greedy<CommandSender>("identifier")
