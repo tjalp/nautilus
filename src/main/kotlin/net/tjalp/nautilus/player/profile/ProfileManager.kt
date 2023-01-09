@@ -30,13 +30,13 @@ import org.bukkit.event.player.PlayerInteractEntityEvent
 import org.bukkit.event.player.PlayerLoginEvent
 import org.bukkit.event.player.PlayerQuitEvent
 import org.bukkit.inventory.EquipmentSlot
-import org.litote.kmongo.eq
 import org.litote.kmongo.`in`
 import org.litote.kmongo.regex
 import org.litote.kmongo.setValue
 import java.time.Duration
 import java.time.LocalDateTime
 import java.util.*
+import kotlin.text.RegexOption.IGNORE_CASE
 
 /**
  * The profile manager manages everything about
@@ -93,6 +93,14 @@ class ProfileManager(
         return this.profileIfCached(player.uniqueId)
     }
 
+    /**
+     * Retrieve all profiles of multiple unique ids. If a
+     * cached version of the profile is available, it will
+     * be returned instead of the most up-to-date version.
+     *
+     * @param uniqueIds The unique ids to get the profiles of
+     * @return An array of all [ProfileSnapshot]s.
+     */
     suspend fun profiles(vararg uniqueIds: UUID): Array<ProfileSnapshot> {
         val uniqueIdList = uniqueIds.toMutableList()
         val profiles = mutableListOf<ProfileSnapshot>()
@@ -104,7 +112,9 @@ class ProfileManager(
             profiles += profile
         }
 
-        profiles += this.profiles.find(ProfileSnapshot::uniqueId `in` uniqueIdList).toList()
+        if (uniqueIdList.isNotEmpty()) {
+            profiles += this.profiles.find(ProfileSnapshot::uniqueId `in` uniqueIdList).toList()
+        }
 
         return profiles.toTypedArray()
     }
@@ -122,7 +132,7 @@ class ProfileManager(
 
         if (player != null) return this.profile(player)
 
-        return this.profiles.findOne(ProfileSnapshot::uniqueId eq uniqueId)
+        return this.profiles.findOneById(uniqueId)
     }
 
     /**
@@ -139,7 +149,7 @@ class ProfileManager(
         if (player != null) return this.profile(player)
 
         val profiles = this.profiles.find(
-            ProfileSnapshot::lastKnownName regex Regex("^${username.escapeIfNeeded()}$", RegexOption.IGNORE_CASE)
+            ProfileSnapshot::lastKnownName regex Regex("^${username.escapeIfNeeded()}$", IGNORE_CASE)
         ).toList()
 
         if (profiles.size > 1) {
