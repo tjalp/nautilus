@@ -36,7 +36,7 @@ dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
     implementation("io.ktor:ktor-client-okhttp-jvm:2.2.1")
     implementation("io.ktor:ktor-server-core-jvm:2.2.1")
-    implementation("io.ktor:ktor-server-netty-jvm:2.2.1")
+    implementation("io.ktor:ktor-server-netty-jvm:2.2.2")
     implementation("io.ktor:ktor-client-core-jvm:2.2.1")
     paperDevBundle("1.19.3-R0.1-SNAPSHOT")
     implementation("cloud.commandframework:cloud-annotations:1.8.0")
