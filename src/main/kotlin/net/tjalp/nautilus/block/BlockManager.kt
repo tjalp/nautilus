@@ -49,7 +49,7 @@ class BlockManager(
 
     /**
      * Register a [NautilusBlock]. This will also
-     * register an itemstack with the corresponding
+     * register an [ItemStack] with the corresponding
      * data.
      *
      * @param block The item to register

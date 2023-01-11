@@ -44,7 +44,7 @@ class MaskInterface : NautilusInterface<ChestPane>() {
                     material = Material.OAK_SIGN,
                     name = text("Username"),
                     description = text("Change your display name"),
-                    clickTo = text("Change")
+                    clickTo = text("change")
                 ).build().asElement { click ->
                     val viewer = click.viewer()
                     val clicker = viewer.player()
@@ -66,7 +66,7 @@ class MaskInterface : NautilusInterface<ChestPane>() {
                     material = Material.ARMOR_STAND,
                     name = text("Skin"),
                     description = text("Change your skin"),
-                    clickTo = text("Change")
+                    clickTo = text("change")
                 ).build().asElement { click ->
                     val viewer = click.viewer()
                     val clicker = viewer.player()
@@ -85,7 +85,7 @@ class MaskInterface : NautilusInterface<ChestPane>() {
                     material = Material.DIAMOND,
                     name = text("Rank"),
                     description = text("Change your display rank"),
-                    clickTo = text("Change")
+                    clickTo = text("change")
                 ).build().asElement { click ->
                     click.viewer().player().playClickSound()
 

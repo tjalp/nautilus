@@ -101,13 +101,17 @@ class ClanManager(
      *
      * @param leader The leader of the clan to create
      * @param name The name the clan should have
+     * @param theme The color theme in hex string
+     * @return The created clan
      */
-    suspend fun createClan(leader: UUID, name: String): ClanSnapshot {
-        val clan = ClanSnapshot(
+    suspend fun createClan(leader: UUID, name: String, theme: String? = null): ClanSnapshot {
+        var clan = ClanSnapshot(
             id = ObjectId(),
             name = name,
             leaders = setOf(leader)
         )
+
+        if (theme != null) clan = clan.copy(theme = theme)
 
         this.clans.insertOne(clan)
 

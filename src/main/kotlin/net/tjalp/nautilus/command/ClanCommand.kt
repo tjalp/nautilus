@@ -3,10 +3,13 @@ package net.tjalp.nautilus.command
 import cloud.commandframework.arguments.standard.StringArgument
 import kotlinx.coroutines.launch
 import net.kyori.adventure.text.Component.text
-import net.kyori.adventure.text.format.NamedTextColor.GRAY
-import net.kyori.adventure.text.format.NamedTextColor.RED
+import net.kyori.adventure.text.event.ClickEvent.runCommand
+import net.kyori.adventure.text.format.NamedTextColor.*
 import net.kyori.adventure.text.format.TextColor
+import net.kyori.adventure.text.format.TextDecoration.BOLD
 import net.tjalp.nautilus.Nautilus
+import net.tjalp.nautilus.clan.ClanInterface
+import net.tjalp.nautilus.clan.CreateClanInterface
 import net.tjalp.nautilus.player.profile.ProfileSnapshot
 import net.tjalp.nautilus.util.clan
 import net.tjalp.nautilus.util.nameComponent
@@ -28,11 +31,15 @@ class ClanCommand(
         val nameArg = StringArgument.greedy<CommandSender>("name")
         val optionalNameArg = StringArgument.builder<CommandSender>("name").quoted().asOptional().build()
 
-        register(builder.literal("create").senderType(Player::class.java).argument(nameArg.copy()).handler {
-            this.scheduler.launch { create(it.sender as Player, it.get(nameArg)) }
+        register(builder.handler {
+            this.scheduler.launch { clan(it.sender as Player) }
         })
 
-        register(builder.literal("info").argument(optionalNameArg).senderType(Player::class.java).handler {
+        register(builder.literal("create").senderType(Player::class.java).argument(optionalNameArg.copy()).handler {
+            this.scheduler.launch { create(it.sender as Player, it.getOptional(optionalNameArg).orElse(null)) }
+        })
+
+        register(builder.literal("info").argument(optionalNameArg.copy()).senderType(Player::class.java).handler {
             this.scheduler.launch { info(it.sender as Player, it.getOptional(optionalNameArg).orElse(null)) }
         })
 
@@ -41,9 +48,29 @@ class ClanCommand(
         })
     }
 
-    private suspend fun create(sender: Player, nameArg: String) {
+    private fun clan(sender: Player) {
+        val clan = sender.profile().clan()
+
+        if (clan == null) {
+            sender.sendMessage(text("You're not in a clan", RED)
+                .appendSpace().append(text("CREATE ONE", GREEN, BOLD)
+                    .clickEvent(runCommand("/clan create"))
+                )
+            )
+            return
+        }
+
+        ClanInterface(clan).open(sender)
+    }
+
+    private suspend fun create(sender: Player, nameArg: String? = null) {
         if (sender.profile().clanId != null) {
             sender.sendMessage(text("You'll have to leave your current clan to make a new one", RED))
+            return
+        }
+
+        if (nameArg == null) {
+            CreateClanInterface(this.nautilus).open(sender)
             return
         }
 
@@ -72,8 +99,9 @@ class ClanCommand(
         val members = this.nautilus.profiles.profiles(*clan.members.toTypedArray())
             .map { it.nameComponent(useMask = false, showPrefix = false, showSuffix = false) }
 
-        val leadersComponent = text()
-        val membersComponent = text()
+        val nameComponent = text(clan.name).color(clan.theme())
+        val leadersComponent = text().color(clan.theme())
+        val membersComponent = text().color(clan.theme())
 
         leaders.forEachIndexed { index, component ->
             if (index != 0) leadersComponent.append(text(",")).appendSpace()
@@ -87,8 +115,9 @@ class ClanCommand(
         }
 
         sender.sendMessage(text().color(TextColor.color(251, 228, 96))
-            .append(text("The following information was found about ${clan.name}:"))
-            .appendNewline().append(text("• Name: ${clan.name}"))
+            .append(text("The following information was found about")
+                .appendSpace().append(nameComponent).append(text(":")))
+            .appendNewline().append(text("• Name: ")).append(nameComponent)
             .appendNewline().append(text("• Leader(s): ")).append(leadersComponent)
             .appendNewline().append(text("• Members: ")).append(membersComponent)
         )

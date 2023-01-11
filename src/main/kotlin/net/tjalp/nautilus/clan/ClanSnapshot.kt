@@ -2,7 +2,8 @@ package net.tjalp.nautilus.clan
 
 import com.mongodb.client.model.FindOneAndUpdateOptions
 import com.mongodb.client.model.ReturnDocument
-import kotlinx.coroutines.reactive.awaitSingle
+import net.kyori.adventure.text.format.NamedTextColor
+import net.kyori.adventure.text.format.TextColor
 import net.tjalp.nautilus.Nautilus
 import net.tjalp.nautilus.database.MongoCollections
 import org.bson.codecs.pojo.annotations.BsonId
@@ -21,7 +22,8 @@ data class ClanSnapshot(
     val name: String = UUID.randomUUID().toString().take(8),
     val leaders: Set<UUID> = emptySet(),
     val members: Set<UUID> = emptySet(),
-    val chunks: Set<Long> = emptySet()
+    val chunks: Set<Long> = emptySet(),
+    val theme: String? = null
 ) {
 
     private val nautilus = Nautilus.get()
@@ -51,5 +53,14 @@ data class ClanSnapshot(
 
         this.nautilus.clans.onClanUpdate(updatedClan)
         return updatedClan
+    }
+
+    /**
+     * Get the theme color of a [ClanSnapshot]
+     *
+     * @return The theme color
+     */
+    fun theme(): TextColor {
+        return this.theme?.let { TextColor.fromHexString(it) } ?: NamedTextColor.WHITE
     }
 }
