@@ -1,6 +1,9 @@
 package net.tjalp.nautilus.world.claim
 
 import com.jeff_media.morepersistentdatatypes.DataType
+import com.mongodb.client.model.FindOneAndUpdateOptions
+import com.mongodb.client.model.ReturnDocument
+import com.mongodb.client.model.UpdateOptions
 import kotlinx.coroutines.launch
 import net.kyori.adventure.text.Component.empty
 import net.kyori.adventure.text.Component.text
@@ -9,8 +12,10 @@ import net.kyori.adventure.text.format.TextDecoration.ITALIC
 import net.kyori.adventure.title.Title.Times.times
 import net.kyori.adventure.title.Title.title
 import net.tjalp.nautilus.Nautilus
-import net.tjalp.nautilus.util.nameComponent
+import net.tjalp.nautilus.clan.ClanSnapshot
+import net.tjalp.nautilus.database.MongoCollections
 import net.tjalp.nautilus.util.register
+import org.bson.types.ObjectId
 import org.bukkit.Chunk
 import org.bukkit.Effect
 import org.bukkit.Material
@@ -29,8 +34,10 @@ import org.bukkit.event.player.PlayerMoveEvent
 import org.bukkit.event.server.PluginDisableEvent
 import org.bukkit.persistence.PersistentDataType.LONG_ARRAY
 import org.bukkit.scheduler.BukkitRunnable
+import org.litote.kmongo.*
 import java.time.Duration
 import java.util.*
+import kotlin.collections.set
 
 /**
  * The claim manager manages everything
@@ -79,13 +86,70 @@ class ClaimManager(
         return true
     }
 
+    /** Claim a chunk for a specific clan
+     *
+     * @param clan The clan to claim the chunk for
+     * @param chunk The chunk to claim
+     * @return true when successful, false otherwise
+     */
+    suspend fun claim(clan: ClanSnapshot, chunk: Chunk): Boolean {
+        val chunkPdc = chunk.persistentDataContainer
+
+        if (this.hasOwner(chunk)) return false
+
+//        clan.update(
+//            setValue(ClanSnapshot::claimedChunks.allPosOp / WorldChunkMap::chunks, chunk.chunkKey)
+//        )
+//        MongoCollections.clans.findOneAndUpdate(
+//            and(
+//                ClanSnapshot::id eq clan.id,
+//                ClanSnapshot::claimedChunks / WorldChunkMap::world eq chunk.world.uid
+//            ),
+//            combine(
+//                setValue(ClanSnapshot::claimedChunks / WorldChunkMap::world, chunk.world.uid),
+//                addToSet(
+//                    ClanSnapshot::claimedChunks.allPosOp / WorldChunkMap::chunks,
+//                    chunk.chunkKey
+//                )
+//            )
+//        )
+
+        chunkPdc.set(CHUNK_OWNER_PDC, DataType.STRING, clan.id.toHexString())
+
+        val clans = MongoCollections.clans
+        var updatedClan = clans.findOneAndUpdate(
+            and(ClanSnapshot::id eq clan.id, ClanSnapshot::claimedChunks / WorldChunkMap::world eq chunk.world.uid),
+            addToSet(
+                ClanSnapshot::claimedChunks.posOp / WorldChunkMap::chunks,
+                chunk.chunkKey
+            ),
+            FindOneAndUpdateOptions().returnDocument(ReturnDocument.AFTER)
+        )
+
+        if (updatedClan == null) {
+            updatedClan = clans.findOneAndUpdate(
+                ClanSnapshot::id eq clan.id,
+                addToSet(
+                    ClanSnapshot::claimedChunks,
+                    WorldChunkMap(chunk.world.uid, setOf(chunk.chunkKey))
+                ),
+                FindOneAndUpdateOptions().returnDocument(ReturnDocument.AFTER)
+            )
+        }
+
+        updatedClan?.let { clan.update(it) } ?: clan.update()
+        return true
+    }
+
     /**
      * Gets the owner of a chunk
      *
      * @param chunk The chunk to get the owner of
      * @return The unique id of the owner, or null if nonexistent
      */
-    fun owner(chunk: Chunk): UUID? = chunk.persistentDataContainer.get(CHUNK_OWNER_PDC, DataType.UUID)
+    fun owner(chunk: Chunk): ObjectId? {
+        return ObjectId(chunk.persistentDataContainer.get(CHUNK_OWNER_PDC, DataType.STRING) ?: return null)
+    }
 
     /**
      * Gets whether a chunk has an owner
@@ -112,6 +176,29 @@ class ClaimManager(
             }
 
             for (long in id.value) chunks += world.getChunkAt(long)
+        }
+
+        return chunks
+    }
+
+    /**
+     * Gets all owned chunks of a clan
+     *
+     * @param clan The clan to get the chunks of
+     * @return The chunks of the clan
+     */
+    fun chunks(clan: ClanSnapshot): Set<Chunk> {
+        val chunks = mutableSetOf<Chunk>()
+
+        for (map in clan.claimedChunks) {
+            val world = this.nautilus.server.getWorld(map.world)
+
+            if (world == null) {
+                this.nautilus.logger.warning("Received world entry ${map.world}, but no such world exists! (clan: ${clan.name}, id: ${clan.id})")
+                continue
+            }
+
+            for (long in map.chunks) chunks += world.getChunkAt(long)
         }
 
         return chunks
@@ -150,11 +237,11 @@ class ClaimManager(
             if (fromOwner == toOwner) return
 
             this@ClaimManager.nautilus.scheduler.launch {
-                val profile = nautilus.profiles.profile(toOwner) ?: return@launch
+                val clan = nautilus.clans.clan(toOwner) ?: return@launch
                 val title = title(
                     empty(),
                     text("Now entering", color(119, 221, 119), ITALIC)
-                        .appendSpace().append(profile.nameComponent(useMask = false, showSuffix = false, showHover = false, isClickable = false)
+                        .appendSpace().append(text(clan.name, clan.theme())
                             .decoration(ITALIC, false))
                         .append(text("'s territory")),
                     times(Duration.ofMillis(250), Duration.ofMillis(1500), Duration.ofMillis(500))

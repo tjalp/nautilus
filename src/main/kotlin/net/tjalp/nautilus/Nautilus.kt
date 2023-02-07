@@ -117,6 +117,7 @@ class Nautilus : JavaPlugin() {
 
         Players.initialize(this)
 
+        this.scheduler = NautilusScheduler(this)
         this.mongo = MongoManager(this.logger, this.config.mongo)
         this.items = ItemManager(this)
         this.blocks = BlockManager(this)
@@ -127,7 +128,6 @@ class Nautilus : JavaPlugin() {
         this.apiServer = ApiServer(this, this.config.resourcepack)
         this.perms = PermissionManager(this)
         this.profiles = ProfileManager(this)
-        this.scheduler = NautilusScheduler(this)
         this.masking = MaskManager(this)
         this.nametags = NametagManager(this)
         if (useFloodgate) this.floodgate = FloodgateApi.getInstance()

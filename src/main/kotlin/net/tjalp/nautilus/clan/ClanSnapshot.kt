@@ -6,11 +6,14 @@ import net.kyori.adventure.text.format.NamedTextColor
 import net.kyori.adventure.text.format.TextColor
 import net.tjalp.nautilus.Nautilus
 import net.tjalp.nautilus.database.MongoCollections
+import net.tjalp.nautilus.world.claim.WorldChunkMap
 import org.bson.codecs.pojo.annotations.BsonId
 import org.bson.conversions.Bson
 import org.bson.types.ObjectId
+import org.bukkit.Bukkit
 import org.litote.kmongo.combine
 import org.litote.kmongo.eq
+import org.litote.kmongo.json
 import java.util.*
 
 /**
@@ -22,7 +25,7 @@ data class ClanSnapshot(
     val name: String = UUID.randomUUID().toString().take(8),
     val leaders: Set<UUID> = emptySet(),
     val members: Set<UUID> = emptySet(),
-    val chunks: Set<Long> = emptySet(),
+    val claimedChunks: Set<WorldChunkMap> = emptySet(),
     val theme: String? = null
 ) {
 
@@ -44,6 +47,7 @@ data class ClanSnapshot(
             if (bson.isEmpty()) {
                 this.clansCollection.findOneById(this.id) ?: this
             } else {
+                Bukkit.broadcastMessage(combine(*bson).json)
                 this.clansCollection.findOneAndUpdate(
                     ::id eq this.id,
                     combine(*bson),
@@ -53,6 +57,14 @@ data class ClanSnapshot(
 
         this.nautilus.clans.onClanUpdate(updatedClan)
         return updatedClan
+    }
+
+    /**
+     * Updates a clan
+     */
+    fun update(clan: ClanSnapshot): ClanSnapshot {
+        this.nautilus.clans.onClanUpdate(clan)
+        return clan
     }
 
     /**

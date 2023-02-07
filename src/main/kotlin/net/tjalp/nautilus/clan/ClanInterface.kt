@@ -19,7 +19,7 @@ class ClanInterface(
 
     override fun `interface`(): Interface<ChestPane, PlayerViewer> {
         return buildChestInterface {
-            title = text(clan.name)
+            title = text(clan.name).color(clan.theme())
             rows = 3
 
             withTransform { view ->
