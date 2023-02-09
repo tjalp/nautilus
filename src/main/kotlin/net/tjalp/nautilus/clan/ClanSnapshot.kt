@@ -55,7 +55,7 @@ data class ClanSnapshot(
                 ) ?: this
             }
 
-        this.nautilus.clans.onClanUpdate(updatedClan)
+        this.clans.onClanUpdate(updatedClan)
         return updatedClan
     }
 
@@ -63,7 +63,7 @@ data class ClanSnapshot(
      * Updates a clan
      */
     fun update(clan: ClanSnapshot): ClanSnapshot {
-        this.nautilus.clans.onClanUpdate(clan)
+        this.clans.onClanUpdate(clan)
         return clan
     }
 
@@ -75,4 +75,19 @@ data class ClanSnapshot(
     fun theme(): TextColor {
         return this.theme?.let { TextColor.fromHexString(it) } ?: NamedTextColor.WHITE
     }
+
+    /**
+     * Get the maximum amount of chunks this clan is able to claim
+     * based on the amount of members.
+     *
+     * @return The maximum amount of chunks this clan can claim
+     */
+    fun chunkLimit(): Int = this.leaders.plus(this.members).size * 5
+
+    /**
+     * Get the amount of chunks this clan has claimed
+     *
+     * @return The amount of chunks this clan has claimed
+     */
+    fun claimedChunksCount(): Int = this.claimedChunks.sumOf { it.chunks.size }
 }

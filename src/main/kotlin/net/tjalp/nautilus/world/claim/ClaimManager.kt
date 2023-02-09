@@ -3,7 +3,6 @@ package net.tjalp.nautilus.world.claim
 import com.jeff_media.morepersistentdatatypes.DataType
 import com.mongodb.client.model.FindOneAndUpdateOptions
 import com.mongodb.client.model.ReturnDocument
-import com.mongodb.client.model.UpdateOptions
 import kotlinx.coroutines.launch
 import net.kyori.adventure.text.Component.empty
 import net.kyori.adventure.text.Component.text
@@ -14,6 +13,7 @@ import net.kyori.adventure.title.Title.title
 import net.tjalp.nautilus.Nautilus
 import net.tjalp.nautilus.clan.ClanSnapshot
 import net.tjalp.nautilus.database.MongoCollections
+import net.tjalp.nautilus.util.profile
 import net.tjalp.nautilus.util.register
 import org.bson.types.ObjectId
 import org.bukkit.Chunk
@@ -58,6 +58,11 @@ class ClaimManager(
      * @param chunk The chunk to claim
      * @return true when successful, false otherwise
      */
+    @Deprecated(
+        message = "Claiming is now done through clans",
+        replaceWith = ReplaceWith("claim(ClanSnapshot, Chunk)"),
+        level = DeprecationLevel.WARNING
+    )
     fun claim(player: Player, chunk: Chunk): Boolean {
         val pdc = chunk.persistentDataContainer
         val playerPdc = player.persistentDataContainer
@@ -86,7 +91,8 @@ class ClaimManager(
         return true
     }
 
-    /** Claim a chunk for a specific clan
+    /**
+     * Claim a chunk for a specific clan
      *
      * @param clan The clan to claim the chunk for
      * @param chunk The chunk to claim
@@ -96,23 +102,6 @@ class ClaimManager(
         val chunkPdc = chunk.persistentDataContainer
 
         if (this.hasOwner(chunk)) return false
-
-//        clan.update(
-//            setValue(ClanSnapshot::claimedChunks.allPosOp / WorldChunkMap::chunks, chunk.chunkKey)
-//        )
-//        MongoCollections.clans.findOneAndUpdate(
-//            and(
-//                ClanSnapshot::id eq clan.id,
-//                ClanSnapshot::claimedChunks / WorldChunkMap::world eq chunk.world.uid
-//            ),
-//            combine(
-//                setValue(ClanSnapshot::claimedChunks / WorldChunkMap::world, chunk.world.uid),
-//                addToSet(
-//                    ClanSnapshot::claimedChunks.allPosOp / WorldChunkMap::chunks,
-//                    chunk.chunkKey
-//                )
-//            )
-//        )
 
         chunkPdc.set(CHUNK_OWNER_PDC, DataType.STRING, clan.id.toHexString())
 
@@ -142,6 +131,89 @@ class ClaimManager(
     }
 
     /**
+     * Unclaim a chunk for a specific clan
+     *
+     * @param clan The clan to unclaim the chunk for
+     * @param chunk The chunk to unclaim
+     * @return true when successful, false otherwise
+     */
+    suspend fun unclaim(clan: ClanSnapshot, chunk: Chunk, updateClan: Boolean = true) {
+        val chunkPdc = chunk.persistentDataContainer
+
+        if (this.owner(chunk) != clan.id) {
+            this.nautilus.logger.warning(
+                "Found wrong/non-existent clan owner for chunk ${chunk.chunkKey} (x: ${chunk.x}, y: ${chunk.z}, world: ${chunk.world.name}) " +
+                        "(expected ${clan.id.toHexString()}, found ${this.owner(chunk)})!"
+            )
+            return
+        }
+
+        chunkPdc.remove(CHUNK_OWNER_PDC)
+
+        if (!updateClan) return
+
+        val clans = MongoCollections.clans
+        val updatedClan = clans.findOneAndUpdate(
+            and(ClanSnapshot::id eq clan.id, ClanSnapshot::claimedChunks / WorldChunkMap::world eq chunk.world.uid),
+            pull(
+                ClanSnapshot::claimedChunks.posOp / WorldChunkMap::chunks,
+                chunk.chunkKey
+            ),
+            FindOneAndUpdateOptions().returnDocument(ReturnDocument.AFTER)
+        )
+
+        updatedClan?.let { clan.update(it) } ?: clan.update()
+    }
+
+    /**
+     * Unclaim a chunk
+     *
+     * @param chunk The chunk to unclaim
+     */
+    suspend fun unclaim(chunk: Chunk, updateClan: Boolean = true) {
+        val chunkPdc = chunk.persistentDataContainer
+        val owner = this.owner(chunk)
+
+        chunkPdc.remove(CHUNK_OWNER_PDC)
+
+        if (!updateClan || owner == null) return
+
+        val clans = MongoCollections.clans
+        val clan = clans.findOneAndUpdate(
+            and(ClanSnapshot::id eq owner, ClanSnapshot::claimedChunks / WorldChunkMap::world eq chunk.world.uid),
+            pull(
+                ClanSnapshot::claimedChunks.posOp / WorldChunkMap::chunks,
+                chunk.chunkKey
+            ),
+            FindOneAndUpdateOptions().returnDocument(ReturnDocument.AFTER)
+        )
+
+        clan?.let { clan.update(it) }
+    }
+
+    /**
+     * Unclaim all chunks of a clan
+     *
+     * @param clan The clan to unclaim all chunks for
+     */
+    suspend fun unclaimAll(clan: ClanSnapshot) {
+        val chunks = this.chunks(clan)
+
+        chunks.forEachIndexed { index, chunk ->
+            this.unclaim(clan, chunk, updateClan = false)
+        }
+
+        val clans = MongoCollections.clans
+        val updatedClan = clans.findOneAndUpdate(
+            and(ClanSnapshot::id eq clan.id),
+            set(ClanSnapshot::claimedChunks setTo emptySet()),
+            FindOneAndUpdateOptions().returnDocument(ReturnDocument.AFTER)
+        )
+
+        updatedClan?.let { clan.update(it) } ?: clan.update()
+    }
+
+    /**
      * Gets the owner of a chunk
      *
      * @param chunk The chunk to get the owner of
@@ -162,6 +234,11 @@ class ClaimManager(
     /**
      * Gets all owned chunks of a player
      */
+    @Deprecated(
+        message = "Claiming is now done through clans",
+        replaceWith = ReplaceWith("claim(ClanSnapshot, Chunk)"),
+        level = DeprecationLevel.WARNING
+    )
     fun chunks(player: Player): Set<Chunk> {
         val pdc = player.persistentDataContainer
         val worldIds = pdc.get(OWNED_CHUNKS_PDC, DataType.asMap(DataType.UUID, LONG_ARRAY)) ?: emptyMap()
@@ -230,24 +307,42 @@ class ClaimManager(
             val player = event.player
             val from = event.from.chunk
             val to = event.to.chunk
-            val toOwner = owner(to) ?: return
+            val toOwner = owner(to)
             val fromOwner = owner(from)
 
             if (from == to) return
             if (fromOwner == toOwner) return
 
-            this@ClaimManager.nautilus.scheduler.launch {
-                val clan = nautilus.clans.clan(toOwner) ?: return@launch
-                val title = title(
-                    empty(),
-                    text("Now entering", color(119, 221, 119), ITALIC)
-                        .appendSpace().append(text(clan.name, clan.theme())
-                            .decoration(ITALIC, false))
-                        .append(text("'s territory")),
-                    times(Duration.ofMillis(250), Duration.ofMillis(1500), Duration.ofMillis(500))
-                )
+            if (toOwner != null) {
+                this@ClaimManager.nautilus.scheduler.launch {
+                    val clan = nautilus.clans.clan(toOwner) ?: return@launch
+                    val title = title(
+                        empty(),
+                        text("Now entering", color(119, 221, 119), ITALIC)
+                            .appendSpace().append(text(clan.name, clan.theme())
+                                .decoration(ITALIC, false))
+                            .append(text("'s territory")),
+                        times(Duration.ofMillis(250), Duration.ofMillis(1500), Duration.ofMillis(500))
+                    )
 
-                player.showTitle(title)
+                    player.showTitle(title)
+                }
+            }
+
+            if (toOwner == null && fromOwner != null) {
+                this@ClaimManager.nautilus.scheduler.launch {
+                    val clan = nautilus.clans.clan(fromOwner) ?: return@launch
+                    val title = title(
+                        empty(),
+                        text("Now leaving", color(255,109,106), ITALIC)
+                            .appendSpace().append(text(clan.name, clan.theme())
+                                .decoration(ITALIC, false))
+                            .append(text("'s territory")),
+                        times(Duration.ofMillis(250), Duration.ofMillis(1500), Duration.ofMillis(500))
+                    )
+
+                    player.showTitle(title)
+                }
             }
         }
 
@@ -257,7 +352,7 @@ class ClaimManager(
             val player = event.player
 
             if (!hasOwner(block.chunk)) return
-//            if (owner(block.chunk) == player.uniqueId) return
+            if (owner(block.chunk) == player.profile().clanId) return
 
             if (block.state is Container) {
                 event.isCancelled = true
@@ -290,7 +385,7 @@ class ClaimManager(
             val block = event.blockPlaced
 
             if (!hasOwner(block.chunk)) return
-//            if (owner(block.chunk) == event.player.uniqueId) return
+            if (owner(block.chunk) == event.player.profile().clanId) return
 
             event.isCancelled = true
         }
@@ -302,7 +397,7 @@ class ClaimManager(
             if (event.action != Action.RIGHT_CLICK_BLOCK) return
             if (block.state is Container) return
             if (!hasOwner(block.chunk)) return
-//            if (owner(block.chunk) == event.player.uniqueId) return
+            if (owner(block.chunk) == event.player.profile().clanId) return
 
             event.setUseInteractedBlock(Event.Result.DENY)
         }
@@ -312,7 +407,7 @@ class ClaimManager(
             val block = event.block
 
             if (!hasOwner(block.chunk)) return
-//            if (owner(block.chunk) == event.player.uniqueId) return
+            if (owner(block.chunk) == event.player.profile().clanId) return
 
             event.isCancelled = true
         }

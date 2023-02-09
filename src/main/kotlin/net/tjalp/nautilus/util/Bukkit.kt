@@ -9,6 +9,7 @@ import net.kyori.adventure.text.TextComponent
 import net.kyori.adventure.text.format.TextDecoration.BOLD
 import net.kyori.adventure.text.minimessage.MiniMessage
 import net.tjalp.nautilus.Nautilus
+import org.bukkit.Chunk
 import org.bukkit.event.HandlerList
 import org.bukkit.event.Listener
 import org.bukkit.map.MinecraftFont
@@ -101,4 +102,18 @@ fun PlayerProfile.skin(): SkinBlob? {
  */
 fun PlayerProfile.skin(skin: SkinBlob) {
     this.setProperty(ProfileProperty("textures", skin.value, skin.signature))
+}
+
+/**
+ * Get the neighboring chunks of a chunk
+ */
+fun Chunk.neighbors(): Set<Chunk> {
+    val neighbors = mutableSetOf<Chunk>()
+
+    neighbors.add(this.world.getChunkAt(this.x + 1, this.z))
+    neighbors.add(this.world.getChunkAt(this.x - 1, this.z))
+    neighbors.add(this.world.getChunkAt(this.x, this.z + 1))
+    neighbors.add(this.world.getChunkAt(this.x, this.z - 1))
+
+    return neighbors
 }

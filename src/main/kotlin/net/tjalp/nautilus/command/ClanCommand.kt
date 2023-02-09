@@ -14,6 +14,7 @@ import net.tjalp.nautilus.player.profile.ProfileSnapshot
 import net.tjalp.nautilus.util.clan
 import net.tjalp.nautilus.util.nameComponent
 import net.tjalp.nautilus.util.profile
+import org.bukkit.World
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
 import org.litote.kmongo.setValue
@@ -98,20 +99,52 @@ class ClanCommand(
             .map { it.nameComponent(useMask = false, showPrefix = false, showSuffix = false) }
         val members = this.nautilus.profiles.profiles(*clan.members.toTypedArray())
             .map { it.nameComponent(useMask = false, showPrefix = false, showSuffix = false) }
+        val chunks = text()
+        val worldChunkMaps = clan.claimedChunks.filter { it.chunks.isNotEmpty() }
+
+        worldChunkMaps.forEach {
+            val world = this.nautilus.server.getWorld(it.world) ?: return@forEach
+
+            chunks.appendNewline().appendSpace().appendSpace()
+            when (world.environment) {
+                World.Environment.NORMAL -> chunks.append(text("• Overworld: "))
+                World.Environment.NETHER -> chunks.append(text("• The Nether: "))
+                World.Environment.THE_END -> chunks.append(text("• The End: "))
+                else -> chunks.append(text("• ${world.name} (custom): "))
+            }
+
+            it.chunks.forEachIndexed { chunkIndex, chunkId ->
+                val chunk = world.getChunkAt(chunkId)
+
+                if (chunkIndex != 0) chunks.append(text(",")).appendSpace()
+
+                chunks.append(text("(${chunk.x} ${chunk.z})").color(clan.theme()))
+            }
+        }
+        worldChunkMaps.ifEmpty { chunks.append(text("None", clan.theme())) }
 
         val nameComponent = text(clan.name).color(clan.theme())
         val leadersComponent = text().color(clan.theme())
         val membersComponent = text().color(clan.theme())
 
-        leaders.forEachIndexed { index, component ->
-            if (index != 0) leadersComponent.append(text(",")).appendSpace()
+        if (leaders.isNotEmpty()) {
+            leaders.forEachIndexed { index, component ->
+                if (index != 0) leadersComponent.append(text(",")).appendSpace()
 
-            leadersComponent.append(component)
+                leadersComponent.append(component)
+            }
+        } else {
+            leadersComponent.append(text("None", clan.theme()))
         }
-        members.forEachIndexed { index, component ->
-            if (index != 0) leadersComponent.append(text(",")).appendSpace()
 
-            membersComponent.append(component)
+        if (members.isNotEmpty()) {
+            members.forEachIndexed { index, component ->
+                if (index != 0) leadersComponent.append(text(",")).appendSpace()
+
+                membersComponent.append(component)
+            }
+        } else {
+            membersComponent.append(text("None", clan.theme()))
         }
 
         sender.sendMessage(text().color(TextColor.color(251, 228, 96))
@@ -120,6 +153,7 @@ class ClanCommand(
             .appendNewline().append(text("• Name: ")).append(nameComponent)
             .appendNewline().append(text("• Leader(s): ")).append(leadersComponent)
             .appendNewline().append(text("• Members: ")).append(membersComponent)
+            .appendNewline().append(text("• Claimed chunks: ")).append(chunks)
         )
     }
 

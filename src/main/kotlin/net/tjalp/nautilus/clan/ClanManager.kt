@@ -123,6 +123,7 @@ class ClanManager(
     /**
      * Disband an existing clan meaning all players
      * will leave the clan, including the leaders.
+     * All the claimed chunks will be unclaimed.
      * The clan will be deleted afterwards.
      *
      * @param clan The clan to disband.
@@ -138,6 +139,16 @@ class ClanManager(
 
         for (uniqueId in uniqueIds) {
             profiles.profileIfCached(uniqueId)?.update()
+        }
+
+        for (worldChunkMap in clan.claimedChunks) {
+            val world = this.nautilus.server.getWorld(worldChunkMap.world) ?: continue
+
+            for (chunkId in worldChunkMap.chunks) {
+                val chunk = world.getChunkAt(chunkId)
+
+                this.nautilus.claims.unclaim(clan, chunk, updateClan = false)
+            }
         }
 
         this.clans.deleteOneById(clan.id)
