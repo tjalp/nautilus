@@ -50,8 +50,7 @@ object TestWandItem : NautilusItem() {
 
             ParticleEffect(
                 color = Color.fromRGB(random.nextInt(255), random.nextInt(255), random.nextInt(255)),
-                count = 1,
-                size = 7f
+                count = 1
             ).play(loc)
         }, 0, 1)
 
