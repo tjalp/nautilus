@@ -28,6 +28,8 @@ class ClanInterface(
                     name = text(clan.name).color(clan.theme()),
                     clickTo = text("do nothing")
                 ).build().asElement()
+
+                returnIcon()?.let { view[0, 2] = it }
             }
         }
     }

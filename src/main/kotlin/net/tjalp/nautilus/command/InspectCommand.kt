@@ -47,6 +47,6 @@ class InspectCommand(
             return
         }
 
-        ProfileInterface(profile).open(sender)
+        ProfileInterface(profile, playSound = true).open(sender)
     }
 }

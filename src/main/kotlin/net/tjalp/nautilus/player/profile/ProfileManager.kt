@@ -318,7 +318,7 @@ class ProfileManager(
                 return
             }
 
-            ProfileInterface(targetProfile).open(player)
+            ProfileInterface(targetProfile, playSound = true).open(player)
             event.isCancelled = true
         }
     }
