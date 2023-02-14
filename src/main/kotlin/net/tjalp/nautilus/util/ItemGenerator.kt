@@ -5,6 +5,7 @@ import net.kyori.adventure.text.Component.empty
 import net.kyori.adventure.text.Component.text
 import net.kyori.adventure.text.TextComponent
 import net.kyori.adventure.text.format.NamedTextColor.DARK_GRAY
+import net.kyori.adventure.text.format.NamedTextColor.WHITE
 import net.kyori.adventure.text.format.TextColor.color
 import org.bukkit.Material
 
@@ -30,7 +31,7 @@ object ItemGenerator {
         )
 
         return ItemBuilder(material)
-            .name(name)
+            .name(name.colorIfAbsent(WHITE))
             .lore(*lore)
     }
 }

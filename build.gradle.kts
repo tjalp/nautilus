@@ -46,6 +46,7 @@ dependencies {
     implementation("org.ocpsoft.prettytime:prettytime:5.0.6.Final")
     implementation("org.incendo.interfaces:interfaces-paper:1.0.0-SNAPSHOT")
     implementation("org.incendo.interfaces:interfaces-kotlin:1.0.0-SNAPSHOT")
+    implementation("org.incendo.interfaces:interfaces-next:1.0.0-SNAPSHOT")
     implementation("com.jeff_media:MorePersistentDataTypes:2.3.1")
     implementation("com.jeff_media:CustomBlockData:2.1.0")
     //implementation("com.github.twitch4j:twitch4j:1.11.0")

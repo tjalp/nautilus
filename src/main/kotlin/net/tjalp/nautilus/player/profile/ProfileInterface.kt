@@ -7,11 +7,11 @@ import net.kyori.adventure.text.format.NamedTextColor.RED
 import net.kyori.adventure.text.format.TextColor.color
 import net.tjalp.nautilus.Nautilus
 import net.tjalp.nautilus.clan.ClanInterface
+import net.tjalp.nautilus.clan.ClanSnapshot
 import net.tjalp.nautilus.interfaces.NautilusInterface
 import net.tjalp.nautilus.player.teleport.PlayerTeleportRequest
 import net.tjalp.nautilus.util.*
 import net.tjalp.nautilus.util.ItemGenerator.clickable
-import org.bson.types.ObjectId
 import org.bukkit.Material
 import org.bukkit.Sound
 import org.bukkit.entity.Player
@@ -25,9 +25,21 @@ import org.incendo.interfaces.paper.PlayerViewer
 import org.incendo.interfaces.paper.pane.ChestPane
 
 class ProfileInterface(
-    private val profile: ProfileSnapshot,
-    private val playSound: Boolean = false
+    private val profile: ProfileSnapshot
 ) : NautilusInterface<ChestPane>() {
+
+    private val nautilus = Nautilus.get()
+    private var clan: ClanSnapshot? = profile.clan()
+    private var isClanLoading = clan == null
+
+    init {
+        if (clan == null && profile.clanId != null) {
+            this.nautilus.scheduler.launch {
+                clan = nautilus.clans.clan(profile.clanId)
+                isClanLoading = false
+            }
+        }
+    }
 
     override fun `interface`(): Interface<ChestPane, PlayerViewer> {
         return buildChestInterface {
@@ -83,41 +95,27 @@ class ProfileInterface(
                     PlayerTeleportRequest(player, target).request()
                 }
 
-                view[5, 2] = clickable(
-                    material = Material.TOTEM_OF_UNDYING,
-                    name = text("Clan"),
-                    clickTo = text("view")
-                ).build().asElement { click ->
-                    val player = click.viewer().player()
-                    val clanId = profile.clanId
+                view.addTask(nautilus, {
+                    nautilus.scheduler.launch {
+                        val clan = nautilus.clans.clan(profile.clanId ?: return@launch) ?: return@launch
 
-                    player.playClickSound()
+                        view[5, 2] = clickable(
+                            material = Material.TOTEM_OF_UNDYING,
+                            name = text("Clan"),
+                            description = text("• Name: ").append(text(clan.name, clan.theme())),
+                            clickTo = text("view")
+                        ).build().asElement { click ->
+                            val player = click.viewer().player()
 
-                    if (clanId == null) {
-                        click.viewer().close()
-                        player.sendMessage(
-                            text().color(RED)
-                                .append(profile.nameComponent(useMask = false, showPrefix = false, showSuffix = false))
-                                .appendSpace().append(text("is not a member of a clan"))
-                        )
-                        return@asElement
+                            player.playClickSound()
+
+                            ClanInterface(clan, playSound = false).parent(this@ProfileInterface).open(player)
+                        }
                     }
-
-                    openClanInterface(player, clanId)
-                }
+                }, 0)
 
                 returnIcon()?.let { view[0, 3] = it }
             }
-        }
-    }
-
-    private fun openClanInterface(viewer: Player, clanId: ObjectId) {
-        val nautilus = Nautilus.get()
-
-        nautilus.scheduler.launch {
-            val clan = nautilus.clans.clan(clanId) ?: throw IllegalArgumentException("Clan with id $clanId does not exist")
-
-            ClanInterface(clan, playSound = false).parent(this@ProfileInterface).open(viewer)
         }
     }
 
@@ -146,11 +144,9 @@ class ProfileInterface(
             .build()
     }
 
-    override fun open(viewer: PlayerViewer): InterfaceView<ChestPane, PlayerViewer> {
+    fun openWithSound(viewer: PlayerViewer): InterfaceView<ChestPane, PlayerViewer> {
         val player = viewer.player()
-
-        if (playSound) player.playSound(player.location, Sound.UI_LOOM_SELECT_PATTERN, 10f, 2f)
-
-        return super.open(viewer)
+        player.playSound(player.location, Sound.UI_LOOM_SELECT_PATTERN, 10f, 2f)
+        return this.open(viewer)
     }
 }

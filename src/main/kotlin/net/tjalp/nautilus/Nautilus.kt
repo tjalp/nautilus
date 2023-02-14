@@ -33,7 +33,7 @@ import net.tjalp.nautilus.world.claim.ClaimManager
 import org.bukkit.command.CommandSender
 import org.bukkit.plugin.java.JavaPlugin
 import org.geysermc.floodgate.api.FloodgateApi
-import org.incendo.interfaces.paper.PaperInterfaceListeners
+import org.incendo.interfaces.next.InterfacesListeners
 import org.ocpsoft.prettytime.PrettyTime
 import java.util.function.Function
 
@@ -163,7 +163,7 @@ class Nautilus : JavaPlugin() {
         WhisperCommand(this)
 
         // Register Paper interface listeners
-        PaperInterfaceListeners.install(this)
+        InterfacesListeners.install(this)
         WorldListener()
         // Register block data listener
         CustomBlockData.registerListener(this)

@@ -30,6 +30,7 @@ import org.bukkit.event.player.PlayerInteractEntityEvent
 import org.bukkit.event.player.PlayerLoginEvent
 import org.bukkit.event.player.PlayerQuitEvent
 import org.bukkit.inventory.EquipmentSlot
+import org.incendo.interfaces.kotlin.paper.asViewer
 import org.litote.kmongo.`in`
 import org.litote.kmongo.regex
 import org.litote.kmongo.setValue
@@ -318,7 +319,7 @@ class ProfileManager(
                 return
             }
 
-            ProfileInterface(targetProfile, playSound = true).open(player)
+            ProfileInterface(targetProfile).openWithSound(player.asViewer())
             event.isCancelled = true
         }
     }
