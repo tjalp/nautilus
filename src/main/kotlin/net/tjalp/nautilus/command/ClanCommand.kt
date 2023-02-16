@@ -61,7 +61,11 @@ class ClanCommand(
             return
         }
 
-        ClanInterface(clan).open(sender)
+//        ClanInterface(clan).open(sender)
+        this.scheduler.launch {
+            ClanInterface(clan).create().open(sender)
+            ClanInterface.playOpenSound(sender)
+        }
     }
 
     private suspend fun create(sender: Player, nameArg: String? = null) {
@@ -71,7 +75,8 @@ class ClanCommand(
         }
 
         if (nameArg == null) {
-            CreateClanInterface(this.nautilus).open(sender)
+//            CreateClanInterface(this.nautilus).open(sender)
+            CreateClanInterface(this.nautilus).create().open(sender)
             return
         }
 

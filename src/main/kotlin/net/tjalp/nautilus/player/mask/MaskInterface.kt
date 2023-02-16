@@ -2,7 +2,7 @@ package net.tjalp.nautilus.player.mask
 
 import kotlinx.coroutines.launch
 import net.kyori.adventure.text.Component.text
-import net.kyori.adventure.text.format.NamedTextColor
+import net.kyori.adventure.text.format.NamedTextColor.RED
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer.plainText
 import net.tjalp.nautilus.Nautilus
 import net.tjalp.nautilus.interfaces.NautilusInterface
@@ -12,153 +12,128 @@ import net.tjalp.nautilus.util.TextInput
 import net.tjalp.nautilus.util.playClickSound
 import net.tjalp.nautilus.util.profile
 import org.bukkit.Material
-import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemFlag
-import org.geysermc.cumulus.component.DropdownComponent
-import org.geysermc.cumulus.form.CustomForm
-import org.geysermc.cumulus.form.Form
-import org.incendo.interfaces.core.Interface
-import org.incendo.interfaces.core.transform.types.PaginatedTransform
-import org.incendo.interfaces.core.util.Vector2
-import org.incendo.interfaces.kotlin.paper.asElement
-import org.incendo.interfaces.kotlin.paper.buildChestInterface
-import org.incendo.interfaces.paper.PlayerViewer
-import org.incendo.interfaces.paper.element.ItemStackElement
-import org.incendo.interfaces.paper.pane.ChestPane
+import org.incendo.interfaces.next.drawable.Drawable.Companion.drawable
+import org.incendo.interfaces.next.element.StaticElement
+import org.incendo.interfaces.next.grid.GridBoxGenerator
+import org.incendo.interfaces.next.grid.GridPoint
+import org.incendo.interfaces.next.interfaces.Interface
+import org.incendo.interfaces.next.interfaces.buildChestInterface
+import org.incendo.interfaces.next.pane.ChestPane
+import org.incendo.interfaces.next.transform.builtin.PaginationButton
+import org.incendo.interfaces.next.transform.builtin.PaginationTransformation
 
-class MaskInterface : NautilusInterface<ChestPane>() {
-
-    private val nautilus = Nautilus.get()
+class MaskInterface(
+    private val nautilus: Nautilus
+) : NautilusInterface {
 
     private var maskName: String? = null
     private var maskSkin: String? = null
     private var maskRank: PermissionRank? = null
 
-    override fun `interface`(): Interface<ChestPane, PlayerViewer> {
-        return buildChestInterface {
-            title = text("Mask")
-            rows = 4
+    override fun create(): Interface<*> = buildChestInterface {
+        initialTitle = text("Mask")
+        rows = 4
 
-            withTransform { view ->
-                view[2, 1] = clickable(
-                    material = Material.OAK_SIGN,
-                    name = text("Username"),
-                    description = text("Change your display name"),
-                    clickTo = text("change")
-                ).build().asElement { click ->
-                    val viewer = click.viewer()
-                    val clicker = viewer.player()
-                    clicker.playClickSound()
+        withTransform { pane, view ->
+            pane[1, 2] = usernameElement()
+            pane[1, 4] = skinElement()
+            pane[1, 6] = rankElement()
+            pane[3, 4] = applyElement()
+            if (view.parent() != null) pane[3, 0] = backElement()
+        }
+    }
 
-                    TextInput.signSmall(clicker, label = text("Mask Name")) {
-                        val text = plainText().serialize(it)
+    private fun usernameElement(): StaticElement {
+        return StaticElement(drawable(clickable(
+            material = Material.OAK_SIGN,
+            name = text("Username"),
+            description = text("Change your display name"),
+            clickTo = text("change")
+        ).build())) { click ->
+            val player = click.player
 
-                        if (text.isNotBlank()) {
-                            if (text.length <= 16) maskName = text
-                            else clicker.sendMessage(text("That username is not allowed!").color(NamedTextColor.RED))
-                        }
+            player.playClickSound()
 
-                        open(viewer)
-                    }
+            TextInput.signSmall(player = player, label = text("Username")) {
+                val text = plainText().serialize(it)
+
+                if (text.isNotBlank()) {
+                    if (text.length <= 16) maskName = text
+                    else player.sendMessage(text("That username is not allowed!").color(RED))
                 }
 
-                view[4, 1] = clickable(
-                    material = Material.ARMOR_STAND,
-                    name = text("Skin"),
-                    description = text("Change your skin"),
-                    clickTo = text("change")
-                ).build().asElement { click ->
-                    val viewer = click.viewer()
-                    val clicker = viewer.player()
-                    clicker.playClickSound()
-
-                    TextInput.signSmall(clicker, label = text("Mask Skin")) {
-                        val text = plainText().serialize(it)
-
-                        if (text.isNotBlank()) maskSkin = text
-
-                        open(viewer)
-                    }
-                }
-
-                view[6, 1] = clickable(
-                    material = Material.DIAMOND,
-                    name = text("Rank"),
-                    description = text("Change your display rank"),
-                    clickTo = text("change")
-                ).build().asElement { click ->
-                    click.viewer().player().playClickSound()
-
-                    RankInterface().open(click.viewer())
-                }
-
-                val applyDescription = mutableListOf(text("Apply your mask modifications"))
-                if (maskName != null) applyDescription += text("• Name ($maskName)")
-                if (maskSkin != null) applyDescription += text("• Skin ($maskSkin)")
-                if (maskRank != null) applyDescription += text("• Rank (").append(maskRank!!.prefix).append(text(")"))
-
-                view[4, 3] = clickable(
-                    material = Material.EMERALD,
-                    name = text("Apply"),
-                    description = applyDescription.toTypedArray(),
-                    clickTo = text("apply")
-                ).build().asElement { click ->
-                    click.viewer().close()
-                    click.viewer().player().playClickSound()
-
-                    nautilus.scheduler.launch {
-                        nautilus.masking.mask(
-                            profile = click.viewer().player().profile(),
-                            username = maskName,
-                            skin = maskSkin,
-                            rank = maskRank,
-                            message = true
-                        )
-                    }
-                }
+                click.view.open()
             }
         }
     }
 
-    override fun form(viewer: Player): Form {
-        val dropdown = DropdownComponent.builder()
-            .text("Rank")
-        val ranks = nautilus.perms.ranks
-            .sortedByDescending { it.weight }
+    private fun skinElement(): StaticElement {
+        return StaticElement(drawable(clickable(
+            material = Material.ARMOR_STAND,
+            name = text("Skin"),
+            description = text("Change your skin"),
+            clickTo = text("change")
+        ).build())) { click ->
+            val player = click.player
 
-        dropdown.option("No rank mask", true)
-        for (rank in ranks) dropdown.option(rank.name, false)
+            player.playClickSound()
 
-        return CustomForm.builder()
-            .title("Mask")
-            .input("Username", "Enter your desired username...") // id 0
-            .input("Skin", "Enter your desired skin...") // id 1
-            .dropdown(dropdown) // id 2
-            .validResultHandler { response ->
-                var username = response.asInput(0)
-                var skin = response.asInput(1)
-                val rank = response.asDropdown(2)
-                val permissionRank = if (rank != 0) ranks[rank - 1] else null
+            TextInput.signSmall(player = player, label = text("Mask Skin")) {
+                val text = plainText().serialize(it)
 
-                if (username?.isBlank() == true) username = null
-                if (skin?.isBlank() == true) skin = null
+                if (text.isNotBlank()) maskSkin = text
 
-                nautilus.scheduler.launch {
-                    nautilus.masking.mask(
-                        profile = viewer.profile(),
-                        username = username,
-                        skin = skin,
-                        rank = permissionRank,
-                        message = true
-                    )
-                }
+                click.view.open()
             }
-            .build()
+        }
     }
 
-    private inner class RankInterface : NautilusInterface<ChestPane>() {
+    private fun rankElement(): StaticElement {
+        return StaticElement(drawable(clickable(
+            material = Material.DIAMOND,
+            name = text("Rank"),
+            description = text("Change your display rank"),
+            clickTo = text("change")
+        ).build())) { click ->
+            click.player.playClickSound()
 
-        val ranks = nautilus.perms.ranks
+            this@MaskInterface.nautilus.scheduler.launch {
+                RankInterface().create().open(click.player, click.view)
+            }
+        }
+    }
+
+    private fun applyElement(): StaticElement {
+        val applyDescription = mutableListOf(text("Apply your mask modifications"))
+        if (maskName != null) applyDescription += text("• Name ($maskName)")
+        if (maskSkin != null) applyDescription += text("• Skin ($maskSkin)")
+        if (maskRank != null) applyDescription += text("• Rank (").append(maskRank!!.prefix).append(text(")"))
+
+        return StaticElement(drawable(clickable(
+            material = Material.EMERALD,
+            name = text("Apply"),
+            description = applyDescription.toTypedArray(),
+            clickTo = text("apply")
+        ).build())) { click ->
+            click.view.close()
+            click.player.playClickSound()
+
+            nautilus.scheduler.launch {
+                nautilus.masking.mask(
+                    profile = click.player.profile(),
+                    username = maskName,
+                    skin = maskSkin,
+                    rank = maskRank,
+                    message = true
+                )
+            }
+        }
+    }
+
+    private inner class RankInterface : NautilusInterface {
+
+        val ranks = nautilus.perms.ranks.plus(nautilus.perms.ranks).plus(nautilus.perms.ranks)
             .sortedByDescending { it.weight }
             .map { rank ->
                 val clickable = clickable(
@@ -172,61 +147,30 @@ class MaskInterface : NautilusInterface<ChestPane>() {
                     clickTo = text("Select")
                 ).color(rank.nameColor).flags(*ItemFlag.values()).build()
 
-                return@map clickable.asElement<ChestPane> { click ->
-                    click.viewer().player().playClickSound()
+                return@map StaticElement(drawable(clickable)) { click ->
+                    click.player.playClickSound()
                     maskRank = rank
-                    this@MaskInterface.open(click.viewer())
+                    click.view.back()
                 }
             }
 
-        override fun `interface`(): Interface<ChestPane, PlayerViewer> {
-            return buildChestInterface {
-                title = text("Rank Mask")
-                rows = 3
+        override fun create(): Interface<*> = buildChestInterface {
+            initialTitle = text("Mask Rank")
+            rows = 3
 
-                val pageTransform = PaginatedTransform<ItemStackElement<ChestPane>, ChestPane, PlayerViewer>(
-                    Vector2.at(2, 1),
-                    Vector2.at(6, 1),
-                    this@RankInterface.ranks
-                )
+            val paginationTransform = PaginationTransformation<ChestPane>(
+                GridBoxGenerator(
+                    GridPoint(2, 1),
+                    GridPoint(6, 1)
+                ),
+                ranks,
+                back = PaginationButton(GridPoint(3, 2), drawable(Material.ARROW), emptyMap()),
+                forward = PaginationButton(GridPoint(5, 2), drawable(Material.ARROW), emptyMap()),
+            )
 
-                pageTransform.backwardElement(Vector2.at(3, 2)) { transform ->
-                    clickable(
-                        material = Material.ARROW,
-                        name = text("Previous Page"),
-                        description = text("Return to the previous page"),
-                        clickTo = text("Move")
-                    ).build().asElement {
-                        it.viewer().player().playClickSound()
-                        transform.previousPage()
-                    }
-                }
-
-                pageTransform.forwardElement(Vector2.at(5, 2)) { transform ->
-                    clickable(
-                        material = Material.ARROW,
-                        name = text("Next Page"),
-                        description = text("Continue on the next page"),
-                        clickTo = text("Move")
-                    ).build().asElement {
-                        it.viewer().player().playClickSound()
-                        transform.nextPage()
-                    }
-                }
-
-                addTransform(pageTransform)
-
-                withTransform { view ->
-                    view[0, 2] = clickable(
-                        material = Material.ARROW,
-                        name = text("Return"),
-                        description = text("Return to the previous menu"),
-                        clickTo = text("Return")
-                    ).build().asElement {
-                        it.viewer().player().playClickSound()
-                        this@MaskInterface.open(it.viewer())
-                    }
-                }
+            withTransform(transform = paginationTransform)
+            withTransform { pane, view ->
+                if (view.parent() != null) pane[2, 0] = backElement()
             }
         }
     }

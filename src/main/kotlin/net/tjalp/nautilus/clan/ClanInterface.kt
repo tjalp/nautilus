@@ -5,40 +5,37 @@ import net.tjalp.nautilus.interfaces.NautilusInterface
 import net.tjalp.nautilus.util.ItemGenerator.clickable
 import org.bukkit.Material
 import org.bukkit.Sound
-import org.incendo.interfaces.core.Interface
-import org.incendo.interfaces.core.view.InterfaceView
-import org.incendo.interfaces.kotlin.paper.asElement
-import org.incendo.interfaces.kotlin.paper.buildChestInterface
-import org.incendo.interfaces.paper.PlayerViewer
-import org.incendo.interfaces.paper.pane.ChestPane
+import org.bukkit.entity.Player
+import org.bukkit.inventory.ItemStack
+import org.incendo.interfaces.next.drawable.Drawable.Companion.drawable
+import org.incendo.interfaces.next.element.StaticElement
+import org.incendo.interfaces.next.interfaces.Interface
+import org.incendo.interfaces.next.interfaces.buildChestInterface
+import org.incendo.interfaces.next.interfaces.buildCombinedInterface
 
 class ClanInterface(
-    private val clan: ClanSnapshot,
-    private val playSound: Boolean = true
-) : NautilusInterface<ChestPane>() {
+    private val clan: ClanSnapshot
+) : NautilusInterface {
 
-    override fun `interface`(): Interface<ChestPane, PlayerViewer> {
-        return buildChestInterface {
-            title = text(clan.name).color(clan.theme())
-            rows = 3
+    private val icon: ItemStack; get() = clickable(
+        material = Material.TURTLE_EGG,
+        name = text(clan.name, clan.theme()),
+        clickTo = text("do nothing")
+    ).build()
 
-            withTransform { view ->
-                view[4, 1] = clickable(
-                    material = Material.TURTLE_EGG,
-                    name = text(clan.name).color(clan.theme()),
-                    clickTo = text("do nothing")
-                ).build().asElement()
+    override fun create(): Interface<*> = buildChestInterface {
+        initialTitle = text(clan.name, clan.theme())
+        rows = 3
 
-                returnIcon()?.let { view[0, 2] = it }
-            }
+        withTransform { pane, view ->
+            pane[1, 4] = StaticElement(drawable(icon))
+            if (view.parent() != null) pane[2, 0] = backElement()
         }
     }
 
-    override fun open(viewer: PlayerViewer): InterfaceView<ChestPane, PlayerViewer> {
-        val player = viewer.player()
-
-        if (playSound) player.playSound(player.location, Sound.UI_LOOM_SELECT_PATTERN, 10f, 2f)
-
-        return super.open(viewer)
+    companion object {
+        fun playOpenSound(player: Player) {
+            player.playSound(player.location, Sound.UI_LOOM_SELECT_PATTERN, 10f, 2f)
+        }
     }
 }

@@ -10,7 +10,6 @@ import net.tjalp.nautilus.player.profile.ProfileInterface
 import net.tjalp.nautilus.util.GsonHelper
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
-import org.incendo.interfaces.kotlin.paper.asViewer
 import org.litote.kmongo.json
 
 class InspectCommand(
@@ -47,6 +46,8 @@ class InspectCommand(
             return
         }
 
-        ProfileInterface(profile).openWithSound(sender.asViewer())
+//        ProfileInterface(profile).openWithSound(sender.asViewer())
+        ProfileInterface(nautilus, profile).create().open(sender)
+        ProfileInterface.playOpenSound(sender)
     }
 }

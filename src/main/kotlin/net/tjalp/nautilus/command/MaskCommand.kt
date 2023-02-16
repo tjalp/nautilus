@@ -99,6 +99,8 @@ class MaskCommand(
     }
 
     private fun mask(sender: Player) {
-        MaskInterface().open(sender)
+        this.scheduler.launch {
+            MaskInterface(nautilus).create().open(sender)
+        }
     }
 }
