@@ -46,7 +46,7 @@ class ItemBuilder {
      */
     constructor(itemStack: ItemStack) {
         this.itemStack = itemStack
-        this.itemMeta = this.itemStack.itemMeta
+        this.itemMeta = this.itemStack.itemMeta.clone()
     }
 
     /**

@@ -15,6 +15,7 @@ import net.tjalp.nautilus.clan.ClanManager
 import net.tjalp.nautilus.command.*
 import net.tjalp.nautilus.config.NautilusConfig
 import net.tjalp.nautilus.database.MongoManager
+import net.tjalp.nautilus.enchantment.EnchantmentManager
 import net.tjalp.nautilus.exception.UnmetDependencyException
 import net.tjalp.nautilus.item.ItemManager
 import net.tjalp.nautilus.ktor.ApiServer
@@ -77,6 +78,9 @@ class Nautilus : JavaPlugin() {
     /** The Ktor Server */
     lateinit var apiServer: ApiServer; private set
 
+    /** The Enchantment Manager */
+    lateinit var enchantments: EnchantmentManager; private set
+
     /** The Item Manager */
     lateinit var items: ItemManager; private set
 
@@ -119,6 +123,7 @@ class Nautilus : JavaPlugin() {
 
         this.scheduler = NautilusScheduler(this)
         this.mongo = MongoManager(this.logger, this.config.mongo)
+        this.enchantments = EnchantmentManager(this)
         this.items = ItemManager(this)
         this.blocks = BlockManager(this)
         this.chat = ChatManager(this)
@@ -154,6 +159,7 @@ class Nautilus : JavaPlugin() {
         InspectCommand(this)
         MaskCommand(this)
         NautilusCommandImpl(this)
+        NautilusEnchantmentCommand(this)
         NautilusItemCommand(this)
         PermissionsCommand(this)
         ProfileCommand(this)
