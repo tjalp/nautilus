@@ -92,7 +92,8 @@ object SupersonicBow : NautilusItem() {
             if (!isSuperSonicArrow) return
 
             val isSuperSonic = projectile.persistentDataContainer.getOrDefault(IS_SUPER_SONIC, BOOLEAN, false)
-            val velocity = event.hitBlockFace?.direction ?: projectile.velocity.multiply(-1)
+            var velocity = event.hitBlockFace?.direction ?: projectile.velocity.multiply(-1)
+            velocity = velocity.normalize().multiply(0.5)
 
             projectile.world.spawnEntity(projectile.location, EntityType.FIREWORK, CreatureSpawnEvent.SpawnReason.CUSTOM) { entity ->
                 val firework = entity as Firework

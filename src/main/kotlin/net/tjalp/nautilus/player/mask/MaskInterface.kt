@@ -133,7 +133,7 @@ class MaskInterface(
 
     private inner class RankInterface : NautilusInterface {
 
-        val ranks = nautilus.perms.ranks.plus(nautilus.perms.ranks).plus(nautilus.perms.ranks)
+        val ranks = nautilus.perms.ranks
             .sortedByDescending { it.weight }
             .map { rank ->
                 val clickable = clickable(
