@@ -5,7 +5,6 @@ import com.comphenix.protocol.PacketType.Play.Server.WINDOW_ITEMS
 import com.comphenix.protocol.events.PacketAdapter
 import com.comphenix.protocol.events.PacketEvent
 import com.jeff_media.morepersistentdatatypes.DataType
-import com.jeff_media.morepersistentdatatypes.DataType.STRING_ARRAY
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.Component.text
 import net.kyori.adventure.text.Component.translatable
@@ -15,7 +14,7 @@ import net.minecraft.network.protocol.game.ClientboundContainerSetSlotPacket
 import net.tjalp.nautilus.Nautilus
 import net.tjalp.nautilus.enchantment.NautilusEnchantment.Companion.NAUTILUS_ENCHANTMENTS_PDC
 import net.tjalp.nautilus.registry.enchantment.ExplosiveEnchantment
-import net.tjalp.nautilus.registry.enchantment.FireworkEnchantment
+import net.tjalp.nautilus.registry.enchantment.HomingEnchantment
 import net.tjalp.nautilus.util.ItemBuilder
 import net.tjalp.nautilus.util.RomanNumeral
 import net.tjalp.nautilus.util.builder
@@ -44,6 +43,7 @@ class EnchantmentManager(private val nautilus: Nautilus) {
 
         registerEnchantment(ExplosiveEnchantment)
 //        registerEnchantment(FireworkEnchantment)
+        registerEnchantment(HomingEnchantment)
     }
 
     /**
@@ -158,15 +158,23 @@ class EnchantmentManager(private val nautilus: Nautilus) {
 
             for (enchantment in enchantments) {
                 val level = getEnchantmentLevel(item, enchantment)
+                var component = enchantment.displayName.colorIfAbsent(GRAY)
 
-                lore += enchantment.displayName.colorIfAbsent(GRAY)
-                    .appendSpace().append(text(RomanNumeral.toRoman(level) ?: level.toString()))
+                if (level > 1 || enchantment.maxLevel > 1) {
+                   component = component.appendSpace().append(text(RomanNumeral.toRoman(level) ?: level.toString()))
+                }
+
+                lore += component
             }
             for (enchantment in item.enchantments) {
-                lore += translatable(enchantment.key.translationKey())
-                    .color(GRAY)
-                    .appendSpace()
-                    .append(text(RomanNumeral.toRoman(enchantment.value) ?: enchantment.value.toString()))
+                val level = enchantment.value
+                var component: Component = translatable(enchantment.key.translationKey()).color(GRAY)
+
+                if (level > 1 || enchantment.key.maxLevel > 1) {
+                    component = component.appendSpace().append(text(RomanNumeral.toRoman(level) ?: level.toString()))
+                }
+
+                lore += component
             }
 
             return builder

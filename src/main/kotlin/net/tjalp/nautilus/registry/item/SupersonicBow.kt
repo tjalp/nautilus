@@ -40,6 +40,9 @@ object SupersonicBow : NautilusItem() {
 
         projectile.knockbackStrength = projectile.knockbackStrength * 2
         projectile.persistentDataContainer.set(IS_SUPER_SONIC_ARROW, BOOLEAN, true)
+        projectile.pickupStatus = AbstractArrow.PickupStatus.CREATIVE_ONLY
+
+        event.entity.world.playSound(event.entity.location, Sound.ENTITY_FIREWORK_ROCKET_LAUNCH, 1f, 1f)
 
         if (projectile.isCritical) {
             scheduler.runTaskLater(nautilus, Consumer Task1@{
