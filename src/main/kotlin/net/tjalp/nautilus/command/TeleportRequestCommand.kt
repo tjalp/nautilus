@@ -27,6 +27,10 @@ class TeleportRequestCommand(
             this.send(it.sender as Player, it.get(targetArg))
         })
 
+        register(builder.argument(targetArg.copy()).handler {
+            this.send(it.sender as Player, it.get(targetArg))
+        })
+
         register(builder.literal("accept").argument(targetArg.copy()).handler {
             this.accept(it.sender as Player, it.get(targetArg))
         })

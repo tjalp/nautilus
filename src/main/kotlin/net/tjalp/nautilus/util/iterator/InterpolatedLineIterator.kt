@@ -1,6 +1,6 @@
 package net.tjalp.nautilus.util.iterator
 
-import net.tjalp.aquarium.util.AquaMath
+import net.tjalp.nautilus.util.NautilusMath.lerp
 import org.bukkit.Location
 
 /**
@@ -45,9 +45,9 @@ class InterpolatedLineIterator(
 
             return Location(
                 origin.world,
-                AquaMath.lerp(origin.x, destination.x, frac),
-                AquaMath.lerp(origin.y, destination.y, frac),
-                AquaMath.lerp(origin.z, destination.z, frac)
+                lerp(origin.x, destination.x, frac),
+                lerp(origin.y, destination.y, frac),
+                lerp(origin.z, destination.z, frac)
             )
         }
 

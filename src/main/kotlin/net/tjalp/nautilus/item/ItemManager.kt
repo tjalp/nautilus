@@ -1,10 +1,7 @@
 package net.tjalp.nautilus.item
 
 import net.tjalp.nautilus.Nautilus
-import net.tjalp.nautilus.registry.item.HomingBow
-import net.tjalp.nautilus.registry.item.IceBow
-import net.tjalp.nautilus.registry.item.SupersonicBow
-import net.tjalp.nautilus.registry.item.TestWandItem
+import net.tjalp.nautilus.registry.item.*
 import net.tjalp.nautilus.util.register
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
@@ -30,6 +27,7 @@ class ItemManager(private val nautilus: Nautilus) {
         registerItem(IceBow)
         registerItem(SupersonicBow)
         registerItem(TestWandItem)
+        registerItem(Tribow)
     }
 
     /**

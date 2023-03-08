@@ -5,7 +5,6 @@ import com.google.gson.TypeAdapter
 import com.google.gson.stream.JsonReader
 import com.google.gson.stream.JsonToken
 import com.google.gson.stream.JsonWriter
-import net.tjalp.aquarium.util.dimension.Cuboid
 import java.util.*
 import java.util.concurrent.ThreadLocalRandom
 import javax.annotation.Nonnull

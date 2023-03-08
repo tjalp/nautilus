@@ -1,7 +1,8 @@
 package net.tjalp.nautilus.player.teleport
 
-import io.papermc.paper.entity.RelativeTeleportFlag.PITCH
-import io.papermc.paper.entity.RelativeTeleportFlag.YAW
+import io.papermc.paper.entity.TeleportFlag
+import io.papermc.paper.entity.TeleportFlag.Relative.YAW
+import io.papermc.paper.entity.TeleportFlag.Relative.PITCH
 import net.kyori.adventure.text.Component.text
 import net.kyori.adventure.text.event.ClickEvent.runCommand
 import net.kyori.adventure.text.format.NamedTextColor.*
@@ -80,8 +81,8 @@ class PlayerTeleportRequest(val source: Player, val target: Player) : TeleportRe
         )
         this.source.sendMessage(text("Your teleport request has been accepted by", GREEN)
             .appendSpace().append(this.target.profile().nameComponent(showPrefix = false, showSuffix = false)))
-
-        this.source.teleport(this.target.location, PLUGIN, false, true, YAW, PITCH)
+        
+        this.source.teleport(this.target.location, PLUGIN, YAW, PITCH)
         this.target.world.playSound(this.target.location, Sound.ITEM_CHORUS_FRUIT_TELEPORT, 1.5f, 1f)
     }
 
