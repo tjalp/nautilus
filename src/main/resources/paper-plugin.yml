@@ -1,0 +1,14 @@
+name: Nautilus
+version: '1.0'
+main: net.tjalp.nautilus.Nautilus
+api-version: '1.19'
+authors: [tjalp]
+dependencies:
+  - name: LibsDisguises
+    required: false
+  - name: TAB
+    required: false
+  - name: ProtocolLib
+    required: false
+  - name: floodgate
+    required: false

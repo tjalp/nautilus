@@ -4,7 +4,6 @@ import net.tjalp.nautilus.item.NautilusItem
 import org.bukkit.Material.BOW
 import org.bukkit.entity.Projectile
 import org.bukkit.event.entity.EntityShootBowEvent
-import org.bukkit.util.Vector
 
 object Tribow : NautilusItem() {
 
