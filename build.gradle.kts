@@ -34,13 +34,13 @@ repositories {
 dependencies {
     implementation(kotlin("stdlib"))
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
-    implementation("io.ktor:ktor-client-okhttp-jvm:2.2.1")
-    implementation("io.ktor:ktor-server-core-jvm:2.2.1")
-    implementation("io.ktor:ktor-server-netty-jvm:2.2.1")
-    implementation("io.ktor:ktor-client-core-jvm:2.2.1")
+    implementation("io.ktor:ktor-client-okhttp-jvm:2.2.4")
+    implementation("io.ktor:ktor-server-core-jvm:2.2.4")
+    implementation("io.ktor:ktor-server-netty-jvm:2.2.4")
+    implementation("io.ktor:ktor-client-core-jvm:2.2.4")
     paperDevBundle("1.19.3-R0.1-SNAPSHOT")
-    implementation("cloud.commandframework:cloud-annotations:1.8.0")
-    implementation("cloud.commandframework:cloud-paper:1.8.0")
+    implementation("cloud.commandframework:cloud-annotations:1.8.2")
+    implementation("cloud.commandframework:cloud-paper:1.8.2")
 //    implementation("org.litote.kmongo:kmongo-async:4.8.0")
     implementation("org.litote.kmongo:kmongo-coroutine:4.8.0")
     implementation("org.ocpsoft.prettytime:prettytime:5.0.6.Final")
@@ -48,17 +48,17 @@ dependencies {
 //    implementation("org.incendo.interfaces:interfaces-kotlin:1.0.0-SNAPSHOT")
     implementation("org.incendo.interfaces:interfaces-next:1.0.0-SNAPSHOT")
     implementation("com.jeff_media:MorePersistentDataTypes:2.3.1")
-    implementation("com.jeff_media:CustomBlockData:2.1.0")
+    implementation("com.jeff_media:CustomBlockData:2.2.0")
     //implementation("com.github.twitch4j:twitch4j:1.11.0")
     compileOnly("net.luckperms:api:5.4")
-    compileOnly("me.neznamy:tab-api:3.2.1")
+    compileOnly("me.neznamy:tab-api:3.2.4")
     compileOnly("com.comphenix.protocol:ProtocolLib:5.0.0-SNAPSHOT")
     compileOnly("org.geysermc.floodgate:api:2.2.0-SNAPSHOT")
     compileOnly("LibsDisguises:LibsDisguises:10.0.31") {
         exclude("org.spigotmc")
     }
 
-    kapt("cloud.commandframework:cloud-annotations:1.7.1")
+    kapt("cloud.commandframework:cloud-annotations:1.8.2")
 }
 
 tasks {
