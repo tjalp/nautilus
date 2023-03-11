@@ -13,6 +13,7 @@ import net.minecraft.network.protocol.game.ClientboundContainerSetContentPacket
 import net.minecraft.network.protocol.game.ClientboundContainerSetSlotPacket
 import net.tjalp.nautilus.Nautilus
 import net.tjalp.nautilus.enchantment.NautilusEnchantment.Companion.NAUTILUS_ENCHANTMENTS_PDC
+import net.tjalp.nautilus.registry.enchantment.BoosterEnchantment
 import net.tjalp.nautilus.registry.enchantment.ExplosiveEnchantment
 import net.tjalp.nautilus.registry.enchantment.HomingEnchantment
 import net.tjalp.nautilus.util.ItemBuilder
@@ -41,6 +42,7 @@ class EnchantmentManager(private val nautilus: Nautilus) {
             nautilus.protocol.addPacketListener(this)
         }
 
+        registerEnchantment(BoosterEnchantment)
         registerEnchantment(ExplosiveEnchantment)
 //        registerEnchantment(FireworkEnchantment)
         registerEnchantment(HomingEnchantment)

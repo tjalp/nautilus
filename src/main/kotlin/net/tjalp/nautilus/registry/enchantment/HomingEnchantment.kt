@@ -32,9 +32,6 @@ object HomingEnchantment : NautilusEnchantment {
     override val identifier: String = "homing"
     override val displayName: Component = Component.text("Homing")
     override val maxLevel: Int = 3
-    override fun conflicts(other: Enchantment): Boolean = false
-
-    override fun conflicts(other: NautilusEnchantment): Boolean = false
 
     private class HomingEnchantmentListener : Listener {
 

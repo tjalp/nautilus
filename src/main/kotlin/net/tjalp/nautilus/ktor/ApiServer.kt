@@ -53,7 +53,7 @@ class ApiServer(
     })
 
     private val packPath: Path
-    private val hash: String
+    private val hash: ByteArray
 
     init {
         val pack = this.nautilus.dataFolder.toPath().resolve(details.fileName)
@@ -64,8 +64,8 @@ class ApiServer(
 
         // I have absolutely no idea what's going on here, but it works??
         // UPDATE: I've figured out what's going on
-        val digest = MessageDigest.getInstance("SHA-1").digest(pack.readBytes())
-        this.hash = HexFormat.of().formatHex(digest)
+        // SECOND UPDATE: I've now figured out how to make it work without the weirdness
+        this.hash = MessageDigest.getInstance("SHA-1").digest(pack.readBytes())
 
         ResourcePackListener().register()
     }

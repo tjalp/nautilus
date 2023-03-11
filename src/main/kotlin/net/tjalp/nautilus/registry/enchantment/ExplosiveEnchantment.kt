@@ -29,9 +29,6 @@ object ExplosiveEnchantment : NautilusEnchantment {
     override val identifier: String = "explosive"
     override val displayName: Component = Component.text("Explosive")
     override val maxLevel: Int = 1
-    override fun conflicts(other: Enchantment): Boolean = false
-
-    override fun conflicts(other: NautilusEnchantment): Boolean = false
 
     private class ExplosiveEnchantmentListener : Listener {
 

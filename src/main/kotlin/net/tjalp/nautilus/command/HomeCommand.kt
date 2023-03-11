@@ -1,5 +1,6 @@
 package net.tjalp.nautilus.command
 
+import io.papermc.paper.entity.TeleportFlag
 import net.kyori.adventure.text.Component.text
 import net.kyori.adventure.text.format.NamedTextColor.GREEN
 import net.kyori.adventure.text.format.NamedTextColor.RED
@@ -7,7 +8,7 @@ import net.tjalp.nautilus.Nautilus
 import net.tjalp.nautilus.util.home
 import org.bukkit.Sound
 import org.bukkit.entity.Player
-import org.bukkit.event.player.PlayerTeleportEvent
+import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause.COMMAND
 
 class HomeCommand(
     override val nautilus: Nautilus
@@ -35,13 +36,15 @@ class HomeCommand(
             return
         }
 
-        sender.teleportAsync(home, PlayerTeleportEvent.TeleportCause.COMMAND).thenAccept { complete ->
-            if (complete) {
-                sender.sendMessage(text("Teleported to your home!", GREEN))
-                sender.world.playSound(sender.location, Sound.ITEM_CHORUS_FRUIT_TELEPORT, 1.5f, 1f)
-            }
-            else sender.sendMessage(text("Failed to teleport to your home!", RED))
+        val successful = sender.teleport(home, COMMAND, *TeleportFlag.Relative.values())
+
+        if (!successful) {
+            sender.sendMessage(text("Failed to teleport to your home!", RED))
+            return
         }
+
+        sender.sendMessage(text("Teleported to your home!", GREEN))
+        sender.world.playSound(sender.location, Sound.ITEM_CHORUS_FRUIT_TELEPORT, 1.5f, 1f)
     }
 
     private fun set(sender: Player) {
