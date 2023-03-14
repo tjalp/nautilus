@@ -1,0 +1,11 @@
+{
+  "id": "nautilus-mod",
+  "version": "1.0.0",
+  "entry": "net.tjalp.nautilus.mod.NautilusMod",
+  "dependencies": [
+    "ignite"
+  ],
+  "mixins": [
+    "mixins.nautilus.json"
+  ]
+}

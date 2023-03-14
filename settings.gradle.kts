@@ -10,3 +10,9 @@ pluginManagement {
         kotlin("jvm").version(kotlinVersion)
     }
 }
+
+include(":mod")
+include(":plugin")
+
+project(":mod").name = "nautilus-mod"
+project(":plugin").name = "nautilus-plugin"
