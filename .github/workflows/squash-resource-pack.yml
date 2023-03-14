@@ -12,4 +12,4 @@ jobs:
       - name: Run PackSquash
         uses: ComunidadAylas/PackSquash-action@v3
         with:
-          path: src/main/resources/resource_pack
+          path: plugin/src/main/resources/resource_pack
