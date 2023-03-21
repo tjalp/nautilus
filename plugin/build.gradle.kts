@@ -6,7 +6,9 @@ group = "net.tjalp.nautilus"
 version = "0.1.0"
 
 dependencies {
-    paperweight.paperDevBundle("1.19.3-R0.1-SNAPSHOT")
+    paperweight.paperDevBundle("1.19.4-R0.1-SNAPSHOT")
+
+    compileOnly(project(":nautilus-mod"))
 
     implementation(kotlin("stdlib"))
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
@@ -27,9 +29,10 @@ dependencies {
     //implementation("com.github.twitch4j:twitch4j:1.11.0")
     compileOnly("net.luckperms:api:5.4")
     compileOnly("me.neznamy:tab-api:3.2.4")
-    compileOnly("com.comphenix.protocol:ProtocolLib:5.0.0-SNAPSHOT")
+//    compileOnly("com.comphenix.protocol:ProtocolLib:5.0.0-SNAPSHOT")
+    compileOnly("com.github.dmulloy2:ProtocolLib:master-SNAPSHOT")
     compileOnly("org.geysermc.floodgate:api:2.2.0-SNAPSHOT")
-    compileOnly("LibsDisguises:LibsDisguises:10.0.31") {
+    compileOnly("LibsDisguises:LibsDisguises:10.0.32") {
         exclude("org.spigotmc")
     }
 

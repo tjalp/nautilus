@@ -30,6 +30,11 @@ class ResourcePackDetails {
     val fileName = "pack.zip"
 
     /**
+     * The hash of the file to upload to the player.
+     */
+    val hash = ""
+
+    /**
      * The path that the resource pack should be uploaded
      * from.
      */

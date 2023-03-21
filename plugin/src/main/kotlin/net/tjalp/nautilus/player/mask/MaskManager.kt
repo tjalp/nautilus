@@ -23,7 +23,7 @@ import net.tjalp.nautilus.permission.PermissionRank
 import net.tjalp.nautilus.player.profile.ProfileSnapshot
 import net.tjalp.nautilus.util.*
 import org.bson.conversions.Bson
-import org.bukkit.craftbukkit.v1_19_R2.entity.CraftPlayer
+import org.bukkit.craftbukkit.v1_19_R3.entity.CraftPlayer
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener

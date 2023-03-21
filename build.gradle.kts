@@ -3,7 +3,7 @@ plugins {
     val kotlinVersion: String by System.getProperties()
     kotlin("jvm") version kotlinVersion
     kotlin("kapt") version kotlinVersion
-    id("io.papermc.paperweight.userdev") version "1.5.2" apply false
+    id("io.papermc.paperweight.userdev") version "1.5.3" apply false
     id("xyz.jpenilla.run-paper") version "2.0.1"
     id("com.github.johnrengelman.shadow") version "7.1.2"
 }
@@ -31,7 +31,8 @@ subprojects {
         mavenCentral()
         maven("https://repo.papermc.io/repository/maven-public/")
         maven("https://repo.kryptonmc.org/releases/")
-        maven("https://repo.dmulloy2.net/repository/public/")
+//        maven("https://repo.dmulloy2.net/repository/public/")
+        maven("https://jitpack.io")
         maven("https://repo.md-5.net/content/groups/public/")
         maven("https://repo.opencollab.dev/maven-snapshots/")
         maven("https://oss.sonatype.org/content/repositories/snapshots/")

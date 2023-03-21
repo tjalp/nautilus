@@ -5,6 +5,7 @@ import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import net.kyori.adventure.text.Component.empty
 import net.kyori.adventure.text.Component.text
 import net.kyori.adventure.text.format.NamedTextColor.RED
 import net.tjalp.nautilus.Nautilus
@@ -65,7 +66,8 @@ class ApiServer(
         // I have absolutely no idea what's going on here, but it works??
         // UPDATE: I've figured out what's going on
         // SECOND UPDATE: I've now figured out how to make it work without the weirdness
-        this.hash = MessageDigest.getInstance("SHA-1").digest(pack.readBytes())
+        val byteArray = if (details.hash.isNotEmpty()) details.hash.toByteArray() else null
+        this.hash = byteArray ?: MessageDigest.getInstance("SHA-1").digest(pack.readBytes())
 
         ResourcePackListener().register()
     }
@@ -111,10 +113,10 @@ class ApiServer(
             val hostname = player.virtualHost?.hostName ?: return
 
             if (details.overrideUrl.isNotBlank()) {
-                player.setResourcePack(details.overrideUrl, hash, true)
+                player.setResourcePack(details.overrideUrl, hash, empty(), true)
                 return
             }
-            player.setResourcePack("http://$hostname:${details.hostPort}${details.hostPath}", hash, true)
+            player.setResourcePack("http://$hostname:${details.hostPort}${details.hostPath}", hash, empty(), true)
         }
 
         @EventHandler

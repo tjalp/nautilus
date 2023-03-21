@@ -6,7 +6,7 @@ group = "net.tjalp.nautilus.mod"
 version = "0.1.0"
 
 dependencies {
-    paperweight.paperDevBundle("1.19.3-R0.1-SNAPSHOT")
+    paperweight.paperDevBundle("1.19.4-R0.1-SNAPSHOT")
     implementation("space.vectrix.ignite:ignite-api:0.8.1")
     implementation("org.spongepowered:mixin:0.8.5")
     implementation("org.jetbrains.kotlin:kotlin-reflect:1.8.10")
