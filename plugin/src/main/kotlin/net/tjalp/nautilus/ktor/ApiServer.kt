@@ -125,10 +125,15 @@ class ApiServer(
 
             when (event.status) {
                 DECLINED -> player.kick(text("You must accept the resource pack in order to play!", RED))
-                FAILED_DOWNLOAD -> player.sendMessage(text("Your resource pack download failed, " +
-                        "so any functionality that uses custom resources might not work as expected. " +
-                        "You'll still be able to play on this server, but with limited functionality. " +
-                        "This may be different in the future as we're moving out of the alpha/beta phase.", RED))
+                FAILED_DOWNLOAD -> player.sendMessage(
+                    text(
+                        "Your resource pack download failed, " +
+                                "so any functionality that uses custom resources might not work as expected. " +
+                                "You'll still be able to play on this server, but with limited functionality. " +
+                                "This may be different in the future as we're moving out of the alpha/beta phase.", RED
+                    )
+                )
+
                 else -> {}
             }
         }

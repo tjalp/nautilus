@@ -6,16 +6,16 @@ group = "net.tjalp.nautilus"
 version = "0.1.0"
 
 dependencies {
+    implementation("io.ktor:ktor-client-okhttp-jvm:2.3.0")
+    implementation("io.ktor:ktor-server-core-jvm:2.3.0")
+    implementation("io.ktor:ktor-server-netty-jvm:2.3.0")
+    implementation("io.ktor:ktor-client-core-jvm:2.3.0")
     paperweight.paperDevBundle("1.19.4-R0.1-SNAPSHOT")
 
     compileOnly(project(":nautilus-mod"))
 
     implementation(kotlin("stdlib"))
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
-    implementation("io.ktor:ktor-client-okhttp-jvm:2.2.4")
-    implementation("io.ktor:ktor-server-core-jvm:2.2.4")
-    implementation("io.ktor:ktor-server-netty-jvm:2.2.4")
-    implementation("io.ktor:ktor-client-core-jvm:2.2.4")
     implementation("cloud.commandframework:cloud-annotations:1.8.2")
     implementation("cloud.commandframework:cloud-paper:1.8.2")
 //    implementation("org.litote.kmongo:kmongo-async:4.8.0")

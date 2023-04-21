@@ -303,17 +303,27 @@ class ProfileManager(
 
             // Don't block shields from activating when accidentally clicking a player
             if (player.inventory.itemInMainHand.type == Material.SHIELD
-                || player.inventory.itemInOffHand.type == Material.SHIELD) return
+                || player.inventory.itemInOffHand.type == Material.SHIELD
+            ) return
 
             if (targetProfile.maskName != null) {
-                player.showTitle(title(
-                    empty(),
-                    text().color(color(255,105,97)).decorate(ITALIC)
-                        .append(targetProfile.nameComponent(showPrefix = false, showSuffix = false, showHover = false, isClickable = false))
-                        .appendSpace().append(text("has requested to hide their profile"))
-                        .build(),
-                    times(Duration.ofMillis(100), Duration.ofMillis(500), Duration.ofMillis(400))
-                ))
+                player.showTitle(
+                    title(
+                        empty(),
+                        text().color(color(255, 105, 97)).decorate(ITALIC)
+                            .append(
+                                targetProfile.nameComponent(
+                                    showPrefix = false,
+                                    showSuffix = false,
+                                    showHover = false,
+                                    isClickable = false
+                                )
+                            )
+                            .appendSpace().append(text("has requested to hide their profile"))
+                            .build(),
+                        times(Duration.ofMillis(100), Duration.ofMillis(500), Duration.ofMillis(400))
+                    )
+                )
                 player.playSound(player.location, Sound.ENTITY_ITEM_BREAK, 10f, 2f)
                 return
             }
