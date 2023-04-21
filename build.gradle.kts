@@ -3,7 +3,7 @@ plugins {
     val kotlinVersion: String by System.getProperties()
     kotlin("jvm") version kotlinVersion
     kotlin("kapt") version kotlinVersion
-    id("io.papermc.paperweight.userdev") version "1.5.3" apply false
+    id("io.papermc.paperweight.userdev") version "1.5.4" apply false
     id("xyz.jpenilla.run-paper") version "2.0.1"
     id("com.github.johnrengelman.shadow") version "7.1.2"
 }
@@ -68,7 +68,7 @@ subprojects {
         }
 
         runServer {
-            minecraftVersion("1.19.3")
+            minecraftVersion("1.19.4")
         }
 
         shadowJar {
