@@ -7,14 +7,16 @@ import org.bukkit.Material
 import org.bukkit.Sound
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
-import org.incendo.interfaces.next.drawable.Drawable.Companion.drawable
-import org.incendo.interfaces.next.element.StaticElement
-import org.incendo.interfaces.next.interfaces.Interface
-import org.incendo.interfaces.next.interfaces.buildChestInterface
+import org.incendo.interfaces.core.Interface
+import org.incendo.interfaces.kotlin.paper.buildChestInterface
+import org.incendo.interfaces.paper.PlayerViewer
+import org.incendo.interfaces.paper.element.ItemStackElement
+import org.incendo.interfaces.paper.pane.ChestPane
 
 class ClanInterface(
+    private val parent: Interface<*, PlayerViewer>?,
     private val clan: ClanSnapshot
-) : NautilusInterface {
+) : NautilusInterface<ChestPane> {
 
     private val icon: ItemStack; get() = clickable(
         material = Material.TURTLE_EGG,
@@ -22,15 +24,17 @@ class ClanInterface(
         clickTo = text("do nothing")
     ).build()
 
-    override fun create(): Interface<*> = buildChestInterface {
-        initialTitle = text(clan.name, clan.theme())
+    override fun create() = buildChestInterface {
+        title = text(clan.name, clan.theme())
         rows = 3
 
-        withTransform { pane, view ->
-            pane[1, 4] = StaticElement(drawable(icon))
-            if (view.parent() != null) pane[2, 0] = backElement()
+        withTransform { view ->
+            view[4, 1] = ItemStackElement(icon)
+            if (parent() != null) view[0, 2] = backElement()
         }
     }
+
+    override fun parent() = this.parent
 
     companion object {
         fun playOpenSound(player: Player) {

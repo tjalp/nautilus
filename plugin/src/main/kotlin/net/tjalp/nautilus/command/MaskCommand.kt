@@ -11,6 +11,7 @@ import net.tjalp.nautilus.util.mini
 import net.tjalp.nautilus.util.profile
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
+import org.incendo.interfaces.kotlin.paper.asViewer
 import org.litote.kmongo.setValue
 import kotlin.system.measureTimeMillis
 
@@ -100,7 +101,7 @@ class MaskCommand(
 
     private fun mask(sender: Player) {
         this.scheduler.launch {
-            MaskInterface(nautilus).create().open(sender)
+            MaskInterface(null, nautilus).create().open(sender.asViewer())
         }
     }
 }

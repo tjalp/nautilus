@@ -1,30 +1,28 @@
 package net.tjalp.nautilus.interfaces
 
-import kotlinx.coroutines.runBlocking
 import net.kyori.adventure.text.Component.text
 import net.kyori.adventure.text.format.TextColor.color
 import net.tjalp.nautilus.util.ItemBuilder
 import net.tjalp.nautilus.util.playClickSound
 import org.bukkit.Material
-import org.incendo.interfaces.next.drawable.Drawable.Companion.drawable
-import org.incendo.interfaces.next.element.StaticElement
-import org.incendo.interfaces.next.interfaces.Interface
+import org.incendo.interfaces.core.Interface
+import org.incendo.interfaces.core.pane.Pane
+import org.incendo.interfaces.paper.PlayerViewer
+import org.incendo.interfaces.paper.element.ItemStackElement
 
-interface NautilusInterface {
+interface NautilusInterface<T : Pane> {
 
-    fun create(): Interface<*>
+    fun create(): Interface<T, *>
 
-    fun backElement(): StaticElement {
-        return StaticElement(drawable(
-            ItemBuilder(Material.ARROW)
-                .name(text("← Back", color(251, 228, 96)))
-                .build()
-            )
+    fun parent(): Interface<*, PlayerViewer>?
+
+    fun backElement(): ItemStackElement<T> {
+        return ItemStackElement<T>(ItemBuilder(Material.ARROW)
+            .name(text("← Back", color(251, 228, 96)))
+            .build()
         ) {
-            it.player.playClickSound()
-            runBlocking {
-                it.view.back()
-            }
+            it.viewer().player().playClickSound()
+            parent()?.open(it.viewer())
         }
     }
 }

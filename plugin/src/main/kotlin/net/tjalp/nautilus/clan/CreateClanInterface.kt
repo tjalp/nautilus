@@ -2,7 +2,6 @@ package net.tjalp.nautilus.clan
 
 import com.destroystokyo.paper.MaterialTags
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import net.kyori.adventure.text.Component.text
 import net.kyori.adventure.text.format.NamedTextColor
 import net.kyori.adventure.text.format.TextColor
@@ -16,41 +15,45 @@ import net.tjalp.nautilus.util.playClickSound
 import net.tjalp.nautilus.util.profile
 import org.bukkit.Material
 import org.bukkit.entity.Player
-import org.incendo.interfaces.next.drawable.Drawable.Companion.drawable
-import org.incendo.interfaces.next.element.StaticElement
-import org.incendo.interfaces.next.interfaces.Interface
-import org.incendo.interfaces.next.interfaces.buildChestInterface
+import org.incendo.interfaces.core.Interface
+import org.incendo.interfaces.kotlin.paper.buildChestInterface
+import org.incendo.interfaces.paper.PlayerViewer
+import org.incendo.interfaces.paper.element.ItemStackElement
+import org.incendo.interfaces.paper.pane.ChestPane
 import org.litote.kmongo.setValue
 
 class CreateClanInterface(
+    private val parent: Interface<*, PlayerViewer>?,
     private val nautilus: Nautilus
-) : NautilusInterface {
+) : NautilusInterface<ChestPane> {
 
     private val clans = this.nautilus.clans
     private val scheduler = this.nautilus.scheduler
     private var name: String? = null
     private var theme: String? = null
 
-    override fun create(): Interface<*> = buildChestInterface {
-        initialTitle = text("Create Clan")
+    override fun create() = buildChestInterface {
+        title = text("Create Clan")
         rows = 4
 
-        withTransform { pane, view ->
-            pane[1, 3] = nameElement()
-            pane[1, 5] = themeElement()
-            pane[3, 4] = createElement()
-            if (view.parent() != null) pane[3, 0] = backElement()
+        withTransform { view ->
+            view[3, 1] = nameElement()
+            view[5, 1] = themeElement()
+            view[4, 3] = createElement()
+            if (parent() != null) view[0, 3] = backElement()
         }
     }
 
-    private fun nameElement(): StaticElement {
-        return StaticElement(drawable(clickable(
+    override fun parent() = this.parent
+
+    private fun nameElement(): ItemStackElement<ChestPane> {
+        return ItemStackElement(clickable(
             material = Material.NAME_TAG,
             name = text("Clan Name"),
             description = arrayOf(text("Enter a name for your clan")),
-            clickTo = text("set a name")
-        ).build())) { click ->
-            val player = click.player
+            clickTo = text("set a name")).build()
+        ) { click ->
+            val player = click.viewer().player()
             player.playClickSound()
 
             TextInput.signSmall(player = player, label = text("Clan Name")) {
@@ -58,24 +61,24 @@ class CreateClanInterface(
 
                 if (text.isBlank() || text.length < 5 || text.length > 20) {
                     player.sendMessage(text("A clan name must be between 5 and 20 characters in length", NamedTextColor.RED))
-                    runBlocking { click.view.open() }
+                    click.view().open()
                     return@signSmall
                 }
 
                 name = text
-                runBlocking { click.view.open() }
+                click.view().open()
             }
         }
     }
 
-    private fun themeElement(): StaticElement {
-        return StaticElement(drawable(clickable(
+    private fun themeElement(): ItemStackElement<ChestPane> {
+        return ItemStackElement(clickable(
             material = MaterialTags.DYES.values.random(),
             name = text("Theme"),
             description = text("Personalize your clan with a color"),
             clickTo = text("set a color")
-        ).build())) { click ->
-            val player = click.player
+        ).build()) { click ->
+            val player = click.viewer().player()
             player.playClickSound()
 
             TextInput.signSmall(player = player, label = text("Hex Color")) {
@@ -84,28 +87,28 @@ class CreateClanInterface(
 
                 if (text.isBlank() || !isValid) {
                     player.sendMessage(text("That is not a valid hex color string!", NamedTextColor.RED))
-                    runBlocking { click.view.open() }
+                    click.view().open()
                     return@signSmall
                 }
 
                 theme = text
-                runBlocking { click.view.open() }
+                click.view().open()
             }
         }
     }
 
-    private fun createElement(): StaticElement {
-        return StaticElement(drawable(clickable(
+    private fun createElement(): ItemStackElement<ChestPane> {
+        return ItemStackElement(clickable(
             material = Material.EMERALD,
             name = text("Create"),
             description = text("Create your clan"),
             clickTo = text("create your clan")
-        ).build())) { click ->
-            val player = click.player
+        ).build()) { click ->
+            val player = click.viewer().player()
 
-            if (!createClan(player)) return@StaticElement
+            if (!createClan(player)) return@ItemStackElement
 
-            click.view.close()
+            click.viewer().close()
             player.playClickSound()
         }
     }

@@ -17,6 +17,7 @@ import net.tjalp.nautilus.util.profile
 import org.bukkit.World
 import org.bukkit.command.CommandSender
 import org.bukkit.entity.Player
+import org.incendo.interfaces.kotlin.paper.asViewer
 import org.litote.kmongo.setValue
 import kotlin.system.measureTimeMillis
 
@@ -63,7 +64,7 @@ class ClanCommand(
 
 //        ClanInterface(clan).open(sender)
         this.scheduler.launch {
-            ClanInterface(clan).create().open(sender)
+            ClanInterface(null, clan).create().open(sender.asViewer())
             ClanInterface.playOpenSound(sender)
         }
     }
@@ -76,7 +77,7 @@ class ClanCommand(
 
         if (nameArg == null) {
 //            CreateClanInterface(this.nautilus).open(sender)
-            CreateClanInterface(this.nautilus).create().open(sender)
+            CreateClanInterface(null, this.nautilus).create().open(sender.asViewer())
             return
         }
 

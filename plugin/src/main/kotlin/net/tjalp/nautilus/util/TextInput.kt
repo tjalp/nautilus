@@ -10,9 +10,15 @@ import com.comphenix.protocol.wrappers.BlockPosition
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.Component.empty
 import net.kyori.adventure.text.Component.text
+import net.minecraft.core.BlockPos
+import net.minecraft.network.protocol.game.ClientboundOpenSignEditorPacket
 import net.tjalp.nautilus.Nautilus
+import org.bukkit.Bukkit
 import org.bukkit.Location
 import org.bukkit.Material
+import org.bukkit.block.Sign
+import org.bukkit.block.sign.Side
+import org.bukkit.craftbukkit.v1_20_R3.entity.CraftPlayer
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
@@ -59,12 +65,20 @@ object TextInput : Listener {
         setSign(player, listOf(default, text("^^^"), label, empty()), consumer)
     }
 
-    private fun setSign(player: Player, lines: List<Component>, consumer: Consumer<Component>) {
-        val loc = player.location.apply { y -= 15 }
+    private fun setSign(player: Player, lines: List<Component>, consumer: Consumer<Component> ) {
+        val loc = player.location.apply { y -= 6 }
+        val blockData = Material.OAK_WALL_SIGN.createBlockData()
+        val blockState = blockData.createBlockState() as Sign
+        val signSide = blockState.getSide(Side.FRONT)
+
+        lines.forEachIndexed { index, component ->
+            signSide.line(index, component)
+        }
 
         player.closeInventory()
-        player.sendBlockChange(loc, Material.OAK_WALL_SIGN.createBlockData())
-        player.sendSignChange(loc, lines)
+        player.sendBlockChange(loc, blockData)
+        player.sendBlockUpdate(loc, blockState)
+//        (player as CraftPlayer).handle.connection.send(ClientboundOpenSignEditorPacket(BlockPos(loc.blockX, loc.blockY, loc.blockZ), true))
         openSign(player, loc)
 
         signMapping[player.uniqueId] = consumer
@@ -76,6 +90,7 @@ object TextInput : Listener {
 
         packet.modifier.writeDefaults()
         packet.blockPositionModifier.write(0, pos)
+        packet.booleans.write(0, true)
 
         protocol.sendServerPacket(player, packet)
     }

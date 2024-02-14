@@ -19,15 +19,17 @@ import org.bukkit.Material
 import org.bukkit.Sound
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
-import org.incendo.interfaces.next.drawable.Drawable.Companion.drawable
-import org.incendo.interfaces.next.element.StaticElement
-import org.incendo.interfaces.next.interfaces.Interface
-import org.incendo.interfaces.next.interfaces.buildChestInterface
+import org.incendo.interfaces.core.Interface
+import org.incendo.interfaces.kotlin.paper.buildChestInterface
+import org.incendo.interfaces.paper.PlayerViewer
+import org.incendo.interfaces.paper.element.ItemStackElement
+import org.incendo.interfaces.paper.pane.ChestPane
 
 class ProfileInterface(
+    private val parent: Interface<*, PlayerViewer>?,
     private val nautilus: Nautilus,
     val profile: ProfileSnapshot
-) : NautilusInterface {
+) : NautilusInterface<ChestPane> {
 
     private val lastOnline: Component; get() {
         return if (profile.player()?.isOnline == true) {
@@ -47,37 +49,41 @@ class ProfileInterface(
             )
             .build()
     }
-    private val loadingClanElement: StaticElement; get() {
-        return StaticElement(drawable(clickable(
+    private val loadingClanElement: ItemStackElement<ChestPane>; get() {
+        return ItemStackElement(clickable(
             material = Material.TOTEM_OF_UNDYING,
             name = text("Clan"),
             description = text("Loading..."),
             clickTo = text("do nothing")
-        ).build()))
+        ).build())
     }
 
-    override fun create(): Interface<*> = buildChestInterface {
-        initialTitle = text()
+    override fun create() = buildChestInterface {
+        title = text()
             .append(profile.nameComponent(useMask = false, showPrefix = false, showSuffix = false, showHover = false, isClickable = false))
             .append(text("'s profile"))
             .build()
         rows = 4
 
-        withTransform { pane, _ ->
-            pane[2, 5] = clanElement()
+        withTransform { view ->
+            this@ProfileInterface.nautilus.scheduler.launch {
+                view[5, 2] = clanElement()
+            }
         }
 
-        withTransform { pane, view ->
-            pane[0, 4] = StaticElement(drawable(skull))
-            pane[2, 3] = teleportElement()
-            pane[2, 5] = loadingClanElement
-            if (view.parent() != null) pane[3, 0] = backElement()
+        withTransform { view ->
+            view[4, 0] = ItemStackElement(skull)
+            view[3, 2] = teleportElement()
+            view[5, 2] = loadingClanElement
+            if (parent() != null) view[0, 3] = backElement()
         }
 
     }
 
-    private fun teleportElement(): StaticElement {
-        return StaticElement(drawable(clickable(
+    override fun parent() = this.parent
+
+    private fun teleportElement(): ItemStackElement<ChestPane> {
+        return ItemStackElement(clickable(
             material = Material.ENDER_PEARL,
             name = text("Teleport Request"),
             description = arrayOf(
@@ -87,11 +93,11 @@ class ProfileInterface(
                 text("the target player in order to teleport")
             ),
             clickTo = text("send a Teleport Request")
-        ).build())) { click ->
-            val player = click.player
+        ).build()) { click ->
+            val player = click.viewer().player()
             val target = this@ProfileInterface.profile.player()
 
-            click.view.close()
+            click.viewer().close()
             player.playClickSound()
 
             if (target == null || profile.maskName != null) {
@@ -100,22 +106,22 @@ class ProfileInterface(
                         .append(profile.nameComponent(useMask = false, showPrefix = false, showSuffix = false))
                         .appendSpace().append(text("is not online at the moment"))
                 )
-                return@StaticElement
+                return@ItemStackElement
             }
 
             PlayerTeleportRequest(player, target).request()
         }
     }
 
-    private suspend fun clanElement(): StaticElement {
-        val clan = profile.clanId?.let { this.nautilus.clans.clan(it) } ?: return StaticElement(drawable(clickable(
+    private suspend fun clanElement(): ItemStackElement<ChestPane> {
+        val clan = profile.clanId?.let { this.nautilus.clans.clan(it) } ?: return ItemStackElement(clickable(
             material = Material.TOTEM_OF_UNDYING,
             name = text("Clan"),
             description = text("This player is not in a clan"),
             clickTo = text("do nothing")
-        ).build()))
+        ).build())
 
-        return StaticElement(drawable(clickable(
+        return ItemStackElement(clickable(
             material = Material.TOTEM_OF_UNDYING,
             name = text("Clan"),
             description = arrayOf(
@@ -124,10 +130,10 @@ class ProfileInterface(
                 text("• Members: ").append(text(clan.members.size, clan.theme()))
             ),
             clickTo = text("view")
-        ).build())) { click ->
-            click.player.playClickSound()
+        ).build()) { click ->
+            click.viewer().player().playClickSound()
 
-            nautilus.scheduler.launch { ClanInterface(clan).create().open(click.player, click.view) }
+            nautilus.scheduler.launch { ClanInterface(click.view().backing(), clan).create().open(click.viewer()) }
         }
     }
 
