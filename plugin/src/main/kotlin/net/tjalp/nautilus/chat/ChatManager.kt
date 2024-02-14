@@ -134,7 +134,7 @@ class ChatManager(
 
         @EventHandler
         fun on(event: PlayerJoinEvent) {
-            event.player.addAdditionalChatCompletions(nautilus.server.onlinePlayers.map { "@" + it.profile().displayName() })
+            event.player.addCustomChatCompletions(nautilus.server.onlinePlayers.map { "@" + it.profile().displayName() })
         }
 
         @EventHandler
@@ -142,7 +142,7 @@ class ChatManager(
             val profile = event.player.profile()
 
             for (online in this@ChatManager.nautilus.server.onlinePlayers) {
-                online.removeAdditionalChatCompletions(listOf("@${profile.displayName()}"))
+                online.removeCustomChatCompletions(listOf("@${profile.displayName()}"))
             }
         }
 
@@ -154,8 +154,8 @@ class ChatManager(
             if (profile.maskName == prev.maskName) return
 
             for (online in this@ChatManager.nautilus.server.onlinePlayers) {
-                online.removeAdditionalChatCompletions(listOf("@${prev.displayName()}"))
-                online.addAdditionalChatCompletions(listOf("@${profile.displayName()}"))
+                online.removeCustomChatCompletions(listOf("@${prev.displayName()}"))
+                online.addCustomChatCompletions(listOf("@${profile.displayName()}"))
             }
         }
     }

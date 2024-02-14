@@ -1,6 +1,7 @@
 package net.tjalp.nautilus.player.mask
 
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import net.kyori.adventure.text.Component.text
 import net.kyori.adventure.text.format.NamedTextColor.RED
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer.plainText
@@ -63,7 +64,7 @@ class MaskInterface(
                     else player.sendMessage(text("That username is not allowed!").color(RED))
                 }
 
-                click.view.open()
+                runBlocking { click.view.open() }
             }
         }
     }
@@ -84,7 +85,7 @@ class MaskInterface(
 
                 if (text.isNotBlank()) maskSkin = text
 
-                click.view.open()
+                runBlocking { click.view.open() }
             }
         }
     }
@@ -150,7 +151,7 @@ class MaskInterface(
                 return@map StaticElement(drawable(clickable)) { click ->
                     click.player.playClickSound()
                     maskRank = rank
-                    click.view.back()
+                    runBlocking { click.view.back() }
                 }
             }
 

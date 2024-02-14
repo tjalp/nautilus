@@ -10,7 +10,7 @@ dependencies {
     implementation("io.ktor:ktor-server-core-jvm:2.3.0")
     implementation("io.ktor:ktor-server-netty-jvm:2.3.0")
     implementation("io.ktor:ktor-client-core-jvm:2.3.0")
-    paperweight.paperDevBundle("1.19.4-R0.1-SNAPSHOT")
+    paperweight.paperDevBundle("1.20.4-R0.1-SNAPSHOT")
 
     compileOnly(project(":nautilus-mod"))
 
@@ -28,9 +28,9 @@ dependencies {
     implementation("com.jeff_media:CustomBlockData:2.2.0")
     //implementation("com.github.twitch4j:twitch4j:1.11.0")
     compileOnly("net.luckperms:api:5.4")
-    compileOnly("me.neznamy:tab-api:3.2.4")
-//    compileOnly("com.comphenix.protocol:ProtocolLib:5.0.0-SNAPSHOT")
-    compileOnly("com.github.dmulloy2:ProtocolLib:master-SNAPSHOT")
+    compileOnly("me.neznamy:tab-api:4.0.2")
+    compileOnly("com.comphenix.protocol:ProtocolLib:5.1.0")
+//    compileOnly("com.github.dmulloy2:ProtocolLib:master-SNAPSHOT")
     compileOnly("org.geysermc.floodgate:api:2.2.0-SNAPSHOT")
     compileOnly("LibsDisguises:LibsDisguises:10.0.32") {
         exclude("org.spigotmc")

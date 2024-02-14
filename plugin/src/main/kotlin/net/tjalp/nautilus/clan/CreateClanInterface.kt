@@ -2,6 +2,7 @@ package net.tjalp.nautilus.clan
 
 import com.destroystokyo.paper.MaterialTags
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import net.kyori.adventure.text.Component.text
 import net.kyori.adventure.text.format.NamedTextColor
 import net.kyori.adventure.text.format.TextColor
@@ -57,12 +58,12 @@ class CreateClanInterface(
 
                 if (text.isBlank() || text.length < 5 || text.length > 20) {
                     player.sendMessage(text("A clan name must be between 5 and 20 characters in length", NamedTextColor.RED))
-                    click.view.open()
+                    runBlocking { click.view.open() }
                     return@signSmall
                 }
 
                 name = text
-                click.view.open()
+                runBlocking { click.view.open() }
             }
         }
     }
@@ -83,12 +84,12 @@ class CreateClanInterface(
 
                 if (text.isBlank() || !isValid) {
                     player.sendMessage(text("That is not a valid hex color string!", NamedTextColor.RED))
-                    click.view.open()
+                    runBlocking { click.view.open() }
                     return@signSmall
                 }
 
                 theme = text
-                click.view.open()
+                runBlocking { click.view.open() }
             }
         }
     }

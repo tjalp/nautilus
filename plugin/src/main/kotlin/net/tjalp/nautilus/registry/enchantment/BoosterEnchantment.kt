@@ -39,7 +39,7 @@ object BoosterEnchantment : NautilusEnchantment {
         @EventHandler
         fun on(event: PlayerArmorChangeEvent) {
             val player = event.player
-            val hasEnchantment = event.newItem?.hasEnchantment(BoosterEnchantment) == true
+            val hasEnchantment = event.newItem.hasEnchantment(BoosterEnchantment)
             val isBoots = event.slotType == PlayerArmorChangeEvent.SlotType.FEET
 
             if (!isBoots || player.gameMode == CREATIVE || player.gameMode == SPECTATOR) return

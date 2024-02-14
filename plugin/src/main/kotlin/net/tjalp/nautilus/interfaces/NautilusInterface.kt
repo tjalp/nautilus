@@ -1,5 +1,6 @@
 package net.tjalp.nautilus.interfaces
 
+import kotlinx.coroutines.runBlocking
 import net.kyori.adventure.text.Component.text
 import net.kyori.adventure.text.format.TextColor.color
 import net.tjalp.nautilus.util.ItemBuilder
@@ -21,7 +22,9 @@ interface NautilusInterface {
             )
         ) {
             it.player.playClickSound()
-            it.view.back()
+            runBlocking {
+                it.view.back()
+            }
         }
     }
 }

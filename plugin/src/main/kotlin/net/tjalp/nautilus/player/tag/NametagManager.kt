@@ -3,7 +3,7 @@ package net.tjalp.nautilus.player.tag
 import me.neznamy.tab.api.TabAPI
 import me.neznamy.tab.api.event.Subscribe
 import me.neznamy.tab.api.event.player.PlayerLoadEvent
-import me.neznamy.tab.api.team.UnlimitedNametagManager
+import me.neznamy.tab.api.nametag.UnlimitedNameTagManager
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer
 import net.tjalp.nautilus.Nautilus
 import net.tjalp.nautilus.event.ProfileUpdateEvent
@@ -24,7 +24,7 @@ class NametagManager(
 ) {
 
     private val tabApi = TabAPI.getInstance()
-    private val teamManager = this.tabApi.teamManager
+    private val nameTagManager = this.tabApi.nameTagManager
     private val serializer = LegacyComponentSerializer.legacyAmpersand()
     private val masking = this.nautilus.masking
 
@@ -32,7 +32,7 @@ class NametagManager(
         val listener = NametagListener()
 
         listener.register()
-        this.tabApi.eventBus.register(listener)
+        this.tabApi.eventBus?.register(listener)
     }
 
     /**
@@ -53,12 +53,12 @@ class NametagManager(
 
         if (!tabPlayer.isLoaded) return
 
-        if (rank.prefix.content().isNotEmpty()) this.teamManager.setPrefix(tabPlayer, serializer.serialize(rank.prefix) + " ")
-        if (rank.suffix.content().isNotEmpty()) this.teamManager.setSuffix(tabPlayer, " " + serializer.serialize(rank.suffix))
-        if (index >= 0) this.teamManager.forceTeamName(tabPlayer, "$index-${rank.id}".take(16))
+        if (rank.prefix.content().isNotEmpty()) this.nameTagManager?.setPrefix(tabPlayer, serializer.serialize(rank.prefix) + " ")
+        if (rank.suffix.content().isNotEmpty()) this.nameTagManager?.setSuffix(tabPlayer, " " + serializer.serialize(rank.suffix))
+        if (index >= 0) this.tabApi.sortingManager?.forceTeamName(tabPlayer, "$index-${rank.id}".take(16))
 
-        if (teamManager is UnlimitedNametagManager) {
-            teamManager.setName(
+        if (nameTagManager is UnlimitedNameTagManager) {
+            nameTagManager.setName(
                 tabPlayer,
                 serializer.serialize(profile.nameComponent(showPrefix = false, showSuffix = false))
             )

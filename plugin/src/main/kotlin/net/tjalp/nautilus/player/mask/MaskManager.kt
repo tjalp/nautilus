@@ -23,7 +23,7 @@ import net.tjalp.nautilus.permission.PermissionRank
 import net.tjalp.nautilus.player.profile.ProfileSnapshot
 import net.tjalp.nautilus.util.*
 import org.bson.conversions.Bson
-import org.bukkit.craftbukkit.v1_19_R3.entity.CraftPlayer
+import org.bukkit.craftbukkit.v1_20_R3.entity.CraftPlayer
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
@@ -193,8 +193,8 @@ class MaskManager(
 
         override fun onPacketSending(event: PacketEvent) {
             when (event.packetType) {
-                SERVER_DATA -> onServerData(event)
-                CHAT -> onChat(event)
+//                SERVER_DATA -> onServerData(event)
+//                CHAT -> onChat(event)
                 PLAYER_INFO -> onPlayerInfo(event)
             }
         }
