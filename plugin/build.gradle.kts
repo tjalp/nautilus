@@ -31,7 +31,7 @@ dependencies {
     compileOnly("me.neznamy:tab-api:4.0.2")
     compileOnly("com.comphenix.protocol:ProtocolLib:5.1.0")
 //    compileOnly("com.github.dmulloy2:ProtocolLib:master-SNAPSHOT")
-    compileOnly("org.geysermc.floodgate:api:2.2.0-SNAPSHOT")
+    compileOnly("org.geysermc.floodgate:api:2.2.2-SNAPSHOT")
     compileOnly("LibsDisguises:LibsDisguises:10.0.32") {
         exclude("org.spigotmc")
     }
