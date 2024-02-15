@@ -34,7 +34,7 @@ subprojects {
         maven("https://repo.dmulloy2.net/repository/public/")
         maven("https://jitpack.io")
         maven("https://repo.md-5.net/content/groups/public/")
-        maven("https://repo.opencollab.dev/maven-snapshots/")
+        maven("https://repo.opencollab.dev/main/")
         maven("https://oss.sonatype.org/content/repositories/snapshots/")
         maven("https://hub.jeff-media.com/nexus/repository/jeff-media-public/")
         maven("https://repo.spongepowered.org/maven/")
