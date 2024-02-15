@@ -19,7 +19,7 @@ import org.bukkit.event.player.PlayerJoinEvent
  * The nametag manager manages everything to do
  * with player list names, name tags etc.
  */
-class NametagManager(
+class NameTagManager(
     private val nautilus: Nautilus
 ) {
 

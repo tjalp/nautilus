@@ -25,7 +25,7 @@ import net.tjalp.nautilus.player.disguise.DisguiseManager
 import net.tjalp.nautilus.player.linking.GoogleLinkProvider
 import net.tjalp.nautilus.player.mask.MaskManager
 import net.tjalp.nautilus.player.profile.ProfileManager
-import net.tjalp.nautilus.player.tag.NametagManager
+import net.tjalp.nautilus.player.tag.NameTagManager
 import net.tjalp.nautilus.registry.registerRanks
 import net.tjalp.nautilus.registry.registerSuggestions
 import net.tjalp.nautilus.scheduler.NautilusScheduler
@@ -51,7 +51,7 @@ class Nautilus : JavaPlugin() {
     /** The [ChatManager] instance */
     lateinit var chat: ChatManager; private set
 
-    /** The [ChunkManager] instance */
+    /** The [ClaimManager] instance */
     lateinit var claims: ClaimManager; private set
 
     /** The [ClanManager] instance */
@@ -102,8 +102,8 @@ class Nautilus : JavaPlugin() {
     /** The [MaskManager] */
     lateinit var masking: MaskManager; private set
 
-    /** The nametag manager */
-    lateinit var nametags: NametagManager; private set
+    /** The name tag manager */
+    lateinit var nameTags: NameTagManager; private set
 
     override fun onEnable() {
         instance = this
@@ -134,7 +134,7 @@ class Nautilus : JavaPlugin() {
         this.perms = PermissionManager(this)
         this.profiles = ProfileManager(this)
         this.masking = MaskManager(this)
-        this.nametags = NametagManager(this)
+        this.nameTags = NameTagManager(this)
         if (useFloodgate) this.floodgate = FloodgateApi.getInstance()
         this.googleLinkProvider = GoogleLinkProvider(this)
 
