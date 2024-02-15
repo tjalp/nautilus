@@ -43,7 +43,7 @@ class InspectCommand(
         }
 
         if (sender !is Player) {
-            sender.sendMessage(GsonHelper.pretty().toJson(JsonParser.parseString(profile.json)))
+            sender.sendMessage(GsonHelper.pretty().toJson(JsonParser().parse(profile.json)))
             return
         }
 
