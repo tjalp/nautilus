@@ -29,17 +29,22 @@ import kotlin.io.path.readBytes
  * to this particular version of Nautilus.
  */
 class ApiServer(
-    private val nautilus: Nautilus,
-    private val details: ResourcePackDetails
+    private val nautilus: Nautilus
 ) {
+
+    private val packDetails: ResourcePackDetails = this.nautilus.config.resourcepack
+    private var packPath: Path? = null
+    private var packHash: ByteArray? = null
 
     private var server: NettyApplicationEngine = embeddedServer(Netty, environment = applicationEngineEnvironment {
         log = nautilus.slF4JLogger
 
         module {
             routing {
-                get(details.hostPath) {
-                    call.respondFile(packPath.toFile())
+                if (packDetails.enabled) {
+                    get(packDetails.hostPath) {
+                        call.respondFile(packPath?.toFile() ?: return@get)
+                    }
                 }
                 get("/profile/{target}/update") { // todo make this a post request
                     updateProfile(call.parameters["target"] ?: return@get)
@@ -48,28 +53,27 @@ class ApiServer(
         }
 
         connector {
-            port = details.hostPort
-            host = details.host
+            port = packDetails.hostPort
+            host = packDetails.host
         }
     })
 
-    private val packPath: Path
-    private val hash: ByteArray
-
     init {
-        val pack = this.nautilus.dataFolder.toPath().resolve(details.fileName)
+        if (packDetails.enabled) {
+            val pack = this.nautilus.dataFolder.toPath().resolve(packDetails.fileName)
 
-        if (pack.notExists()) throw IllegalStateException("No ${details.fileName} found!")
+            if (pack.notExists()) throw IllegalStateException("No ${packDetails.fileName} found!")
 
-        this.packPath = pack
+            this.packPath = pack
 
-        // I have absolutely no idea what's going on here, but it works??
-        // UPDATE: I've figured out what's going on
-        // SECOND UPDATE: I've now figured out how to make it work without the weirdness
-        val byteArray = if (details.hash.isNotEmpty()) details.hash.toByteArray() else null
-        this.hash = byteArray ?: MessageDigest.getInstance("SHA-1").digest(pack.readBytes())
+            // I have absolutely no idea what's going on here, but it works??
+            // UPDATE: I've figured out what's going on
+            // SECOND UPDATE: I've now figured out how to make it work without the weirdness
+            val byteArray = if (packDetails.hash.isNotEmpty()) packDetails.hash.toByteArray() else null
+            this.packHash = byteArray ?: MessageDigest.getInstance("SHA-1").digest(pack.readBytes())
 
-        ResourcePackListener().register()
+            ResourcePackListener().register()
+        }
     }
 
     /**
@@ -112,11 +116,11 @@ class ApiServer(
             val player = event.player
             val hostname = player.virtualHost?.hostName ?: return
 
-            if (details.overrideUrl.isNotBlank()) {
-                player.setResourcePack(details.overrideUrl, hash, empty(), true)
+            if (packDetails.overrideUrl.isNotBlank()) {
+                player.setResourcePack(packDetails.overrideUrl, packHash, empty(), true)
                 return
             }
-            player.setResourcePack("http://$hostname:${details.hostPort}${details.hostPath}", hash, empty(), true)
+            player.setResourcePack("http://$hostname:${packDetails.hostPort}${packDetails.hostPath}", packHash, empty(), true)
         }
 
         @EventHandler

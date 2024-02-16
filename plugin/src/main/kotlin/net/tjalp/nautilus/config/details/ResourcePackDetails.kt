@@ -6,6 +6,11 @@ package net.tjalp.nautilus.config.details
 class ResourcePackDetails {
 
     /**
+     * Whether to enable resource pack serving
+     */
+    val enabled = false
+
+    /**
      * The URL to use instead of the automatically constructed one.
      * This allows you to use HTTPS.
      *

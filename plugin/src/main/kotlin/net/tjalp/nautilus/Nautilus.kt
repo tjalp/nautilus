@@ -130,7 +130,7 @@ class Nautilus : JavaPlugin() {
         this.claims = ClaimManager(this)
         this.clans = ClanManager(this)
         if (useDisguises) this.disguises = DisguiseManager(this)
-        this.apiServer = ApiServer(this, this.config.resourcepack)
+        this.apiServer = ApiServer(this)
         this.perms = PermissionManager(this)
         this.profiles = ProfileManager(this)
         this.masking = MaskManager(this)
